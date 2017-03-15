@@ -14,7 +14,6 @@ Welcome to my Portfolio!
 	* [CSC 225: Algorithms & Data Structures I](/Assignments/CSC225/) (Java)
 
 		[A1](/Assignments/CSC225/A1/)
-
 			* Checks if a file contains 3 integers that sum to 225.
 
 		[A2](/Assignments/CSC225/A2/)
