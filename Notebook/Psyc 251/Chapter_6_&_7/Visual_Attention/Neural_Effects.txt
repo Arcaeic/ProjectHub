@@ -1,0 +1,27 @@
+Content-Type: text/x-zim-wiki
+Wiki-Format: zim 0.4
+Creation-Date: 2017-02-23T19:06:59-08:00
+
+====== • Neural Effects ======
+* Created Thursday 23 February 2017
+
+====== • Effects of Attention ======
+	* Attention affects reaction time to, accuracy about, and awarness of sensory stimuli
+	* Attention can have effects less than 100 ms after stimulus
+	* Attention modulates neural activity in brain areas corresponding to attended spatial location (left vs right) or feature (face vs scene)
+	* Attention enhances neural response to attended stimuli 
+
+
+==== • Visual Attentional Stream Paradigm ====
+* {{./pasted_image.png}}
+
+==== • Timing of Visual Attentional Effects ====
+* {{./pasted_image001.png}}
+* {{./pasted_image002.png}}
+
+==== • Location of Visual Attentional Effects V1-4, etc ====
+* {{./pasted_image003.png}}
+
+==== • Visual Attention and V4 Neurons ====
+* {{./pasted_image004.png}}
+* {{./pasted_image005.png}}

@@ -1,0 +1,25 @@
+Content-Type: text/x-zim-wiki
+Wiki-Format: zim 0.4
+Creation-Date: 2017-01-16T09:28:34-08:00
+
+====== • PNS ======
+* Created Monday 16 January 2017
+
+* {{./pasted_image.png}}
+
+==== • Two main divisons ====
+	* Somatic
+		* Voluntary control of action
+		* Somatosensory: skin to brain
+		* Motor: brain to muscles
+	* Autonomic
+		* Sympathetic and Parasympathetic regulation of involuntary functions
+			* Heart
+			* Gut
+			* Glands
+			* Etc
+
+==== • Somatic ====
+	* {{./pasted_image002.png}}
+	* Somatosensory neurons are con
+	

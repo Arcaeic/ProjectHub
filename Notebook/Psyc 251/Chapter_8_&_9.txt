@@ -1,0 +1,14 @@
+Content-Type: text/x-zim-wiki
+Wiki-Format: zim 0.4
+Creation-Date: 2017-03-02T09:29:04-08:00
+
+====== • Chapter 8 & 9 ======
+* Created Thursday 02 March 2017
+
+* [[+Introduction]]
+* [[+Implicit Memory]]
+* [[+Lab Notes]]
+* [[+Priming]]
+	* [[+Priming:Types of Priming]]
+* [[+Short-Term & Long-Term Memory]]
+* [[+Textbook]]

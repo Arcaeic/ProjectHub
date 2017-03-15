@@ -1,0 +1,22 @@
+Content-Type: text/x-zim-wiki
+Wiki-Format: zim 0.4
+Creation-Date: 2017-02-21T03:03:48-08:00
+
+====== Behavioural Effects ======
+Created Tuesday 21 February 2017
+
+==== Broadbent's Filter Model (Early all-or-none) ====
+{{./pasted_image.png}}
+{{./pasted_image001.png}}
+{{./pasted_image002.png}}
+
+==== Early attenuation (Triesman's attenuation theory) ====
+{{./pasted_image003.png}}
+{{./pasted_image004.png}}
+{{./pasted_image005.png}}
+
+==== Late selection model (McKay, 1973) ====
+{{./pasted_image006.png}}
+
+====== Where does Attentional Selection occur? ======
+{{./pasted_image007.png}}
