@@ -1,7 +1,0 @@
-Content-Type: text/x-zim-wiki
-Wiki-Format: zim 0.4
-Creation-Date: 2017-02-23T19:07:11-08:00
-
-====== Visual Attention ======
-Created Thursday 23 February 2017
-
