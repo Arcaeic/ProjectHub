@@ -1,4 +1,4 @@
-#SENG 265: Software Development Methods
+# SENG 265: Software Development Methods
 * [Git](Git.markdown)
 * [Python](Python.markdown)
 * [Intro to C](Intro_to_C.markdown)

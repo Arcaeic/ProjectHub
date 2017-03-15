@@ -1,4 +1,4 @@
-#Psyc 260: Introduction to Mental Health and Well-Being
+# Psyc 260: Introduction to Mental Health and Well-Being
 * [Chapter 6: Somatic](Ch._6_Somatic.markdown)
 * [Chapter 7: Mood & Depression](Ch.7_Mood&Depression.markdown)
 * [Chapter 11: Substance Abuse](Ch._11_-_Substance.markdown)
