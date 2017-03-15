@@ -12,33 +12,32 @@ Welcome to my Portfolio!
 	* [SENG 265: Software Development Methods](/Notebook/Seng265)
  * [Assignments](/Assignments/)
 	* [CSC 225: Algorithms & Data Structures I](/Assignments/CSC225/) (Java)
-
-		[A1](/Assignments/CSC225/A1/)
+		* [A1](/Assignments/CSC225/A1/)
 			* Checks if a file contains 3 integers that sum to 225.
 
-		[A2](/Assignments/CSC225/A2/)
+		* [A2](/Assignments/CSC225/A2/)
 
 			* Uses an odd type of mergesort in order to sort an integer array.
 				* ChunkMergesort recursively finds already sorted chunks and merges them into a sorted array.
-		[A3](/Assignments/CSC225/A3/)
+		* [A3](/Assignments/CSC225/A3/)
 			* A PQ-Heap implementation. Can sort as well.
-		[A4](/Assignments/CSC225/A4/)
+		* [A4](/Assignments/CSC225/A4/)
 			* A graph generator that can read/write, find cycles, determine amount of components, return preOrder and postOrder of the graph, and check if a vertex can be reached. 
 			* Uses adjacency matrix implementation.
 	* [CSC 226: Algorithms & Data Structures II](/Assignments/CSC226) (Java)
-		[A2](/Assignments/CSC226/A2)
+		* [A2](/Assignments/CSC226/A2)
 			* Given an adjacency matrix representation of a graph, find the total weight of the minimum-weight spanning tree.
-		[A3](/Assignments/CSC226/A3)
+		* [A3](/Assignments/CSC226/A3)
 			* Given an adjacency matrix representation of a graph, find the shortest path to all vertices from a given source vertex, and print the paths.
 	* [CSC 230: Introduction to Computer Architecture](/Assignments/CSC230) (Assembly)
-		[A3](/Assignments/CSC230/A3)
+		* [A3](/Assignments/CSC230/A3)
 			* Loads predetermined messages from program memory to data memory, then uses an LCD to scroll through the messages. Pressing UP will display the first two messages, pressing DOWN will display the last two messages. 
 	* [SENG 265: Software Development Methods](/Assignments/SENG265) (Python/C)
-		[A2](/Assignments/SENG265/A2) (Python)
+		* [A2](/Assignments/SENG265/A2) (Python)
 			* Using some predefined formatting commands for line width, line spacing, indent, formats a file or stdin, displays in either console or is output to another file.
-		[A3](/Assignments/SENG265/A3) (Python)
+		* [A3](/Assignments/SENG265/A3) (Python)
 			* Object Oriented Programming implementation of A2
-		[A4](/Assignments/SENG265/A3) (C)
+		* [A4](/Assignments/SENG265/A3) (C)
 			* C implementation of assignment 2, uses dynamic memory.
 		
 #### Note
