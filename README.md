@@ -43,3 +43,7 @@ Welcome to my Portfolio!
 #### Note
  * I am currently working on a couple other things in the background as well, such as another Reddit bot, and a program that can assist in reviewing writing.
  * For those looking for school resources: Please honour academic integrity. Don't copy these files, use these resources to improve your own work.
+ * To do:
+	* OneNote -> MarkDown
+	* Add non-CSC assignments
+	* Update notes after semester
