@@ -2,7 +2,9 @@
 Created Wednesday 23 November 2016
 
 [+A simple compilation](./makefile/A_simple_compilation.markdown)
+
 [+Implicit Compilation](./makefile/Implicit_Compilation.markdown)
+
 [+Additional Features](./makefile/Additional_Features.markdown)
 
 

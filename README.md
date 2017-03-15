@@ -7,10 +7,10 @@ Welcome to my Portfolio!
  * [Notebook](/Notebook/)
 	* Where I keep the lecture notes I type. This book doesn't includes subjects such as CSC 226, or Math, since I prefer to type for this particular subjects.
 	* To do: OneNote -> Markdown, then link here.
-	* [CSC 230: Introduction to Computer Architecture](/Notebook/Csc 230/)
-	* [PSYC 251: Introduction to Mind & Brain](/Notebook/Psyc 251)
-	* [PSYC 260: Introduction to Mental Health & Well-Being](/Notebook/Psyc 260)
-	* [SENG 265: Software Development Methods](/Notebook/Seng 265)
+	* [CSC 230: Introduction to Computer Architecture](/Notebook/Csc230/)
+	* [PSYC 251: Introduction to Mind & Brain](/Notebook/Psyc251)
+	* [PSYC 260: Introduction to Mental Health & Well-Being](/Notebook/Psyc260)
+	* [SENG 265: Software Development Methods](/Notebook/Seng265)
  * [Assignments](/Assignments/)
 	* Where I keep my completed assignments. Mostly consists of CSC assignments.
 	* To do: Add assignments and link here.
