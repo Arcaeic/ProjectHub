@@ -1,3 +1,5 @@
+## CSC 226 Assignments
+
 * [A2](/A2/)
 	* Given an adjacency matrix representation of a graph, find the total weight of the minimum-weight spanning tree.
 * [A3](/A3/)

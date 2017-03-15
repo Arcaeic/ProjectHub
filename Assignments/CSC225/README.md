@@ -1,3 +1,5 @@
+## CSC 225 Assignments
+
 * [A1](/A1/)
 	* Checks if a file contains 3 integers that sum to 225.
 
