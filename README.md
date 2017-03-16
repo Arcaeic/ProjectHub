@@ -7,9 +7,13 @@ Welcome to my Portfolio!
  * [Notebook](/Notebook/)
 	* To do: OneNote -> Markdown, then link here.
 	* [CSC 230: Introduction to Computer Architecture](/Notebook/Csc230/)
+		* [Course Outline](https://heat.csc.uvic.ca/coview/outline/2017/Spring/CSC/230)
 	* [PSYC 251: Introduction to Mind & Brain](/Notebook/Psyc251)
+		* [Course Outline](/Notebook/Psyc251/PSYC251-CourseOutline-Revised.pdf)
 	* [PSYC 260: Introduction to Mental Health & Well-Being](/Notebook/Psyc260)
+		* [Course Outline](/Notebook/Psyc260/260A01CourseOutlineWoodin.pdf)
 	* [SENG 265: Software Development Methods](/Notebook/Seng265)
+		* [Course Outline](https://heat.csc.uvic.ca/coview/outline/2016/Fall/SENG/265)
  * [Assignments](/Assignments/)
 	* [CSC 225: Algorithms & Data Structures I](/Assignments/CSC225/) (Java)
 	* [CSC 226: Algorithms & Data Structures II](/Assignments/CSC226) (Java)
@@ -32,6 +36,6 @@ Welcome to my Portfolio!
  * For those looking for school resources: Please honour academic integrity. Don't copy these files, use these resources to improve your own work.
  * To do:
 	* OneNote -> MarkDown
-	* Add non-CSC assignments
+		* CSC 110
+		* The first half of Psyc 260
 	* Update notes after semester
-	* Maybe add course outlines?
