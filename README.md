@@ -5,7 +5,6 @@ Welcome to my Portfolio!
 	* Searches for Personal Information (PI) and reports distrbution to the Reddit mods/admins. Distributing personal information without the person's consent is against Reddit's Terms of Use. I made this bot primarily to practice writing an application in Python, but also because I wanted to write something that could help others.
 ## University-Related
  * [Notebook](/Notebook/)
-	* To do: OneNote -> Markdown, then link here.
 	* [CSC 230: Introduction to Computer Architecture](/Notebook/Csc230/)
 		* [Course Outline](https://heat.csc.uvic.ca/coview/outline/2017/Spring/CSC/230)
 	* [PSYC 251: Introduction to Mind & Brain](/Notebook/Psyc251)
@@ -26,7 +25,7 @@ Welcome to my Portfolio!
 	* [Forum Signatures](/Photoshop/Forum/)
  * [Websites](/Websites/)
 	* [My First Blog](/Websites/1/)
-		* While I was designing this website, I started slowly implementing mySQL and PHP into it. As a result the purpose of this website focused more on learning both design(HTML & CSS), database systems (mySQL), and scripting (PHP).
+		* While I was designing this website, I started slowly implementing mySQL and PHP into it. As a result the purpose of this website focused more on learning both design (HTML & CSS), database systems (mySQL), and scripting (PHP).
 	* [League of Legends Season 3 Watcher](/Websites/2/)
 		* The purpose of this website was to follow Riot Game's League of Legends World Championship. Straying away from back-end development and more into front-end, it allows the user to watch the stream via an embedded player, a table consisting of the teams and their regions, an introductory page for those who have not heard of League of Legends, and a bit more.
 
