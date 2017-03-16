@@ -37,3 +37,4 @@ I am currently working on a couple other things in the background as well, such 
 		* CSC 110
 		* The first half of Psyc 260
 	* Update notes after semester
+   * Revise assignment code/comments
