@@ -1,5 +1,3 @@
-# Jory's Projects Hub
-Welcome to my Portfolio! 
 ## Projects
 ### Programs
  * [PIBot](/PIBot/): 
