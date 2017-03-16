@@ -1,0 +1,29 @@
+/*CSS Document*/
+
+body {
+	background-image:-webkit-linear-gradient(bottom, #6BD15C 22%, #33855D 71%);
+
+}
+
+#post {
+	-webkit-box-shadow:0 3px 5px 1px;
+	background-image:-webkit-linear-gradient(top, #753A55 45%, #911BBF 73%);
+	padding:50px;
+	position:relative fixed;
+	
+	
+}
+
+#nav {
+	border:3px;
+	border-color:white;
+	margin-right:6px;
+	padding:6px;
+	background-color:blue;
+	-webkit-box-shadow:0 0 2px 3px;
+	color: #FFF;
+	text-decoration:none;
+	border-radius: 8%;
+	color:transparent;
+}
+

@@ -1,0 +1,99 @@
+@charset "utf-8";
+/* CSS Document */
+
+div h1 {
+     border:5px solid black;
+     padding:5px;
+     margin: 3px 3px 3px 3px;
+     display:inline;
+     position:relative;
+     top:7px;
+     -webkit-box-shadow: 2px 2px 2px 0;
+     background-color:white transparent;
+     float:right;
+     
+}
+
+div p {
+   position:relative;
+   top:10px;
+}
+
+#nav {
+        display:inline-block;
+        border:1px solid black;
+        padding:2px;
+        clear:both;
+        background:solid white;
+       -webkit-box-shadow:1px 3px 5px 0;
+        position:static;
+        background: -webkit-linear-gradient(top, white 60%, grey 99%);
+        top:1px;
+            
+}
+
+body {
+        background-image:url(http://pandora.com/images/background.jpg);
+        height:1000px;
+        width: 800px;     
+}
+
+#post  {
+        font-family: Arial;
+        margin:30px 5px 30px 5px;
+        padding:20px;
+        display:box;
+        clear:both;
+        text-shadow: 1px 2px 0 0;
+/* You can only see the gradient and box shadow in Chrome, still deciding on adding Firefox support, IE5/6/8/11 Sucks */
+        text-size: 20px;
+        background: -webkit-linear-gradient(top, white 66%, grey 99%); 
+        -webkit-box-shadow:3px 3px 4px 0;
+        -webkit-text-size-adjust: auto;
+        position:inline-block;
+
+}
+
+#subpost { 
+           font-family: Arial;
+           margin:20px 20px 20px 5px;
+           padding:10px;
+           display:box;
+           clear:both;
+           text-shadow:1px 2px 1px 1px;
+           background: -webkit-linear-gradient( top, white 66%, grey 102%);
+           -webkit-box-shadow: 2px 1px 2px 0;
+           text-decoration:italic;
+           position:relative;
+           top:-5px;
+           left:20px;
+}
+
+a {
+    color:black;
+    font-weight:bold;
+    text-decoration:none;
+}
+
+div img {
+       -webkit-box-shadow:2px 2px 3px 0;
+        padding:5px;
+        border:0px;
+        background: -webkit-linear-graident( top, white 66%, grey 102%);
+        margin-left:10px;
+}
+
+h6 {
+    font-size:30px;
+    font-family:arial;
+   margin:20px 40px 0 0;
+    position:static;
+    
+}
+
+p img {
+       margin-bottom:10px;
+       margin-left:5px;
+       padding-bottom:7px;
+       border-bottom:1.5px solid black;
+}

@@ -1,0 +1,9 @@
+<?php
+mysql_select_db("GameGrumps", $con);
+$sql = "CREATE TABLE Label
+(
+Type varchar(20),
+Genre varchar(20),
+Winner varchar(20),
+)";
+?>

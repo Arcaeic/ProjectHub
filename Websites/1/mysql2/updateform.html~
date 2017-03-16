@@ -1,0 +1,13 @@
+<html>
+<head>
+<link rel="stylesheet" href="CSS/ControlPanel.css"/>
+<title>Select Form</title>
+<body>
+<form action="PHP/update.php" method="post">
+Name (SELECTING) : <input type="text" name="Name" />
+Winner (UPDATING): <input type="text" name="Winner" />
+<input type="submit" />
+</form>
+
+</body>
+</html> 

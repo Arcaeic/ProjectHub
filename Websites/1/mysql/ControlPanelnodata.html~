@@ -1,0 +1,9 @@
+<html>
+ <head>
+  <link rel="stylesheet" href="CSS/ControlPanel.css"/>
+   <title>Index | No Database</title>
+</head>
+<body>
+<a href="create.php">Create Database</a>
+</body>
+</html>

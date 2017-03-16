@@ -1,0 +1,55 @@
+<html>
+ <head>
+  <link rel="stylesheet" href="CSS/ControlPanel.css"/>
+   <title>Insert Data</title>
+  </head>
+   <body>
+    <form action="PHP/insert.php" method="post">
+ID: <input type="text" maxlength="3" name="Id" /><br/>
+Date: <input type="text" name="Date"/><br/>
+Normal of Vs.: <input type="text" name="Type"/><br/>
+Name of Series: <input type="text" name="Name"/><br/>
+Genre: <input type="text" name="Genre"/><br/>
+Who won?: <input type="text" class="inputwinner" name="Winner"/><br/><br/>
+  <input type="submit" />
+ </form>
+
+<?php
+
+$con = mysql_connect("localhost","root","password");
+if (!$con)
+  {
+  die('Could not connect: ' . mysql_error());
+  }
+
+mysql_select_db("GameGrumps", $con);
+
+$result = mysql_query("SELECT * FROM Characters ORDER BY Id DESC LIMIT 10");
+
+echo "<table border='1'>
+<tr>
+<th>ID</th>
+<th>Date</th>
+<th>Normal or Vs</th>
+<th>Name of Series</th>
+<th>Genre</th>
+<th>Winner</th>
+</tr>";
+
+while($row = mysql_fetch_array($result ))
+  {
+  echo "<tr>";
+  echo "<td>" . $row['Id'] . "</td>";
+  echo "<td>" . $row['Date'] . "</td>";
+  echo "<td>" . $row['Type'] . "</td>";
+  echo "<td>" . $row['Name'] . "</td>";
+  echo "<td>" . $row['Genre'] . "</td>";
+  echo "<td>" . $row['Winner'] . "</td>";
+  echo "</tr>";
+  }
+echo "</table>";
+echo "<br/>";
+echo "<br/>";
+          ?>
+</body>
+ </html>

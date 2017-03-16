@@ -1,0 +1,11 @@
+<html>
+<head>
+<link rel="stylesheet" href="CSS/ControlPanel.css"/>
+<body>
+<form action="PHP/select.php" method="post">
+Firstname: <input type="text" name="firstname" />
+<input type="submit" />
+</form>
+
+</body>
+</html> 

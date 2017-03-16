@@ -1,0 +1,12 @@
+<?php
+$sql = "CREATE TABLE People 
+(
+personID int NOT NULL AUTO_INCREMENT, 
+PRIMARY KEY(personID),
+FirstName varchar(15),
+LastName varchar(15),
+Age int
+)";
+
+mysql_query($sql,$con);
+?>

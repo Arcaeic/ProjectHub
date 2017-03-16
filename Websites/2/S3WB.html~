@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<title>Season 3 World Championship Bracket</title>
+		<link rel="stylesheet" type="text/css" href="Resources/S3WB/stylesheet.css"/>
+	</head>
+
+	<body>
+
+		<div>
+			<a id="nav" href="index.html">Home</a>
+			<a id="nav" href="Information.html">Information</a>
+			<a id="nav" href="About.html">About</a>
+			<a id="nav" href="S3WB.html">Season 3 Worlds Bracket</a>
+		<br/>
+		<br/>
+		</div>
+			<div>
+				<div id="content">
+			<img height="400" width="500" src="http://images4.wikia.nocookie.net/__cb20131007173653/leagueoflegends/images/thumb/c/ce/Season_Three_Championship_Bracket.png/550px-Season_Three_Championship_Bracket.png"/>
+			<object bgcolor='#000000' data='http://www.twitch.tv/widgets/archive_embed_player.swf' height='400' id='clip_embed_player_flash' type='application/x-shockwave-flash' width='550'><param name='movie' value='http://www.twitch.tv/widgets/archive_embed_player.swf'><param name='allowScriptAccess' value='always'><param name='allowNetworking' value='all'><param name='allowFullScreen' value='true'><param name='flashvars' value='title=Worlds%2B2013%2BFinal&amp;channel=riotgames&amp;auto_play=false&amp;start_volume=25&amp;archive_id=467467683'></object><br><a href="http://www.twitch.tv//riotgames" class="trk" style="padding:2px 0px 4px; display:block; width:220px; font-weight:normal; font-size:10px; text-decoration:underline; text-align:right; float:right; position:inline relative; margin-right:120px;">Watch live video from Riot Games on www.twitch.tv</a>
+
+		</div>
+		<div id="content2">
+				
+				<ul class="tStamps">
+					<li class="tsli">First Game: 1:58:06 - 2:34:00</li><br/>
+					<li class="tsli">Second Game: 2:51:08 - 3:36:33</li><br/>
+					<li class="tsli">Third Game: 3:56:50 - 4:23:32</li><br/>
+				</ul>
+				<p>
+		
+					<table>
+						<thead>
+							<tr>
+								<th class="thead1" colspan="5">Team List</th>
+							</tr>
+							<tr>
+								<th class="thone">North America</th>
+								<th class="thtwo">West Europe</th>
+								<th class="ththree">Korea</th>
+								<th class="thfour">China</th>
+								<th class="thfive">South East Asia</th>
+							</tr>
+					</thead>
+
+					<tbody>
+						<tr> 
+							<td class="one">Cloud 9 HyperX</td>
+							<td class="two">Fanatic</td>
+							<td class="three">SK Telecom 1</td>
+							<td class="four">OMG</td>
+							<td class="five">Gamania Bears</td>
+						</tr>
+						<tr>
+							<td class="one">TSM</td>
+							<td class="two">Gambit BenQ</td>
+							<td class="three">NaJin Black Sword</td>
+							<td class="four">Royal Club</td>
+							<td class="five">Mineski</td>
+						</tr>
+					</tbody>
+			</table>
+		
+		</div>
+		<div>
+			<p id="footer"> Created by Jory Anderson. 2013 Fair Use, Creative Commons.</p>
+		</div>
+	</body>
+</html>

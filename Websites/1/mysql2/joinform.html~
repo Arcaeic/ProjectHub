@@ -1,0 +1,9 @@
+<link rel="stylesheet" href="CSS/ControlPanel.css"/>
+
+    <form action="PHP/insert.php" method="post">
+Table One: <input type="text" name="One"/><br/>
+Table Two: <input type="text" name="Two"/><br/>
+Join by: <input type="text" name="Join"/><br/><br/>
+  <input type="submit" />
+ </form>
+

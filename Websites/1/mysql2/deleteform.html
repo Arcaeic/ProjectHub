@@ -1,0 +1,58 @@
+<html>
+<head>
+ <title>Delete Form</title>
+  <link rel="stylesheet" href="CSS/ControlPanel.css"/>
+ </head>
+<body>
+
+<div>
+<p> Delete by ID </p>
+
+<form action="PHP/delete3.php" method="post">
+ID: <input type="text" name="Id">
+<input type="submit" />
+</form>
+ <br/>
+  <br/>
+ </div>
+
+<div> 
+<p> Deleting by Name of Series. </p>
+
+<form action="PHP/delete2.php" method="post">
+Name: <input type="text" name="Name" />
+<input type="submit" />
+</form>
+ <br/>
+  <br/>
+ </div>
+
+<div>
+<p> Deleting by Winner </p>
+
+<form action="PHP/delete1.php" method="post">
+Winner: <input type="text" name="Winner" />
+<input type="submit" />
+</form>
+ <br/>
+  <br/>
+ </div>
+
+<div>
+<p> Deleting by Normal or Vs </p>
+
+<form action="PHP/delete.php" method="post">
+Type: <input type="text" name="Type" />
+<input type="submit" />
+</form>
+ <br/>
+  <br/>
+ </div>
+
+<a id="back" href="http://localhost/mysql2/ControlPanel.php">Back</a>
+
+</body>
+</html>
+
+
+

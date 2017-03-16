@@ -1,0 +1,87 @@
+@charset "utf-8";
+/* CSS Document */
+
+div h1 {
+     border:5px solid black;
+     padding:5px;
+     margin: 3px 3px 3px 3px;
+     display:inline;
+     position:relative;
+     top:7px;
+     -webkit-box-shadow: 2px 2px 2px 0;
+     background-color:white transparent;
+     float:right;
+     
+}
+
+div p {
+   position:relative;
+   top:10px;
+}
+
+#nav {
+        display:inline-block;
+        border:1px solid black;
+        padding:2px;
+        clear:both;
+        background:solid white;
+       -webkit-box-shadow:1px 3px 5px 0;
+        position:static;
+        background: -webkit-linear-gradient(top, white 60%, grey 99%);
+        top:1px;
+            
+}
+
+body {
+          background-image:url(http://pandora.com/images/background.jpg);
+        background-attachment:fixed;
+        background-position: top left;
+        height:500px;
+        width: 800px;
+}
+
+#post  {
+        font-family: Arial;
+        margin:30px 5px 30px 5px;
+        padding:20px;
+        display:box;
+        clear:both;
+        text-shadow: 1px 2px 0 0;
+/* You can only see the gradient and box shadow in Chrome, still deciding on adding Firefox support, IE6 Sucks */
+        text-size: 20px;
+        background: -webkit-linear-gradient(top, white 66%, grey 99%); 
+        -webkit-box-shadow:3px 3px 4px 0;
+        -webkit-text-size-adjust: auto;
+        position:relative;
+        top:20px;
+        
+}
+
+#subpost { 
+           font-family: Arial;
+           margin:20px 5px 20px 5px;
+           padding:10px;
+           display:box;
+           clear:both;
+           text-shadow:1px 2px 1px 1px;
+           background: -webkit-linear-gradient( top, white 66%, grey 102%);
+           -webkit-box-shadow: 2px 1px 2px 0;
+           text-decoration:italic;
+           position:relative;
+           left:20px;
+           bottom:15px;
+           top:10px;
+}
+
+a {
+    color:black;
+    font-weight:bold;
+    text-decoration:none;
+}
+
+a:hover {
+         text-decoration:underline;
+}
+          
+           
+

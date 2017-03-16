@@ -1,0 +1,167 @@
+@charset "utf-8";
+/* CSS Document */
+/* IE will rape webkit */
+
+div h1 {
+     border:5px solid black;
+     padding:5px;
+     margin: 3px 3px 3px 3px;
+     display:inline;
+     position:relative;
+     top:7px;
+     -webkit-box-shadow: 2px 2px 2px 0;
+     background-color:white transparent;
+     float:right;
+     
+}
+
+div p {
+   position:relative;
+   top:10px;
+   bottom:30px
+}
+
+#nav {
+        display:inline-block;
+        border:1px solid black;
+        padding:2px;
+        clear:both;
+        background:solid white;
+       -webkit-box-shadow:1px 3px 5px 0;
+        position:static;
+        background: -webkit-linear-gradient(top, white 60%, grey 99%);
+        top:1px;
+            
+}
+
+body {
+        background-image:url(http://192.168.47.131/mysql/372434.jpg);
+        background-attachment:fixed;
+        background-position: top left;
+}
+
+#post  {
+        font-family: Arial;
+        margin:30px 5px 30px 5px;
+        padding:20px;
+        display:box;
+        clear:both;
+        text-shadow: 1px 2px 0 0;
+/* You can only see the gradient and box shadow in Chrome, still deciding on adding Firefox support, IE5/6/8/11 Sucks */
+        text-size: 20px;
+        background: -webkit-linear-gradient(top, white 66%, grey 99%); 
+        -webkit-box-shadow:3px 3px 4px 0;
+        -webkit-text-size-adjust: auto;
+        position:relative;
+        top:20px;
+        bottom:30px;
+        
+}
+
+#subpost { 
+           font-family: Arial;
+           margin:20px 5px 20px 5px;
+           padding:10px;
+           display:box;
+           clear:both;
+           text-shadow:1px 2px 1px 1px;
+           background: -webkit-linear-gradient( top, white 66%, grey 102%);
+           -webkit-box-shadow: 2px 1px 2px 0;
+           text-decoration:italic;
+           position:relative;
+           left:20px;
+           bottom:15px;
+           top:10px;
+}
+
+div a {
+    color:green;
+    border:20px;
+    padding:10px;
+    border-color:white transparent;
+    text-align:center auto;
+    background: -webkit-linear-gradient( top, white 66%, grey 102%);
+    text-decoration:none;
+    margin:  auto;
+    -webkit-box-shadow: -2px 2px 4px 0 black;
+    
+}
+
+a:hover {
+         text-decoration:underline;
+         color: -webkit-linear-gradient( top, green 66%, blue 102%);
+}
+
+div img {
+       -webkit-box-shadow:2px 2px 3px 0;
+        padding:5px;
+        border:0px;
+        background: -webkit-linear-graident( top, white 66%, grey 102%);
+        margin-left:10px;
+}
+
+div div p {
+          text-align:center;
+}
+
+div div div a {
+               color:transparent;
+               background-color:transparent
+               text-decoration:none;
+               background:transparent;
+               -webkit-box-shadow: 0 0 0 0;
+}
+
+div div div a:hover {
+                     color:green;
+                     border:20px;
+                     padding:10px;
+                     border-color:white transparent;
+                     text-align:center auto;
+                     background: -webkit-linear-gradient( top, white 66%, grey 102%);
+                     text-decoration:none;
+                     margin:  auto;
+                     -webkit-box-shadow: -2px 2px 4px 0 black;
+                     text-decoration:underline;
+}
+      
+
+#nav2 {
+      display:inline-block;
+        border:1px solid black;
+        padding:2px;
+        clear:both;
+        background:solid white;
+       -webkit-box-shadow:1px 3px 5px #000;
+        position:static;
+        background: -webkit-linear-gradient(top, white 60%, grey 99%);
+        top:1px;
+        color:red;
+}
+
+div div {
+         position:relative;
+         top:75px;
+         text-align:right;
+}
+
+table {
+       -webkit-box-shadow: -3px 2px 4px 0;
+       background-image:url(http://pandora.com/images/background.jpg);
+}
+
+table tr th {
+             color:white;
+}
+
+body form {
+           color:white;
+}
+
+.inputage {
+             width:22px;
+             position:relative;
+}
+
+#insfmargin {
+             margin-left:3px

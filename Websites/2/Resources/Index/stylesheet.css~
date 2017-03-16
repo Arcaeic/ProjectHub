@@ -1,0 +1,54 @@
+/*CSS Document*/
+
+body {
+	background-image:url(background.jpg);
+}
+
+#post {
+	-webkit-box-shadow:0 3px 5px 1px;
+	background-image:-webkit-linear-gradient(top, grey 45%, blue 110%);
+	padding:50px;
+	position:relative fixed;
+	opacity:0.9;
+	
+}
+
+#nav {
+	border:3px;
+	border-color:white;
+	margin-right:6px;
+	padding:6px;
+	background-image:-webkit-linear-gradient(top, #669999 50%, #669998 120%);
+	filter:alpha(opacity=80);
+	opacity:0.8;
+	-webkit-box-shadow:0 0 2px 3px;
+	color: #FFF;
+	text-decoration:none;
+	border-radius: 8%;
+	
+}
+
+#title {
+	bottom:10px;
+	font-weight:700;
+	font-size:14px;
+	font-family:arial black;
+	position:relative;
+	padding: 0 10px 10px 0;
+}
+
+#content {
+	border:3px solid black;
+	padding:20px;
+	display:inline-block;
+	
+}
+
+#footer {
+	float:center;
+	text-align:center;
+	border:2px solid black;
+	padding:2px;
+	background-color:white;
+	webkit-box-shadow: 0 -4px 4px black;
+}
