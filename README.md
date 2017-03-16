@@ -4,13 +4,11 @@ Welcome to my Portfolio!
 ### Programs
  * [PIBot](/PIBot/): 
 	* Searches for Personal Information (PI) and reports distrbution to the Reddit mods/admins. Distributing personal information without the person's consent is against Reddit's Terms of Use. I made this bot primarily to practice writing an application in Python, but also because I wanted to write something that could help others.
-
 ### [Photoshop](/Photoshop)
 * [ADSS Graphics](/Photoshop/Misc/ADSS/)
 * [Renders](/Photoshop/Misc/Renders/)
 * [Avatars & Profile Pictures](/Photoshop/Avatars/)
 * [Forum Signatures](/Photoshop/Forum/)
-
 ### [Websites](/Websites/)
 * [My First Blog](/Websites/1/)
 	* While I was designing this website, I started slowly implementing mySQL and PHP into it. As a result the purpose of this website focused more on learning both design (HTML & CSS), database systems (mySQL), and scripting (PHP).
