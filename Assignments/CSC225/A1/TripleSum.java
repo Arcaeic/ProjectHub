@@ -26,21 +26,21 @@ public class TripleSum{
 	*/
 	public static boolean TripleSum225(int[] A){
 		
-		int[] newArray = new int[226];
-		Arrays.fill(newArray, -675);
+		int[] newArray = new int[226];		// Create array of size 226, the max for this assignment
+		Arrays.fill(newArray, -675);		// Fill with negative numbers
 		for(int i = 0; i < A.length; i++) { 
-				if(A[i] < 226)
+				if(A[i] < 226)				// Load integers into newArray
 					newArray[A[i]] = A[i];
 		}
-		for(int i = 0; i < 226; i++) {
+		for(int i = 0; i < 226; i++) {		// O(n^3), tries every combination of 3 elements in the array, compares the sum to 225
 			for(int j = 0; j < 226; j++){
 				for(int k = 0; k < 226; k++) {
 					if(newArray[k] + newArray[i] + newArray[j] == 225)
-						return true;
+						return true;		// True if triple == 225
 				}
 			}
 		}
-		return false;
+		return false;	// False if no triple == 225 is found
 	}
 
 	/* main()
@@ -49,16 +49,16 @@ public class TripleSum{
 	   implementation, but only the contents of the TripleSum225() function above
 	   will be considered during marking.
 	*/
-	public static void main(String[] args){
+	public static void main(String[] args){		// Provided for this assignment
 		Scanner s;
-		if (args.length > 0){
+		if (args.length > 0){		// If there was an argument passed
 			try{
-				s = new Scanner(new File(args[0]));
+				s = new Scanner(new File(args[0]));		// Create a scanner pointing to it
 			} catch(java.io.FileNotFoundException e){
-				System.out.printf("Unable to open %s\n",args[0]);
+				System.out.printf("Unable to open %s\n",args[0]);	/// If arg does not exist, exit
 				return;
 			}
-			System.out.printf("Reading input values from %s.\n",args[0]);
+			System.out.printf("Reading input values from %s.\n",args[0]);	// If no arg passed, get values from stdin
 		}else{
 			s = new Scanner(System.in);
 			System.out.printf("Enter a list of non-negative integers. Enter a negative value to end the list.\n");
@@ -66,10 +66,10 @@ public class TripleSum{
 		Vector<Integer> inputVector = new Vector<Integer>();
 
 		int v;
-		while(s.hasNextInt() && (v = s.nextInt()) >= 0)
+		while(s.hasNextInt() && (v = s.nextInt()) >= 0)		// Add numbers
 			inputVector.add(v);
 
-		int[] array = new int[inputVector.size()];
+		int[] array = new int[inputVector.size()];		// Convert to array
 
 		for (int i = 0; i < array.length; i++)
 			array[i] = inputVector.get(i);
@@ -77,13 +77,13 @@ public class TripleSum{
 		System.out.printf("Read %d values.\n",array.length);
 
 
-		long startTime = System.currentTimeMillis();
+		long startTime = System.currentTimeMillis();	// Start timer
 
-		boolean tripleExists = TripleSum225(array);
+		boolean tripleExists = TripleSum225(array);		// call TripleExists, passing in array
 
-		long endTime = System.currentTimeMillis();
+		long endTime = System.currentTimeMillis();		// End timer
 
-		double totalTimeSeconds = (endTime-startTime)/1000.0;
+		double totalTimeSeconds = (endTime-startTime)/1000.0;	// Find elapsed time by taking difference
 
 		System.out.printf("Array %s a triple of values which add to 225.\n",tripleExists? "contains":"does not contain");
 		System.out.printf("Total Time (seconds): %.2f\n",totalTimeSeconds);
