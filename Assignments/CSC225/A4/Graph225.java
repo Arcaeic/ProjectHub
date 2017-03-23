@@ -44,9 +44,7 @@ public class Graph225 {
 		 * You are free to add constructors, but the empty constructor is the
 		 * only one invoked during marking.
 		 */
-		public Graph() {
-			// YOUR CODE HERE (if needed)
-		}
+		public Graph() {}
 
 		/**
 		 * Generate a random graph as specified in the assignment statement.
@@ -56,55 +54,57 @@ public class Graph225 {
 		 * @param density
 		 *            The density of the graph
 		 */
-		public void generate(int n, int density) {
-			//Initalize number Generator using seed.
-			Random numGen = new Random(System.currentTimeMillis());
+		public void generate(int n, int density) {	
+		
+			Random numGen = new Random(System.currentTimeMillis());		// Initalize number Generator using seed.
 			int edgeCount = 0;
 			int root = 0;
-			//Checking arguments
-			if(n < 4 || n > 15)
+	
+			if(n < 4 || n > 15)											// Checking arguments
 				throw new UnsupportedOperationException("The value of n must be [4,15]!");
 			if(density < 1 || density > 3)
 				throw new UnsupportedOperationException("The value of density must be [1,3]!");
-			//Making adjacencyMatrix size n
-			adjacencyMatrix = new int[n][n];
-			int edges = 0;
-			//Creating graph density
-			if(density == 1) 
+
+			adjacencyMatrix = new int[n][n];							// Making adjacencyMatrix size n
+			int edges = 0;		
+			if(density == 1) 											// Creating graph density, density = 1
 				edges = (7*n)/5;
-			else if(density == 2)
+
+			else if(density == 2)										// density = 2
 				edges = (int)((Math.pow(n, 2))/4);
-			else
+
+			else 														// density = 3
 				edges = (int)((2*(Math.pow(n, 2)))/5);
-			//Use a truth-table to see what (row,col) have been changed.
-			boolean[][] changeCheck = new boolean[n][n];
+
+			boolean[][] changeCheck = new boolean[n][n];				//Use a truth-table to see what (row,col) have been changed				
 			do{
-				//Generating edges. Will loop if edgeCount != edges(or m)
-				edgeCount = 0;
-				root = 0;
-				//Reset adjacencyMatrix.
-				for(int[] row: adjacencyMatrix)
+				edgeCount = 0; 											//Generating edges. Will loop if edgeCount != edges(or m)
+				root = 0;	
+
+				for(int[] row: adjacencyMatrix)							//Reset adjacencyMatrix & truth table
 					Arrays.fill(row, 0);
-				//Reset truth table.
 				for(boolean[] row: changeCheck)
 					Arrays.fill(row, false);
-				//Generate edges.
-				for(int i = 0; i < adjacencyMatrix.length; i++) {
-					if(changeCheck[root][i] == false) {
-						adjacencyMatrix[root][i] = numGen.nextInt(2);
-						changeCheck[root][i] = true;
+
+				for(int i = 0; i < adjacencyMatrix.length; i++) {		// Generate edges
+					if(changeCheck[root][i] == false) {					// Check if the current index has been changed
+						adjacencyMatrix[root][i] = numGen.nextInt(2);	//		If not, then generate an edge (or not)
+						changeCheck[root][i] = true;					//		Change the index and its inverse to true
 						changeCheck[i][root] = true;
-						if(adjacencyMatrix[root][i] == 1){
+
+						if(adjacencyMatrix[root][i] == 1){				//		If an edge was generated, set its inverse as well, increase edgeCount by 2
 							adjacencyMatrix[i][root] = 1;
 							edgeCount+=2;
+
 						}
 					}
-					if(i == adjacencyMatrix.length - 1 && root < adjacencyMatrix.length - 1){
+					if(i == adjacencyMatrix.length - 1 && root < adjacencyMatrix.length - 1){		// Still O(n^2), this is me trying to optimize runtime
 						root++;
 						i = 0;
+
 					}	
 				}
-			} while(edgeCount != 2*edges);
+			} while(edgeCount != 2*edges);								// In the adj. matrix, each edge is counting twice, therefore stop at 2*edges
 		}
 
 		/**
@@ -118,23 +118,24 @@ public class Graph225 {
 		 *             If something bad happens while reading the input file.
 		 */
 		public void read(String file) throws IOException {
+
 			Scanner fileScan = new Scanner(new File(file));
-			//Grabbing size of input matrix.
-			int sizeCount = 0;
-			while(fileScan.hasNextLine()) {
+			int sizeCount = 0;							
+			while(fileScan.hasNextLine()) {						//Grabbing size of input matrix by counting # of rows
 				fileScan.nextLine();
 				sizeCount++;
 			}
-			//Re-initialize scanner, grab each value.
-			adjacencyMatrix = new int[sizeCount][sizeCount];
+
+			adjacencyMatrix = new int[sizeCount][sizeCount];	//Re-initialize scanner, grab each value.
 			fileScan = new Scanner(new File(file));
-			while(fileScan.hasNextInt()) {
-			for(int i = 0; i < sizeCount; i++) {
-				for(int j = 0; j < sizeCount; j++)
-					adjacencyMatrix[i][j] = fileScan.nextInt();
+			while(fileScan.hasNextInt()) {						// While an unread token exists, fill in the adj. matrix
+				for(int i = 0; i < sizeCount; i++) {
+					for(int j = 0; j < sizeCount; j++)
+						adjacencyMatrix[i][j] = fileScan.nextInt();
+
 				}
-			}
-			fileScan.close();
+			}	
+			fileScan.close();									// Close Scanner
 		}
 
 		/**
@@ -147,19 +148,21 @@ public class Graph225 {
 		 *             If something bad happens while writing the file.
 		 */
 		public void write(String file) throws IOException {
-			//Initalizer object to print to file.
-			PrintWriter outputMatrix = new PrintWriter(file);
+
+			PrintWriter outputMatrix = new PrintWriter(file);			//Initalizer object to print to file.
 			String separator;
-			//Grab each edge value. Separator is used for precision.
-			for(int i = 0; i < adjacencyMatrix.length; i++) {
+			for(int i = 0; i < adjacencyMatrix.length; i++) {			//Grab each edge value. Separator is used for neatness.
 				separator = " ";
 				for (int j = 0; j < adjacencyMatrix.length; j++) {
 					if(j == adjacencyMatrix.length - 1)
 						separator = "";
+
 					outputMatrix.print(adjacencyMatrix[i][j] + separator);
 				}
+
 				outputMatrix.println();
 			}
+
 			outputMatrix.close();
 		}
 
@@ -167,6 +170,7 @@ public class Graph225 {
 		 * @return an adjacency matrix representation of this graph
 		 */
 		public int[][] getAdjacencyMatrix() {
+
 			return this.adjacencyMatrix;
 		}
 
@@ -177,6 +181,7 @@ public class Graph225 {
 		 *            The adjacency matrix representing the new graph
 		 */
 		public void setAdjacencyMatrix(int[][] m) {
+
 			this.adjacencyMatrix = m;
 		}
 
@@ -198,34 +203,39 @@ public class Graph225 {
 	 *         reached from {@code vertex} and 0 otherwise
 	 */
 	public int[] reach(Graph graph, int vertex) {
+
 		int[][] matrix = graph.getAdjacencyMatrix();
 		int[] visited = new int[matrix.length];
 		int originalIndex = vertex;
-		//Catching IOException
-		try{
-			if (connectedComponents(graph) == 1){
+
+		try{															// Catching IOException
+			if (connectedComponents(graph) == 1){						// Cheat: If it's all one component, then we can reach every vertex
 				Arrays.fill(visited, 1);
 				return visited;
 			}
-		}catch (IOException e) {
+
+		}catch (IOException e) {										// If IOException caught, then no file exists. Stop catching
 			System.out.println("ERROR(reach): No such graph exists!");
 		}
-		return reachDFS(matrix, visited, originalIndex, vertex);
+
+		return reachDFS(matrix, visited, originalIndex, vertex);		// Enter DFS-based search
 
 	}
 
-	/*Helper method for reach(), returns a vector which contains an integer array, 
-	* 1 if edge exists at (row, col), 0 otherwise. */
+	/*
+	* Helper method for reach(), returns a vector which contains an integer array, 
+	* 1 if edge exists at (row, col), 0 otherwise. 
+	*/
 	public int[] reachDFS (int[][] matrix, int[] visited, int originalIndex, int vertex) {
-		//Check all edges for each row/column.
-		for(int i = 0; i < matrix.length; i++) {
-			//Edge must not be visited, and dont look at the previous row.
-			if(matrix[vertex][i] == 1 && visited[i] == 0 && originalIndex != i) {
+
+		for(int i = 0; i < matrix.length; i++) {									// Check all edges from the source vertex
+			if(matrix[vertex][i] == 1 && visited[i] == 0 && originalIndex != i) {	// Edge must not be visited, and dont look at the previous vertex
 				visited[i] = 1;
 				originalIndex = i;
-				reachDFS(matrix, visited, originalIndex, i);
+				visited = reachDFS(matrix, visited, originalIndex, i);
 			}
 		}
+
 		return visited;
 	}
 
@@ -240,38 +250,43 @@ public class Graph225 {
 	 * @return The number of connected component in {@code graph}
 	 */
 	public int connectedComponents(Graph graph) throws IOException {
+
 			Vector<Integer> visited = new Vector<Integer>();
 			int[][] matrix = graph.getAdjacencyMatrix();
 			int connected = 0;
+
 			for(int i = 0; i < matrix.length; i++) {
 				if(!visited.contains(i)) {
 					visited = ConnectedDFS(matrix, visited, i);
-					//If DFS ends, then we've look at all vertices in component.
-					connected++;
+					connected++;									//If DFS ends, then we've look at all vertices in component.
 				}
-				//Reduce runtime
-				if(visited.size() == matrix.length)
+
+				if(visited.size() == matrix.length)					//Reduce runtime
 					return connected;
 
 			}
+
 			return connected;
 	}
 
-	/*Helper method for connectedComponents, returns the list of visited components*/
+	/*
+	* Helper method for connectedComponents, returns the list of visited components
+	*/
 	public Vector<Integer> ConnectedDFS(int[][] matrix, Vector<Integer> visited, int vertex) {
-		visited.add(vertex);
-		//Reduces run-time.
-		if(visited.size() == matrix.length)
+
+		visited.add(vertex);										// Add source to visited
+		if(visited.size() == matrix.length)							// Reduces run-time.
 			return visited;
+
 		for(int i = 0; i < matrix.length; i++) {
-			//Keep track of visited nodes.
-			if(matrix[vertex][i] == 1 && !visited.contains(i))                                                                 
+			if(matrix[vertex][i] == 1 && !visited.contains(i))     // Keep track of visited nodes.                                                            
 				visited = ConnectedDFS(matrix, visited, i);
-			//Reduce run-time.
-			if(visited.size() == matrix.length)
+
+			if(visited.size() == matrix.length)					// Reduce run-time.
 				return visited;
 
 		}
+		
 		return visited;
 	}
 
@@ -286,36 +301,42 @@ public class Graph225 {
 	 * @return whether or not {@code graph} contains at least one cycle
 	 */
 	public boolean hasCycle(Graph graph) {
-		int[][] matrix = graph.getAdjacencyMatrix();
-		Vector<Integer> visited = new Vector<Integer>();
-		//Always start at 0.
-		int originalIndex = 0;
+
+		int[][] matrix = graph.getAdjacencyMatrix();			// Grab adj. matrix
+		Vector<Integer> visited = new Vector<Integer>();		// Create new list for visited vertices
+		int originalIndex = 0;									// Always start at 0.
 		int vertex = 0;
-		visited.add(vertex);
-		//Self-loop check
-		for(int i = 0; i < matrix.length; i++){
+		visited.add(vertex);									// Add source vertex
+
+		for(int i = 0; i < matrix.length; i++){					// Check if any vertex is a self-loop, runtime optimization
 			if(matrix[i][i] == 1)
 				return true;
 		}
-		//DFS Check
-		return cycleDFS(matrix, visited, originalIndex, vertex);
+
+		return cycleDFS(matrix, visited, originalIndex, vertex);	// Go into DFS-based search for cycle
 	}
 
-	/*Helper method for hasCycle, returns boolean, does most of the work.*/
+	/*
+	* Helper method for hasCycle, returns boolean, does most of the work.
+	*/
 	public boolean cycleDFS(int[][] matrix, Vector<Integer> visited, int originalIndex, int vertex) {
+
 		boolean cycle = false;
+
 		for(int i = 0; i < matrix.length; i++) {
-			//If unexplored vertex contains edge to a visited node, then true.
-			if(matrix[vertex][i] == 1 && originalIndex != i) {
-				if(!visited.contains(i)) {
+			if(matrix[vertex][i] == 1 && originalIndex != i) {		// Look for unexplored edge on non-source vertices
+
+				if(!visited.contains(i)) {							// If the unexplored edges lead to unexplored vertices, keep DFSing
 					visited.add(i);
 					originalIndex = vertex;
-					cycleDFS(matrix, visited, originalIndex, i);
+					cycleDFS(matrix, visited, originalIndex, i);	// Keep searching for unexplored edges
 				}
+
 				else
-					cycle = true;
+					cycle = true;									// Otherwise we have a cycle
 			}
 		}
+
 		return cycle;
 	}
 
@@ -331,32 +352,37 @@ public class Graph225 {
 	 *         {@code graph}
 	 */
 	public int[][] preOrder(Graph graph) {
+
 		int[][] matrix = graph.getAdjacencyMatrix();
 		int[][] preOrder = new int[matrix.length][matrix.length];
 		Vector<Integer> visited = new Vector<Integer>();
 
-		//To place values into table
-		int enumer = 0;
+		int enumer = 0;													//To place values into table
 		for(int[] rows: preOrder)
 			Arrays.fill(rows, -1);
 
-		//Cycle through each row, performing DFS on each vertex.
-		for(int vertex = 0; vertex < matrix.length; vertex++) {
+		for(int vertex = 0; vertex < matrix.length; vertex++) {			// Cycle through each row, performing DFS on each vertex.
 			visited.removeAllElements();
 			enumer = 0;
-			preDFS(matrix, preOrder, visited, vertex, enumer, vertex);
+			preDFS(matrix, preOrder, visited, vertex, enumer, vertex);	// Go into DFS-based search for preOrder
 		}
+
 		return preOrder;
 	}
 
+	/*
+	* Helper function for preOrder(). Traverses the adj. matrix, and adds the vertices to the list as we visit them.
+	*/ 
 	public void preDFS(int[][] matrix, int[][] preOrder, Vector<Integer> visited, int vertex, int enumer, int originalVertex) {
-		visited.add(vertex);
+
+		visited.add(vertex);										// Add source to visited
+
 		for(int i = 0; i < preOrder.length; i++) {
-			if(matrix[vertex][i] == 1 && !visited.contains(i)) {
-				preOrder[originalVertex][enumer] = i;
-				enumer++;
-				preDFS(matrix, preOrder, visited, i, enumer, originalVertex);
-				while(preOrder[originalVertex][enumer] != -1) 
+			if(matrix[vertex][i] == 1 && !visited.contains(i)) {	// For each vertex, check each edge for an unexplored vertex
+				preOrder[originalVertex][enumer] = i;				// Add it to our preOrder list
+				enumer++;											// Increment our iterator
+				preDFS(matrix, preOrder, visited, i, enumer, originalVertex);	// Continue checking
+				while(preOrder[originalVertex][enumer] != -1) 		// Bug fix: iterator would lose track in recursive loops, would overwrite data
 					enumer++;
 			}
 		}
@@ -379,13 +405,11 @@ public class Graph225 {
 		Vector<Integer> visited = new Vector<Integer>();
 		Vector<Integer> visited2 = new Vector<Integer>();
 
-		//To place values into table
-		int enumer = 0;
+		int enumer = 0;																		//To place values into table
 		for(int[] rows: postOrder)
 			Arrays.fill(rows, -1);
 
-		//Cycle through each row, performing DFS on each vertex.
-		for(int vertex = 0; vertex < matrix.length; vertex++) {
+		for(int vertex = 0; vertex < matrix.length; vertex++) {								//Cycle through each row, performing DFS on each vertex.
 			visited.clear();
 			visited2.clear();
 			enumer = 0;
@@ -394,16 +418,22 @@ public class Graph225 {
 		return postOrder;
 	}
 
+	/*
+	* Helper function for postOrder(). Traverses the adj. matrix, and adds the current node after traversing its outgoing edges
+	*/
 	public void postDFS (int[][] matrix, int[][] postOrder, Vector<Integer> visited, Vector<Integer> visited2, int vertex, int enumer, int originalVertex) {
-		visited2.add(vertex);
-		for(int i = 0; i < postOrder.length; i++) {
-			if(matrix[vertex][i] == 1 && !visited.contains(i) && !visited2.contains(i)){
-				visited.add(i);
-				postDFS(matrix, postOrder, visited, visited2, i, enumer, originalVertex);
-				while(postOrder[originalVertex][enumer] != -1)
+
+		visited2.add(vertex);																// Add current vertex to second visited list
+
+		for(int i = 0; i < postOrder.length; i++) {											// For each edge from current vertex
+			if(matrix[vertex][i] == 1 && !visited.contains(i) && !visited2.contains(i)){	// If edge exists, and adj. vertex hasn't been traversed
+				visited.add(i);																// Add to first visited list
+				postDFS(matrix, postOrder, visited, visited2, i, enumer, originalVertex);	// Continue DFSing to find presequent elements
+				while(postOrder[originalVertex][enumer] != -1)								// Bug fix: Catch iterator up
 					enumer++;
-				postOrder[originalVertex][enumer] = i;
-				enumer++;
+
+				postOrder[originalVertex][enumer] = i;										// Add i to list
+				enumer++;																	// Inc. iterator
 			}
 		}
 	}
@@ -422,6 +452,7 @@ public class Graph225 {
 	 *             if something bad happens!
 	 */
 	public void test() throws Exception {
+
 		//Check initalization
 		System.out.print("Checking if testG initalized: ");
 		Graph testG = new Graph();
@@ -512,12 +543,11 @@ public class Graph225 {
 	/*Helper method, checks if the written matrix is equal to Graph.adjacencymatrix
 	* as well if it is a undirected, symmetric graph */
 	public static void matrixCheck(int[][] matrix, String file) throws IOException {
+
 		Scanner fileScan = new Scanner(new File(file));
 		int element = 0;
-		//Checks if matrix[i][j] == respective element in .txt (matches)
-		boolean check = true;
-		//Checks if matrix[i][j] == matrix[j][i] (undirected, symmetric)
-		boolean symmetryCheck = true;
+		boolean check = true;								// Checks if matrix[i][j] == respective element in .txt (matches)
+		boolean symmetryCheck = true;						// sChecks if matrix[i][j] == matrix[j][i] (undirected, symmetric)
 		int i = 0; 
 		int j = 0;
 		while(fileScan.hasNextInt()) {
@@ -547,7 +577,11 @@ public class Graph225 {
 			System.out.println("and NOT symmetric.\n");
 	}
 
+	/*
+	* Part of the testing suite. Checks the order, post or pre
+	*/
 	public static void orderCheck(int[][] order, String file) throws IOException {
+
 		PrintWriter print = new PrintWriter(new File(file));
 		for(int i = 0; i < order.length; i++) {
 			for (int j = 0; j < order.length; j++)
@@ -558,11 +592,12 @@ public class Graph225 {
 	}
 
 	public static void main(String[] args) {
-		Graph225 test225 = new Graph225();
+
+		Graph225 test225 = new Graph225();		// Create new isntance of Graph225
 		try{
-			test225.test();
+			test225.test();						// Run testing suite
 		} catch(Exception e) {
-			System.out.println("Could not open test suite. Exiting...");
+			System.out.println("Could not open test suite. Exiting...");	// If an error is thrown in Graph, catch and exit
 		}
 	}
 

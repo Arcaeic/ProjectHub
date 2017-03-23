@@ -8,146 +8,156 @@ import java.util.ArrayList;
 import java.io.PrintWriter;
 import java.io.FileNotFoundException;
 
-public class PQ225 {
-	ArrayList<Integer> heapArray;
+public class PQ225 {		// Min-heap object implementation
+
+	ArrayList<Integer> heapArray;	// Array-based heap
 
 	public PQ225() {
-		heapArray = new ArrayList<Integer>(100);
+
+		heapArray = new ArrayList<Integer>(100);		// Initialize at 100, reducing amortization
 	}
 
-//Generates n random numbers between low and high, inclusive.
-	public void ranGen(int n, int low, int high){
-		long seed = System.currentTimeMillis();
+	public void ranGen(int n, int low, int high){ 		// Generates n random numbers between low and high, inclusive.
+
+		long seed = System.currentTimeMillis();			// Initialize seed
 		int randNum = 0;
 
 		Random rand = new Random(seed);
-		while (n != 0) {
-			//Creates new random number.
+		while (n != 0) {								// Creates new random number.
 			do {
-				randNum = rand.nextInt(high + 1); //randNum <= high
-			} while(randNum < low);
-			//Appends random number to temp.
+				randNum = rand.nextInt(high + 1); 		// randNum <= high
+			} while(randNum < low);						//Appends random number to temp.
 			heapArray.add(randNum);
 			n--;
 		}
 	}
 
-//Returns size of heapArray.
-	public int size(){
+	public int size(){					//Returns size of heapArray.
+
 		return this.heapArray.size();
 	}
 
-//Inserts num into heapArray, then Sifts up.
-	public void insert(int num) {
+	public void insert(int num) {		//Inserts num into heapArray, then Sifts up.
+
 		this.heapArray.add(num);
 		maintainUpHeap(this.size()-1);
 	}
 
-//Sifts up.
-	private void maintainUpHeap(int index){	
-		if(index != 0) {
-			int parentIndex = (index-1)/2;
-			if(this.heapArray.get(parentIndex) > this.heapArray.get(index)) {
-				int temp = this.heapArray.get(parentIndex);
+	private void maintainUpHeap(int index){		// Helper method for insert(). Ensures the added item is in the correct spot
+
+		if(index != 0) {														// If the heap is not empty
+			int parentIndex = (index-1)/2;											// Declare the parent of the added item
+			if(this.heapArray.get(parentIndex) > this.heapArray.get(index)) {		// If our parent is bigger than our added item
+				int temp = this.heapArray.get(parentIndex);								// Swap parent and child
 				this.heapArray.set(parentIndex, this.heapArray.get(index));
 				this.heapArray.set(index, temp);
-				maintainUpHeap(parentIndex);
+				maintainUpHeap(parentIndex);										// Continue sifting up
 			}
-
 		}
 	}
 
-//Sifts Down.
-	private void maintainDownHeap(int index){
+	private void maintainDownHeap(int index){	// Helper method fore deleteMin(). Ensures the heap property is not violated after deleteMin().
+
 		int minIndex;
-		int leftChildIndex = (2 * index) + 1;
+		int leftChildIndex = (2 * index) + 1;	// Declare left and right children
 		int rightChildIndex = (2 * index) + 2;
-		if(rightChildIndex >= size()) {
-			if(leftChildIndex >= size())
+
+		if(rightChildIndex >= size()) {			// If right is greater than size, then it does not exist
+			if(leftChildIndex >= size())			// If the left also does not exist, no sifting to do
 				return;
 			else
-				minIndex = leftChildIndex;
+				minIndex = leftChildIndex;			// Set new minimum if left exists
+
 		} else {
-			if(heapArray.get(leftChildIndex) <= heapArray.get(rightChildIndex))
-				minIndex = leftChildIndex;
+			if(heapArray.get(leftChildIndex) <= heapArray.get(rightChildIndex))	// If the left child is smaller than the right
+				minIndex = leftChildIndex;											// Set as new minimum
 			else
-				minIndex = rightChildIndex;
+				minIndex = rightChildIndex; 									// else, set right as new mimnimum
 		}
-		if(heapArray.get(index) > heapArray.get(minIndex)) {
-			int temp = heapArray.get(minIndex);
+
+		if(heapArray.get(index) > heapArray.get(minIndex)) {	// If our parent index is larger than the minIndex
+			int temp = heapArray.get(minIndex);						// Swap minIndex and parent
 			heapArray.set(minIndex, heapArray.get(index));
 			heapArray.set(index, temp);
-			maintainDownHeap(minIndex);
-		}
+			maintainDownHeap(minIndex);								// Continue sifting
+		}														// Else we are finished sifting
 	}
 
-//Deletes the smallest value from the heapArray, then sifts down.
-	public int deleteMin() {
-		int i = heapArray.get(0);
-		if(size() == 0) 
+	public int deleteMin() {				// Deletes the smallest value from the heapArray, then sifts down.
+
+		int i = heapArray.get(0);			// In our array-based implementation of a heap, the first element is the minimum value
+
+		if(size() == 0) 					// Check if heap is empty
 			System.out.print("ERROR: No element to delete.");
+
 		else {
-			this.heapArray.set(0, heapArray.get(size()-1));
-			this.heapArray.remove(size()-1);
-			if(size() > 0)
-				maintainDownHeap(0);
+			this.heapArray.set(0, heapArray.get(size()-1));	// Swap min with last item
+			this.heapArray.remove(size()-1);				// Delete last item
+			if(size() > 0)						// If heap is not empty
+				maintainDownHeap(0);				// Begin sifting
 		}
-		return i;
+
+		return i;		// Return the deleted value
 	}
 
-//Transforms heapArray into a heap structure.
-	public void makeHeap() {
-		heapArray.trimToSize();
+	public void makeHeap() {				// Transforms heapArray into a heap structure.
+
+		heapArray.trimToSize();				// Unallocate unused space before making heap
 		for(int i = (size()/2)-1; i>= 0; i--) {
 			buildHeap(size(), i);
 		}
 	}
 
-//Helper method for makeHeap.
-	public void buildHeap(int size, int index) {
-		int leftChildIndex = (2 * index) + 1;
-		int rightChildIndex = (2 * index) + 2;
+	public void buildHeap(int size, int index) {		// Helper method for makeHeap.
+
+		int leftChildIndex = (2 * index) + 1;			// In our array-based implementation, the left child of the current node is (2*index) + 1
+		int rightChildIndex = (2 * index) + 2;			// "                                    " right child of the current node is (2*index) + 2
 		int maxValueIndex;
 
-		if(leftChildIndex < size && heapArray.get(leftChildIndex) <
-			heapArray.get(index))
+		if(leftChildIndex < size && heapArray.get(leftChildIndex) < heapArray.get(index))	// Find index of the maxiumum value
 			maxValueIndex = leftChildIndex;
+
 		else
 			maxValueIndex = index;
-		if(rightChildIndex < size && heapArray.get(rightChildIndex) <
-		 	heapArray.get(maxValueIndex))
+
+		if(rightChildIndex < size && heapArray.get(rightChildIndex) < heapArray.get(maxValueIndex))
 			maxValueIndex = rightChildIndex;
-		if(maxValueIndex != index) {
-			int temp = heapArray.get(index);
+
+		if(maxValueIndex != index) {				// If the maximum value's index doesn't match our current index
+			int temp = heapArray.get(index);						// Swap the value at index with max value
 			heapArray.set(index, heapArray.get(maxValueIndex));
 			heapArray.set(maxValueIndex, temp);
-			buildHeap(size, maxValueIndex);
+			buildHeap(size, maxValueIndex);			// Continue building heap
 		}
-	}
 
-//Sorts the min-heap into descending order.
-	public int heapsort() {
+	}		// If it equals, no other larger value found, therefore finished
+
+	public int heapsort() {				//Sorts the min-heap into descending order.
+
 		int temp;
 		int heapSize = size();
 		makeHeap();
-		while (heapSize > 1) {
+
+		while (heapSize > 1) {			// While we heapArray still contains values, swap maxValue with minValue and buildHeap()
 			temp = heapArray.get(0);
 			heapArray.set(0, heapArray.get(heapSize-1));
 			heapArray.set(heapSize-1, temp);
 			heapSize--;
 			buildHeap(heapSize, 0);
 		}
-		reverseArray();
+
+		reverseArray();			// Reverse to ascending order once heap is built
 		return 0;
 	}
 
-//Rotates heapArray to be in ascending order. Represents level-order.
-	public void reverseArray() {
+	public void reverseArray() {		//Helper method for heapsort(). Rotates heapArray to be in ascending order. Represents level-order.
+
 		int i = 0;
 		int j = size()-1;
 		int temp;
-		while(i < j) {
-			temp = heapArray.get(i);
+
+		while(i < j) {					// Until i and j cross
+			temp = heapArray.get(i);	// Swap negative equivalent index
 			heapArray.set(i, heapArray.get(j));
 			heapArray.set(j, temp);
 			i++;
@@ -156,20 +166,23 @@ public class PQ225 {
 	}
 
 	/*
-	*The contents from here downward are part of the testing suite.
+	* The contents from here downward are part of the testing suite I created
 	*/
 
-	public void printHeap(PrintWriter testWriter){
+	public void printHeap(PrintWriter testWriter){		// Prints the heap on one line
+
 		testWriter.println("Printing heapArray.");
+		
 		for(int i: this.heapArray) 
 			testWriter.print(i + " ");
 		testWriter.println("\n");
 	}
 
-	public int checkHeap(PrintWriter testWriter) {
-		testWriter.println("Testing if heapArray is heap by comparing parent to children. parent <= children...");
+	public int checkHeap(PrintWriter testWriter) {		// Determines whether heap property has been violated or not
+
+		testWriter.println("Testing if heapArray is heap by comparing parent to children. parent <= children...");		// Parent must be less or equal to children
 			for(int i = 0; i <= this.size(); i++) {
-				if(2*i +1 <= this.size()) {
+				if(2*i +1 <= this.size()) {				// Check all elements
 					try {
 						testWriter.println("Comparing: " + heapArray.get(i) + " to " + heapArray.get(2*i+1)
 							+ " and " + heapArray.get(2*i+2));
@@ -177,9 +190,9 @@ public class PQ225 {
 							return -1;
 						}
 					}catch(IndexOutOfBoundsException e) {
-						testWriter.println("Attempted to compare a non-existing node. Proceeding...");
+						testWriter.println("Attempted to compare a non-existing node. Proceeding...");		// Edge case: Attempted to check a null node (i points to a leaf)
 					}
-				} else if(2*i <= this.size()){
+				} else if(2*i <= this.size()){						// Check the other child
 					try{
 						testWriter.println("Comparing: " + heapArray.get(i) + " to " + heapArray.get(2*i));
 						if(this.heapArray.get(i) > this.heapArray.get(2*i)) {
@@ -187,7 +200,7 @@ public class PQ225 {
 							return -1;
 						}
 					}catch(IndexOutOfBoundsException e) {
-						testWriter.println("Attempted to compare a non-existing node. Proceeding...");
+						testWriter.println("Attempted to compare a non-existing node. Proceeding...");		// Edge case: Attempted to check a null node (i points to a leaf)
 					}
 				} else
 					break;
@@ -198,27 +211,23 @@ public class PQ225 {
 
 	public static void test() throws FileNotFoundException {
 
-		//Creating Writer objects.
-		PrintWriter testWriter = new PrintWriter("pq_test.txt");
+		PrintWriter testWriter = new PrintWriter("pq_test.txt");		//Creating Writer objects.
 	
-		//Testing Object integrity
-		PQ225 test = new PQ225();
+		PQ225 test = new PQ225();										//Testing Object integrity
 		testWriter.println("PQ225 object created. Checking...");
 		if(test.size() == 0)
 			testWriter.println("PQ225 initialization: Success.\n");
 		else
 			testWriter.println("PQ225 initialization: Failure.\n");
 
-		//Testing ranGen()
-		test.ranGen(6, 10, 20);
+		test.ranGen(6, 10, 20);											//Testing ranGen()
 		testWriter.println("6 random numbers between 10 and 20 inserted. Checking...");
 		if(test.size() == 6) 
 			testWriter.println("PQ225 size incrementation: Success.\n");
 		else
 			testWriter.println("PQ225 size incrementation: Failure.\n");
 
-		//Attempt to append numbers to an already filled heapArray.
-		test.ranGen(4, 10, 20);
+		test.ranGen(4, 10, 20);											//Attempt to append numbers to an already filled heapArray.
 		testWriter.println("Added 4 more numbers between 10 and 20. Checking...");
 		if(test.size() == 10)
 			testWriter.println("ranGen append to PQ225: Success.\n");
@@ -226,8 +235,7 @@ public class PQ225 {
 			testWriter.println("ranGen append to PQ225: Failure.\n");
 		test.printHeap(testWriter);
 
-		//Check if numbers are between bounds 10 and 20.
-		testWriter.println("Comparing elements to lower and upper bounds...");
+		testWriter.println("Comparing elements to lower and upper bounds...");		//Check if numbers are between bounds 10 and 20 from previous test
 		boolean check = true;
 		for(int i = 0; i < test.size(); i++){
 			if(test.heapArray.get(i) > 20) {
@@ -240,22 +248,18 @@ public class PQ225 {
 			}
 		}
 		if(check)
-			testWriter.println("ranGen lower & upper bounds check: Success.\n");
+			testWriter.println("ranGen lower & upper bounds check: Success.\n");	//End ranGen(), size() tests. Begin makeHeap(), insert(), deleteMin() tests.
 		
-		//End ranGen(), size() tests. Begin makeHeap(), insert(), deleteMin() tests.
-		test.makeHeap();
-
-		//Check if makeHeap creates a proper heap.
-		test.printHeap(testWriter);
+		test.makeHeap();				//Check if makeHeap creates a proper heap.
+		test.printHeap(testWriter);	
 		testWriter.println("Checking if heapArray is a valid heap structure...");
 		if(test.checkHeap(testWriter) == 0)
 			testWriter.println("Check if heapArray is a valid heap: Success.\n");
 		else
 			testWriter.println("Check if heapArray is a valid heap: Failure.\n");
 		test.printHeap(testWriter);
-
-		//Test if insert() and siftUp() maintain heap integrity.  
-		test.insert(36);
+ 
+		test.insert(36);			//Test if insert() and siftUp() maintain heap integrity. 
 		test.insert(4);
 		testWriter.println("Inserted 36 and 4. Checking...");
 		if(test.heapArray.get(0) == 4)
@@ -282,11 +286,9 @@ public class PQ225 {
 				testWriter.println("Maintained heap integrity after deleteMin: Failure.");
 			testWriter.println("Deleted the smallest number: Success.\n");
 		} else
-			testWriter.println("Deleted the smallest number: Failure.\n");
+			testWriter.println("Deleted the smallest number: Failure.\n");		//End insert(), deleteMin(), makeHeap() tests.
 		
-		//End insert(), deleteMin(), makeHeap() tests.
-		//Begin heapSort tests.
-		test.heapsort();
+		test.heapsort();														//Begin heapSort tests.
 		test.printHeap(testWriter);
 		testWriter.println("Checking if heapArray is sorted...");
 		boolean sorted = true;
@@ -301,14 +303,13 @@ public class PQ225 {
 		else
 			testWriter.println("Determining if heapArray is sorted: Failure.");
 
-		//Closing PrintWriter.
-		testWriter.close();
+		testWriter.close();														// End heapsort() tests, close PrintWriter
 	}
 	
-	public static void main(String[] args) {
+	public static void main(String[] args) {		// Attempt to run test suite
 		try{
 			test();
-		} catch (FileNotFoundException e) {
+		} catch (FileNotFoundException e) {			// Throw error if PrintWriter in test() cannot find file
 			System.out.println("FileNotFoundException has prevented the test suite from launching.");
 		}
 	}
