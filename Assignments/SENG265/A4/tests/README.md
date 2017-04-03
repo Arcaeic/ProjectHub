@@ -1,4 +1,4 @@
-# Test files for Assignment #2 (SENG 265, Fall 2016)
+# Test files for Assignment #4 (SENG 265, Fall 2016)
 
 There are twenty pairs of files. For example, the first pair consists of:
 
