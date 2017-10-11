@@ -6,6 +6,8 @@ Then write SQL statements to answer the questions.
 The first time you access the data you might experience a small delay while DBeaver 
 loads the metadata for the tables accessed. 
 
+ssh -L 1522:oracledb.csc.uvic.ca:1521 jba@linux.csc.uvic.ca
+
 Submit this file after adding your queries. 
 Replace "Your query here" text with your query for each question. 
 Submit one spreadsheet file with your visualizations for questions 2, 7, 9, 10, 12 
@@ -67,7 +69,12 @@ Hint. Find the number of games each team has played as "home".
 Find the number of games each team has played as "visitor".
 Then union the two and take the sum of the number of games.   */
 
-/*Your query here*/
+SELECT "HOME", COUNT("HOME") + COUNT("VISITOR") AS "TGAMES" FROM England
+WHERE "TIER" = 1 AND "year" >= 1980 
+HAVING COUNT("HOME") + COUNT("VISITOR") > 300
+GROUP BY ("HOME")
+ORDER BY ("TGAMES") DESC;
+
 
 /*Sample result
 Everton	   1451
@@ -82,7 +89,11 @@ Order the results by the number of home-wins in descending order.
 Hint. After selecting the tuples needed (... WHERE tier=1 AND ...) do a GROUP BY home, visitor. 
 */
 
-/*Your query here*/
+SELECT  
+	"HOME", "VISITOR", COUNT("result") AS "WINS" FROM England
+WHERE "year" >= 1980 AND "result" = 'H'
+GROUP BY ("HOME", "VISITOR")
+ORDER BY "WINS" DESC;
 
 /*Sample result
 Manchester United	Tottenham Hotspur	27
@@ -94,7 +105,11 @@ Arsenal	Everton	26
 For each pair team1, team2 in England find the number of away-wins since 1980 of team1 versus team2.
 Order the results by the number of away-wins in descending order.*/
 
-/*Your query here*/
+SELECT  
+	"HOME", "VISITOR", COUNT("result") AS "WINS" FROM England
+WHERE "year" >= 1980 AND "result" = 'A'
+GROUP BY ("HOME", "VISITOR")
+ORDER BY "WINS" DESC;
 
 /*Sample result
 Aston Villa	 Manchester United	 18
@@ -106,12 +121,19 @@ Aston Villa	 Arsenal	         17
 For each pair team1, team2 in England report the number of home-wins and away-wins 
 since 1980 of team1 versus team2. 
 Order the results by the number of away-wins in descending order. 
-
 Hint. Join the results of the two previous queries. To do that you can use those 
 queries as subqueries. Remove their ORDER BY clause when making them subqueries.  
 Be careful on the join conditions. */
 
-/*Your query here*/
+SELECT t1."HOME", t1."VISITOR", "WINS1", "WINS2" FROM
+		(SELECT  "HOME", "VISITOR", COUNT("result") AS "WINS1" FROM England
+		WHERE "year" >= 1980 AND "result" = 'H'
+		GROUP BY ("HOME", "VISITOR")) t1
+	JOIN 
+		(SELECT  "HOME", "VISITOR", COUNT("result") AS "WINS2" FROM England
+		WHERE "year" >= 1980 AND "result" = 'A'
+		GROUP BY ("HOME", "VISITOR")) t2 ON t1."HOME" = t2."HOME" AND t1."VISITOR" = t2."VISITOR"
+	ORDER BY ("WINS2") DESC;
 
 /*Sample result
 Manchester United	   Aston Villa	  26	18
@@ -119,7 +141,16 @@ Arsenal	           Aston Villa	  20	17
 ...*/
 
 --Create a view, called Wins, with the query for the previous question. 
-
+CREATE VIEW Wins AS 
+	SELECT t1."HOME", t1."VISITOR", "WINS1", "WINS2" FROM
+		(SELECT  "HOME", "VISITOR", COUNT("result") AS "WINS1" FROM England
+		WHERE "year" >= 1980 AND "result" = 'H'
+		GROUP BY ("HOME", "VISITOR")) t1
+	JOIN 
+		(SELECT  "HOME", "VISITOR", COUNT("result") AS "WINS2" FROM England
+		WHERE "year" >= 1980 AND "result" = 'A'
+		GROUP BY ("HOME", "VISITOR")) t2 ON t1."HOME" = t2."HOME" AND t1."VISITOR" = t2."VISITOR"
+	ORDER BY ("WINS2") DESC;
 
 /*Q7 (2 pt)
 For each pair ('Arsenal', team2), report the number of home-wins and away-wins 
@@ -128,7 +159,10 @@ of Arsenal versus team2 and the number of home-wins and away-wins of team2 versu
 Order the results by the second number of away-wins in descending order.
 Use view Wins.*/
 
-/*Your query here*/
+SELECT Wins."HOME", Wins."VISITOR" AS "Opponent", Wins."WINS1" AS "HArseWins", Wins1."WINS2" AS "AArseWins", Wins1."WINS1" AS "HOppWins", Wins."WINS2" AS "AOppWins" FROM Wins JOIN (
+	SELECT * FROM Wins) Wins1 ON Wins."HOME" = Wins1."VISITOR" AND Wins."VISITOR" = Wins1."HOME"
+WHERE Wins."HOME" = 'Arsenal'
+ORDER BY (Wins."WINS2") DESC;
 
 /*Sample result
 Arsenal	Manchester United	16	5	19	11
@@ -147,7 +181,6 @@ Nevertheless, some teams have won more games as a visitor than when at home.
 Find the team in Germany that has more away-wins than home-wins in total.
 Print the team name, number of home-wins, and number of away-wins.*/
 
-/*Your query here*/
 
 /*Sample result
 Wacker Burghausen	...	...*/
