@@ -6,8 +6,6 @@ Then write SQL statements to answer the questions.
 The first time you access the data you might experience a small delay while DBeaver 
 loads the metadata for the tables accessed. 
 
-ssh -L 1522:oracledb.csc.uvic.ca:1521 jba@linux.csc.uvic.ca
-
 Submit this file after adding your queries. 
 Replace "Your query here" text with your query for each question. 
 Submit one spreadsheet file with your visualizations for questions 2, 7, 9, 10, 12 
@@ -33,7 +31,7 @@ SELECT * FROM spain;
 Find all the games in England between seasons 1920 and 1999 such that the total goals are at least 13. 
 Order by total goals descending.*/
 
-SELECT "year", "month", "day", "HOME", "VISITOR", "FT", "SEASON", "TOTGOAL" FROM england
+SELECT "year", "month", "day", "HOME", "VISITOR", "FT", "TOTGOAL" FROM England
 WHERE ("SEASON" >= 1920 AND "SEASON" <= 1999) AND "TOTGOAL" >= 13
 ORDER BY ("TOTGOAL") desc;
 
@@ -48,7 +46,7 @@ For each total goal result, find how many games had that result.
 Use the england table and consider only the seasons since 1980.
 Order by total goal.*/ 
 
-SELECT "TOTGOAL", COUNT("HOME") FROM england
+SELECT "TOTGOAL", COUNT("HOME") FROM England
 WHERE "SEASON" >= 1980
 GROUP BY ("TOTGOAL")
 ORDER BY ("TOTGOAL") asc;
@@ -71,7 +69,7 @@ Then union the two and take the sum of the number of games.   */
 
 SELECT "HOME", COUNT("HOME") + COUNT("VISITOR") AS "TGAMES" FROM England
 WHERE "TIER" = 1 AND "year" >= 1980 
-HAVING COUNT("HOME") + COUNT("VISITOR") > 300
+HAVING COUNT("HOME") + COUNT("VISITOR") >= 300
 GROUP BY ("HOME")
 ORDER BY ("TGAMES") DESC;
 
@@ -91,7 +89,7 @@ Hint. After selecting the tuples needed (... WHERE tier=1 AND ...) do a GROUP BY
 
 SELECT  
 	"HOME", "VISITOR", COUNT("result") AS "WINS" FROM England
-WHERE "year" >= 1980 AND "result" = 'H'
+WHERE "year" >= 1980 AND "result" = 'H' AND "TIER" = 1
 GROUP BY ("HOME", "VISITOR")
 ORDER BY "WINS" DESC;
 
@@ -107,7 +105,7 @@ Order the results by the number of away-wins in descending order.*/
 
 SELECT  
 	"HOME", "VISITOR", COUNT("result") AS "WINS" FROM England
-WHERE "year" >= 1980 AND "result" = 'A'
+WHERE "year" >= 1980 AND "result" = 'A' AND "TIER" = 1
 GROUP BY ("HOME", "VISITOR")
 ORDER BY "WINS" DESC;
 
@@ -127,12 +125,12 @@ Be careful on the join conditions. */
 
 SELECT t1."HOME", t1."VISITOR", "WINS1", "WINS2" FROM
 		(SELECT  "HOME", "VISITOR", COUNT("result") AS "WINS1" FROM England
-		WHERE "year" >= 1980 AND "result" = 'H'
+		WHERE "year" >= 1980 AND "result" = 'H' AND "TIER" = 1	
 		GROUP BY ("HOME", "VISITOR")) t1
 	JOIN 
 		(SELECT  "HOME", "VISITOR", COUNT("result") AS "WINS2" FROM England
-		WHERE "year" >= 1980 AND "result" = 'A'
-		GROUP BY ("HOME", "VISITOR")) t2 ON t1."HOME" = t2."HOME" AND t1."VISITOR" = t2."VISITOR"
+		WHERE "year" >= 1980 AND "result" = 'A' AND "TIER" = 1
+		GROUP BY ("HOME", "VISITOR")) t2 ON t1."HOME" = t2."VISITOR" AND t1."VISITOR" = t2."HOME"
 	ORDER BY ("WINS2") DESC;
 
 /*Sample result
@@ -182,6 +180,17 @@ Find the team in Germany that has more away-wins than home-wins in total.
 Print the team name, number of home-wins, and number of away-wins.*/
 
 
+SELECT t1."VISITOR", t1."VWINS", t2."HWINS"  FROM 
+	(SELECT "VISITOR", COUNT("FT") AS "VWINS" FROM Germany 
+	WHERE "VGOAL" > "HGOAL"
+	GROUP BY ("VISITOR")) t1
+JOIN
+	(SELECT "HOME", COUNT("FT") AS "HWINS" FROM Germany
+	WHERE "HGOAL" > "VGOAL"
+	GROUP BY ("HOME")) t2 ON t2."HOME" = t1."VISITOR"
+WHERE t1."VWINS" > t2."HWINS"
+ORDER BY (t1."VWINS") DESC;
+
 /*Sample result
 Wacker Burghausen	...	...*/
 
@@ -202,9 +211,21 @@ Subquery 2: Find the average total goals per season in Italy
    (there is no totgoal in table Italy. Take hgoal+vgoal).
 Join the two subqueries on season.  */
 
-/*Your query here*/
-
+SELECT t1."SEASON", t1."EAVG", t2."IAVG"  FROM
+	(SELECT "SEASON", AVG("TOTGOAL") AS "EAVG" FROM England
+	WHERE "SEASON" >= 1970
+	GROUP BY ("SEASON")) t1 
+JOIN
+	(SELECT "SEASON", AVG("HGOAL" + "VGOAL") AS "IAVG" FROM Italy
+	WHERE "SEASON" >= 1970
+	GROUP BY ("SEASON")) t2 
+ON t2."SEASON" = t1."SEASON"
+ORDER BY ("SEASON") ASC;
+	
+	
 --Build a line chart visualizing the results. What do you observe?
+-- A: England has been playing consistent through the past few decades while Italy has been becoming more
+--	  aggressive in their goal-scoring.
 
 /*Sample result
 1970	2.5290927021696255	2.1041666666666665
@@ -218,7 +239,16 @@ Return (goaldif, france_games, eng_games) triples, ordered by the goal differenc
 Normalize the number of games returned dividing by the total number of games for the country in tier 1, 
 e.g. 1.0*COUNT(*)/(select count(*) from france where tier=1)  */ 
 
-/*Your query here*/
+SELECT t1."GOALDIF", t2."FGAMES", t1."EGAMES" FROM
+	(SELECT "GOALDIF", ROUND(COUNT("result")/(SELECT COUNT("result") FROM England WHERE "TIER" = 1), 6) AS "EGAMES" FROM England 
+	WHERE "TIER" = 1
+	GROUP BY ("GOALDIF")) t1
+JOIN
+	(SELECT "GOALDIF", ROUND(COUNT("result")/(SELECT COUNT("result") FROM France WHERE "TIER" = 1), 6) AS "FGAMES" FROM France
+	WHERE "TIER" = 1
+	GROUP BY ("GOALDIF")) t2 
+ON t2."GOALDIF" = t1."GOALDIF"
+ORDER BY (t1."GOALDIF") ASC;
 
 /*Sample result
 -8	0.000114	0.000063
@@ -234,7 +264,17 @@ Consider only tier 1 for both countries.
 Return (season,england_avg,france_avg) triples.
 Order by season.*/
 
-/*Your query here*/
+SELECT t1."SEASON", t1."EAVG", t2."FAVG"  FROM
+	(SELECT "SEASON", AVG("TOTGOAL") AS "EAVG" FROM England
+	WHERE "TIER" = 1
+	GROUP BY "SEASON") t1
+JOIN
+	(SELECT "SEASON", AVG("TOTGOAL") AS "FAVG" FROM France
+	WHERE "TIER" = 1
+	GROUP BY "SEASON") t2
+ON t2."SEASON" = t1."SEASON"
+WHERE t1."EAVG" > t2."FAVG"
+ORDER BY "SEASON" ASC;
 
 /*Sample result
 1936	3.365800865800866	3.3041666666666667
@@ -244,8 +284,27 @@ Order by season.*/
 
 /*Q12 (2 pt)
 Propose a query for the soccer database and visualize the results. */ 
+/*Find the number of games played per season since 1980.*/
 
-
-
-
-
+SELECT t1."SEASON", t1."EGAMES" AS "England", t2."SGAMES" AS "Spain", t3."GGAMES" AS "Germany", t4."FGAMES" AS "France", t5."IGAMES" AS "Italy" FROM
+	(SELECT "SEASON", COUNT("FT") AS "EGAMES" FROM England
+	WHERE "SEASON" > 1980
+	GROUP BY "SEASON") t1
+JOIN	
+	(SELECT "SEASON", COUNT("FT") AS "SGAMES" FROM Spain
+	WHERE "SEASON" > 1980
+	GROUP BY "SEASON") t2
+ON t1."SEASON" = t2."SEASON" JOIN 
+	(SELECT "SEASON", COUNT("FT") AS "GGAMES" FROM Germany
+	WHERE "SEASON" > 1980
+	GROUP BY "SEASON") t3
+ON t2."SEASON" = t3."SEASON" JOIN
+	(SELECT "SEASON", COUNT("FT") AS "FGAMES" FROM France
+	WHERE "SEASON" > 1980
+	GROUP BY "SEASON") t4
+ON t3."SEASON" = t4."SEASON" JOIN
+	(SELECT "SEASON", COUNT("FT") AS "IGAMES" FROM Italy
+	WHERE "SEASON" > 1980
+	GROUP BY "SEASON") t5
+ON t4."SEASON" = t5."SEASON"
+ORDER BY t1."SEASON" ASC;
