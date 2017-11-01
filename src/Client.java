@@ -9,6 +9,8 @@ import java.util.Arrays;
 import java.util.Base64;
 import java.util.Scanner;
 
+import javax.crypto.SecretKey;
+
 public class Client {
 
     private static final String HOSTNAME = "localhost";
@@ -18,6 +20,7 @@ public class Client {
     private static ObjectOutputStream objOut;
     private static ObjectInputStream objIn;
     private static String clientParams;
+    private static SecretKey sessionKey;
 
 
 	private static void connect() {
@@ -75,14 +78,12 @@ public class Client {
 		        //String message = sc.nextLine();
 		        
 		        SymmetricKeyGen gen = new SymmetricKeyGen();
-		        byte[] sessionKey = gen.generateSessionKey();
-				System.out.println("Client: Session Key: [" + Base64.getEncoder().encodeToString(sessionKey)+ "].");
+		        sessionKey = SymmetricKeyGen.generateSessionKey();
+				System.out.println("Client: Session Key: [" + SymmetricKeyGen.encode64(sessionKey.getEncoded()) + "].");
 				
 		        //send symmetric key to server
 		        //TODO protect key with asymmetric encryption
-		        objOut.write(sessionKey);
-		        objOut.flush();
-		        
+		        objOut.writeObject(sessionKey);  
 		        
 		        //send test plaintext message to server
 		        //objOut.writeObject(new Message("hello there!"));
@@ -103,34 +104,26 @@ public class Client {
 	        		   
 	        		   //send to server
 	        		   //possibly send another message
-					//TODO sendMessagePrompt();
+	        		   //TODO sendMessagePrompt();
 						
 				        Scanner sc = new Scanner(System.in);
-				        System.out.print("Message for server: ");
+				        System.out.print("Input message for server: ");
 				        String message = sc.nextLine();
 				        
 				        //encrypt message and send
-				        objOut.writeObject(new Message(SymmetricKeyGen.encryptMessage(message, sessionKey)));
+				        EncryptedMessage eMsg = new EncryptedMessage(message, sessionKey);
+				        objOut.writeObject(eMsg);
 						System.out.println("Client: waiting for server to respond. ");
 				        
 	        		   //receive from server
 						if((msg = (Message) objIn.readObject()) != null){
-							   System.out.println("Client: message received from server: " + SymmetricKeyGen.decryptMessage(msg.get(), sessionKey));
-						   }else{
-							   System.out.println("Server: connection still open.......... ");
-							   
-							   
-							 
-						   }
+							System.out.println("Client: message received: [" + ((EncryptedMessage) msg).decrypt(sessionKey)+ "].");
+						}else{
+							System.out.println("Server: connection still open.......... ");
+						}
 						
-						
-						
-							  
 					} catch (ClassNotFoundException | IOException e) {
-						// TODO Auto-generated catch block
 				        System.out.println("Client: connection closed.");
-
-						e.printStackTrace();
 						return;
 					}
 	           }
@@ -138,17 +131,12 @@ public class Client {
 	
     		}else{
     			begin();  //allow for unlimited auth attempts
-
     		}
-    		
-    		
-    		System.out.println("Client: Exiting.");
-			
+    					
 		} catch (IOException | ClassNotFoundException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-    	
+
     }
     
     private static boolean authenticateToServer() throws IOException, ClassNotFoundException{
