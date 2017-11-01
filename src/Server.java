@@ -8,6 +8,8 @@ import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.Arrays;
 
+import com.sun.org.apache.xerces.internal.impl.dv.util.Base64;
+
 public class Server {
 
     private static final int PORT = 11112;
@@ -19,6 +21,7 @@ public class Server {
 	private static ObjectOutputStream objOut;
 	private static String serverParams;
 	private static String clientParams;
+	private static byte[] sessionKey;
 
 
 	private static void startServer(String[] args) {
@@ -146,13 +149,51 @@ public class Server {
 
 	           System.out.println("Server: Connection to Client open...");
 
+	           //setup session key
+	           //TODO protect in transit
+	           sessionKey = new byte[16];
+	           
+	           try {
+					objIn.read(sessionKey);
+					System.out.println("Server: Session Key: [" + Base64.encode(sessionKey)+ "].");
+
+				} catch (IOException e) {
+					System.out.println("Server: Could not receive session key.");
+				}
+	           
+	           
+	           
 	    	}else{
 		           System.out.println("Server: Connection to Client still open. Waiting for reauth.");
 		           begin();
 	    	}
 	    	
+	    	//listen for any messages
            while(true){
-        	   //do other stuff, send messages, ...
+        	   Message msg = null;
+        	   try {
+					if((msg = (Message)objIn.readObject()) != null){
+						   System.out.println("Server: message received from client... ");
+						   
+						   //TODO support plaintext message
+						   if(true){
+							   //if is encrypted
+							   System.out.println("Server: Encrypted message: ["+msg.get()+"].");
+
+							   String decMessage = SymmetricKeyGen.decryptMessage(msg.get(),sessionKey);
+							   System.out.println("Server: message decrypted: ["+decMessage+"].");
+						   }
+					   }
+					
+					//TODO add "send another message prompt" here
+					
+				} catch (ClassNotFoundException | IOException e) {
+					// TODO Auto-generated catch block
+			        System.out.println("Server: connection closed.");
+
+					e.printStackTrace();
+					return;
+				}
            }
             
 

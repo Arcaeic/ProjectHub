@@ -1,4 +1,5 @@
 import java.io.UnsupportedEncodingException;
+import java.security.InvalidAlgorithmParameterException;
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
@@ -7,6 +8,7 @@ import javax.crypto.BadPaddingException;
 import javax.crypto.Cipher;
 import javax.crypto.IllegalBlockSizeException;
 import javax.crypto.NoSuchPaddingException;
+import javax.crypto.spec.IvParameterSpec;
 import javax.crypto.spec.SecretKeySpec;
 
 import com.sun.org.apache.xerces.internal.impl.dv.util.Base64;
@@ -31,9 +33,9 @@ public class SymmetricKeyGen {
 	 * the symmetrical session key 
 	 * and ensuring integrity in that process.
 	 */
-	public byte[] generate32BitSessionKey(){
+	public static byte[] generateSessionKey(){
 		
-		byte[] key = new byte[32]; //32 bytes = 256 bits
+		byte[] key = new byte[16]; //16 bytes = 128 bits
 		SecureRandom rng = new SecureRandom();
 		rng.nextBytes(key);
 		
@@ -41,10 +43,9 @@ public class SymmetricKeyGen {
 	
 	}
 	
-	public String encryptMessage(String msg, byte[] key){
-		System.out.println();
+	public static String encryptMessage(String msg, byte[] key){
 		String base64key = Base64.encode(key);
-		System.out.println("SymEnc: 256 bit key (with Base64 encoding): " + base64key );
+		System.out.println("SymEnc: 128 bit key (with Base64 encoding): " + base64key );
 	
 		SecretKeySpec sessionKeySpec = new SecretKeySpec(key, "AES");
 		Cipher cipher;
@@ -53,9 +54,12 @@ public class SymmetricKeyGen {
 			
 			cipher = Cipher.getInstance("AES/CBC/PKCS5Padding");
 			SecureRandom rngIV = new SecureRandom();
-			cipher.init(Cipher.ENCRYPT_MODE, sessionKeySpec, rngIV); 
-			byte[] encryptedMessageInBytes = cipher.doFinal(msg.getBytes("UTF-8")); 
-			base64EncodedEncryptedMsg = Base64.encode(encryptedMessageInBytes); 
+			byte[] iv = new byte[16];
+			rngIV.nextBytes(iv);
+	        IvParameterSpec ivspec = new IvParameterSpec(iv);
+			cipher.init(Cipher.ENCRYPT_MODE, sessionKeySpec, ivspec); 
+			byte[] encryptedMessageInBytes = cipher.doFinal(msg.getBytes()); 
+			base64EncodedEncryptedMsg = Base64.encode(iv) + ":" + Base64.encode(encryptedMessageInBytes); 
 
 			
 		} catch (NoSuchAlgorithmException e) {
@@ -68,11 +72,11 @@ public class SymmetricKeyGen {
 		} catch (BadPaddingException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
-		} catch (UnsupportedEncodingException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (InvalidKeyException e) {
+		}catch (InvalidKeyException e) {
 			System.out.println("SymEnc: invalid key");
+			e.printStackTrace();
+		} catch (InvalidAlgorithmParameterException e) {
+			// TODO Auto-generated catch block
 			e.printStackTrace();
 		} 
 		
@@ -80,6 +84,54 @@ public class SymmetricKeyGen {
 		
 	}
 	
+	
+	public static String decryptMessage(String encryptedMsg, byte[] key){
+
+		String base64key = Base64.encode(key);
+		System.out.println("SymDec: 128 bit key (with Base64 encoding): " + base64key );
+	
+		SecretKeySpec sessionKeySpec = new SecretKeySpec(key, "AES");
+		Cipher cipher;
+		String msg = null;
+		try {
+			
+			cipher = Cipher.getInstance("AES/CBC/PKCS5Padding");
+			byte[] iv = new byte[16];
+			
+			String[] encodedData = encryptedMsg.split(":");
+			
+			String encodedIvStr = encodedData[0];
+			iv = Base64.decode(encodedIvStr);
+
+			byte[] encryptedMessageBytes = Base64.decode(encodedData[1]);
+			
+			
+	        IvParameterSpec ivspec = new IvParameterSpec(iv);
+			cipher.init(Cipher.DECRYPT_MODE, sessionKeySpec, ivspec); 
+			byte[] decryptedMessageBytes = cipher.doFinal(encryptedMessageBytes); 
+			msg = new String(decryptedMessageBytes);
+			
+		} catch (NoSuchAlgorithmException e) {
+			System.out.println("SymEnc: algorithm not found");
+		} catch (NoSuchPaddingException e) {
+			System.out.println("SymEnc: padding scheme not found");
+		} catch (IllegalBlockSizeException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (BadPaddingException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}catch (InvalidKeyException e) {
+			System.out.println("SymEnc: invalid key");
+			e.printStackTrace();
+		} catch (InvalidAlgorithmParameterException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} 
+		
+		return msg;
+		
+	}
 	
 
 }

@@ -6,6 +6,7 @@ import java.io.ObjectOutputStream;
 import java.net.Socket;
 import java.net.UnknownHostException;
 import java.util.Arrays;
+import java.util.Base64;
 import java.util.Scanner;
 
 public class Client {
@@ -68,9 +69,58 @@ public class Client {
     		
 			if(success){
 		        System.out.println("Client: connection to server open...");
-				while(true){
-					
-				}
+				
+		        //Scanner sc = new Scanner(System.in);
+		        //System.out.print("Input message to server: ");
+		        //String message = sc.nextLine();
+		        
+		        SymmetricKeyGen gen = new SymmetricKeyGen();
+		        byte[] sessionKey = gen.generateSessionKey();
+				System.out.println("Client: Session Key: [" + Base64.getEncoder().encodeToString(sessionKey)+ "].");
+				
+		        //send symmetric key to server
+		        //TODO protect key with asymmetric encryption
+		        objOut.write(sessionKey);
+		        objOut.flush();
+		        
+		        
+		        //send test plaintext message to server
+		        //objOut.writeObject(new Message("hello there!"));
+		        
+		        //send test encrypted message
+		        String encMsg = gen.encryptMessage("secret message!!!", sessionKey);
+		        Message encMessage = new Message(encMsg);
+				System.out.println("Client: Sending Encrypted and Encoded Message: [" + encMsg+ "].");
+		        objOut.writeObject(encMessage);
+		        
+		       //listen for any messages
+	           while(true){
+	        	   Message msg = null;
+	        	   try {
+						if((msg = (Message)objIn.readObject()) != null){
+							   System.out.println("Client: message received from server: " + msg.get());
+						   }
+						
+						//possibly send another message
+						//TODO sendMessagePrompt();
+						
+				        Scanner sc = new Scanner(System.in);
+				        System.out.print("Message for server: ");
+				        String message = sc.nextLine();
+				        
+				        //encrypt message and send
+				        
+						
+							  
+					} catch (ClassNotFoundException | IOException e) {
+						// TODO Auto-generated catch block
+				        System.out.println("Client: connection closed.");
+
+						e.printStackTrace();
+						return;
+					}
+	           }
+		            
 	
     		}else{
     			begin();  //allow for unlimited auth attempts
@@ -78,7 +128,7 @@ public class Client {
     		}
     		
     		
-    		System.out.println("Client: done.");
+    		System.out.println("Client: Exiting.");
 			
 		} catch (IOException | ClassNotFoundException e) {
 			// TODO Auto-generated catch block
@@ -103,8 +153,25 @@ public class Client {
 
 		
 		boolean authSuccess =  objIn.readBoolean();
-		System.out.println("Client: Authentication Success.");
+		if(authSuccess){
+			System.out.println("Client: Authentication Success.");
+		}else{
+			System.out.println("Client: Authentication Failure.");
+
+		}
 		return authSuccess;	
+    }
+    
+    private static void sendMessagePrompt(){
+    	
+    }
+    
+    private static void sendPlaintextMessage(){
+    	
+    }
+    
+    private static void sendEncryptedMessage(){
+    	
     }
 
 	public static void main(String[] args) {
