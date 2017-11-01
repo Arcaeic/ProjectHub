@@ -5,19 +5,21 @@ import java.io.ObjectOutputStream;
 import java.net.Socket;
 import java.net.UnknownHostException;
 import java.util.Arrays;
+import java.util.Scanner;
 
 public class Client {
 
+    private static int[] paramArray = new int[3];
     private static final String HOSTNAME = "localhost";
     private static Socket clientSocket;
     private static DataOutputStream os;
     private static DataInputStream is;
     private static ObjectOutputStream objOut;
 
-	private static void connect(String[] args) {
+	private static void connect() {
         createSocketStreams();
         if (clientSocket != null && os != null && is != null) {
-            sendParameters(args);
+            sendParameters();
         }
     }
 
@@ -35,10 +37,10 @@ public class Client {
         }
     }
 
-    private static void sendParameters(String[] args) {
+    private static void sendParameters() {
         try {
 
-            Message newMessage = new Message(Arrays.toString(args));
+            Message newMessage = new Message(Arrays.toString(paramArray));
             System.out.println("Parameters: " + newMessage.get());
             objOut.writeObject(newMessage);
             System.out.println("Client: Sent parameters to server.");
@@ -56,17 +58,18 @@ public class Client {
         }
     }
 
+    private static void textUI() {
+	    Scanner scanner = new Scanner(System.in);
+	    System.out.print("Ensure Confidentiality? (0/1): ");
+	    paramArray[0] = scanner.nextInt();
+	    System.out.print("Ensure Integrity? (0/1): ");
+	    paramArray[1] = scanner.nextInt();
+	    System.out.print("Ensure Authenticity? (0/1): ");
+	    paramArray[2] = scanner.nextInt();
+    }
+
 	public static void main(String[] args) {
-	    if(args.length != 3) {
-	        System.out.println("Missing one or more parameters. Please try again.");
-	        System.out.println("FORMAT: \"java Client <C> <I> <A>\"");
-	        System.out.println("Where <C>, <I>, <A> are represented with boolean logic.");
-	        System.out.println("Usage: ");
-	        System.out.println("\t <C> (Confidentiality): Encrypts the message b/w endpoints.");
-	        System.out.println("\t <I> (Integrity): Ensures the content received by the server matches the content sent by the client.");
-	        System.out.println("\t <A> (Authentication): [Placeholder] ");
-	        return;
-        }
-        connect(args);
+        textUI();
+        connect();
 	}
 }

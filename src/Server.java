@@ -5,9 +5,11 @@ import java.io.PrintStream;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.Arrays;
+import java.util.Scanner;
 
 public class Server {
 
+    private static int[] paramArray = new int[3];
     private static final int PORT = 11112;
     private static ServerSocket server;
     private static Socket clientSocket;
@@ -15,31 +17,31 @@ public class Server {
 	private static PrintStream os;
 	private static String clientParams;
 
-	private static void startServer(String[] args) {
+	private static void startServer() {
 		System.out.println("Starting Server...");
 		try {
 
 			server = new ServerSocket(PORT);
-			while(true){ connect(args); }
+			while(true){ connect(); }
 
 		} catch (IOException e) { System.out.println("Could not establish I/O between client."); }
 	}
 	
-	private static void connect(String[] args){
+	private static void connect(){
 
 		try {
             findConnection();
             ObjectInputStream objIn = new ObjectInputStream(clientSocket.getInputStream());
             getClientParameters(objIn);
 
-            if(parametersMatch(args)) { listen(); }
+            if(parametersMatch()) { listen(); }
             else { close(); }
 	
 		} catch (IOException e) { e.printStackTrace(); }
 	}
 
-	private static boolean parametersMatch(String[] args) {
-        boolean sameConfig = Arrays.toString(args).equals(clientParams);
+	private static boolean parametersMatch() {
+        boolean sameConfig = Arrays.toString(paramArray).equals(clientParams);
         if(sameConfig){
             System.out.println("Server: Parameters match Client's");
             System.out.println("Server: Connection to Client established");
@@ -89,17 +91,19 @@ public class Server {
         } catch (IOException e) { e.printStackTrace(); }
     }
 
+    private static void textUI() {
+        Scanner scanner = new Scanner(System.in);
+        System.out.print("Ensure Confidentiality? (0/1): ");
+        paramArray[0] = scanner.nextInt();
+        System.out.print("Ensure Integrity? (0/1): ");
+        paramArray[1] = scanner.nextInt();
+        System.out.print("Ensure Authenticity? (0/1): ");
+        paramArray[2] = scanner.nextInt();
+
+    }
+
     public static void main(String[] args) {
-        if(args.length != 3) {
-            System.out.println("Missing one or more parameters. Please try again.");
-            System.out.println("FORMAT: \"java Server <C> <I> <A>\"");
-            System.out.println("Where <C>, <I>, <A> are represented with boolean logic.");
-            System.out.println("Usage: ");
-            System.out.println("\t <C> (Confidentiality): Encrypts the message b/w endpoints.");
-            System.out.println("\t <I> (Integrity): Ensures the content received by the server matches the content sent by the client.");
-            System.out.println("\t <A> (Authentication): [Placeholder] ");
-            return;
-        }
-        startServer(args);
+        textUI();
+        startServer();
     }
 }
