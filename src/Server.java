@@ -7,6 +7,7 @@ import java.io.PrintStream;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.Arrays;
+import java.util.Scanner;
 
 import com.sun.org.apache.xerces.internal.impl.dv.util.Base64;
 
@@ -172,21 +173,38 @@ public class Server {
            while(true){
         	   Message msg = null;
         	   try {
-					if((msg = (Message)objIn.readObject()) != null){
-						   System.out.println("Server: message received from client... ");
-						   
-						   //TODO support plaintext message
-						   if(true){
-							   //if is encrypted
-							   System.out.println("Server: Encrypted message: ["+msg.get()+"].");
+        		   
+        		   //receive message
+        		   if((msg = (Message) objIn.readObject()) != null){
+       			   	
+        			   
+					   System.out.println("Server: message received from client... ");
+					   
+					   //TODO support plaintext message
+					   if(true){
+						   //if is encrypted
+						   System.out.println("Server: Encrypted message: ["+msg.get()+"].");
 
-							   String decMessage = SymmetricKeyGen.decryptMessage(msg.get(),sessionKey);
-							   System.out.println("Server: message decrypted: ["+decMessage+"].");
-						   }
+						   String decMessage = SymmetricKeyGen.decryptMessage(msg.get(),sessionKey);
+						   System.out.println("Server: message decrypted: ["+decMessage+"].");
 					   }
+				}
+        		   
+        		   //send message
+        		   
+				 //TODO add "send another message prompt" here
+        		    Scanner sc = new Scanner(System.in);
+			        System.out.print("Message for client: ");
+			        String message = sc.nextLine();
+				   
+			        objOut.writeObject(new Message(SymmetricKeyGen.encryptMessage(message, sessionKey)));
 					
-					//TODO add "send another message prompt" here
-					
+			        System.out.println("Server: waiting for client to respond. ");
+
+				   
+        		   
+						   
+
 				} catch (ClassNotFoundException | IOException e) {
 					// TODO Auto-generated catch block
 			        System.out.println("Server: connection closed.");

@@ -88,28 +88,42 @@ public class Client {
 		        //objOut.writeObject(new Message("hello there!"));
 		        
 		        //send test encrypted message
+		        /*
 		        String encMsg = gen.encryptMessage("secret message!!!", sessionKey);
 		        Message encMessage = new Message(encMsg);
 				System.out.println("Client: Sending Encrypted and Encoded Message: [" + encMsg+ "].");
 		        objOut.writeObject(encMessage);
+		        objOut.flush();
+		        */
 		        
 		       //listen for any messages
 	           while(true){
 	        	   Message msg = null;
 	        	   try {
-						if((msg = (Message)objIn.readObject()) != null){
-							   System.out.println("Client: message received from server: " + msg.get());
-						   }
-						
-						//possibly send another message
-						//TODO sendMessagePrompt();
+	        		   
+	        		   //send to server
+	        		   //possibly send another message
+					//TODO sendMessagePrompt();
 						
 				        Scanner sc = new Scanner(System.in);
 				        System.out.print("Message for server: ");
 				        String message = sc.nextLine();
 				        
 				        //encrypt message and send
+				        objOut.writeObject(new Message(SymmetricKeyGen.encryptMessage(message, sessionKey)));
+						System.out.println("Client: waiting for server to respond. ");
 				        
+	        		   //receive from server
+						if((msg = (Message) objIn.readObject()) != null){
+							   System.out.println("Client: message received from server: " + SymmetricKeyGen.decryptMessage(msg.get(), sessionKey));
+						   }else{
+							   System.out.println("Server: connection still open.......... ");
+							   
+							   
+							 
+						   }
+						
+						
 						
 							  
 					} catch (ClassNotFoundException | IOException e) {
