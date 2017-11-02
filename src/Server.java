@@ -5,6 +5,9 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.security.KeyStore;
+import java.security.KeyStoreException;
+import java.security.cert.Certificate;
 import java.util.Arrays;
 import java.util.Scanner;
 
@@ -26,6 +29,7 @@ public class Server {
 	private static String serverParams;
 	private static String clientParams;
 	private static SecretKey sessionKey;
+	private static KeyStore keyStore;
 
 
 	private static void startServer() {
@@ -37,6 +41,7 @@ public class Server {
 		try {
 
 			server = new ServerSocket(PORT);
+			keyStore = KeyPairGen.loadServerKeyStore();
 			while (true) {
 				connect();
 			}
@@ -161,13 +166,55 @@ public class Server {
 
 		return success;
 	}
+	
+	private static boolean authClientCert() {
+		
+		System.out.println("Server: Waiting for client to send certificate.");
+		Certificate clientCert = null;
+		try {
+			clientCert = (Certificate) objIn.readObject();
+		} catch (ClassNotFoundException | IOException e) {
+			e.printStackTrace();
+		}
+
+		System.out.println("Server: Received certificate from client.");
+
+		Certificate caCert = null;
+		try {
+			caCert = keyStore.getCertificate("ServerCert");
+		} catch (KeyStoreException e1) {
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
+		}
+		boolean success = false;
+		if (KeyPairGen.verifySignature(clientCert, caCert, caCert.getPublicKey())) {
+			System.out.println("Server: Authentication success. Client cert is valid.");
+			success = true;
+		} else {
+			System.out.println("Server: Autentication failure. Client cert is invalid.");
+			return false;
+		}
+
+		try {
+			objOut.writeBoolean(success);
+			objOut.flush();
+			System.out.println("Server: sent success = " + success);
+			objOut.writeObject(caCert);
+			System.out.println("Server: (is CA) sent own certificate to client.");
+			success = objIn.readBoolean();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+
+		return success;
+	}
 
 	private static void begin() {
 
 		/*
 		 * TODO run authentication only when in agreed params
 		 */
-		if (authenticateClient()) {
+		if (authClientCert()) {
 
 			System.out.println("Server: Connection to Client open...");
 
@@ -251,6 +298,9 @@ public class Server {
     }
 
 	public static void main(String[] args) {
+		//Server is CA --> user must login to server.
+		//TODO add server pass hash and user to UserDB
+		//TODO add interactive login before all else
 	    textUI();
 		startServer();
 	}
