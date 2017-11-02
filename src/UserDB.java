@@ -17,6 +17,7 @@ public class UserDB {
 		users.put(userid, pass);
 	}
 	
+	//TODO compare password hashes
 	public boolean authenticate(String userid, String pass){
 		
 		boolean success = false;
