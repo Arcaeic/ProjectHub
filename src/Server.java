@@ -15,6 +15,7 @@ import com.sun.org.apache.xerces.internal.impl.dv.util.Base64;
 public class Server {
 
 	private static final int PORT = 11112;
+	private static int[] paramArray = new int[3];
 	private static ServerSocket server;
 	private static Socket clientSocket;
 
@@ -27,17 +28,12 @@ public class Server {
 	private static SecretKey sessionKey;
 
 
-	private static void startServer(String[] args) {
+	private static void startServer() {
 
 		// server params from command line
-		serverParams = Arrays.toString(args);
-		// for testing ease
-		if (serverParams == null || serverParams.equals("[]")) {
-			serverParams = "[CIA]";
-		}
+		serverParams = Arrays.toString(paramArray);
 
-		System.out.println("Server: Starting Server with parameters["
-				+ serverParams + "]");
+		System.out.println("Server: Starting Server with parameters " + serverParams);
 		try {
 
 			server = new ServerSocket(PORT);
@@ -120,7 +116,7 @@ public class Server {
 	/**
 	 * TODO need to protect integrity of this plaintext auth protocol?
 	 * 
-	 * @param objIn
+	 * @param "objIn"
 	 * @return is the client authenticated
 	 * @throws IOException
 	 */
@@ -236,22 +232,18 @@ public class Server {
 		}
 	}
 
-	public static void main(String[] args) {
+	public static void textUI() {
+        Scanner scanner = new Scanner(System.in);
+        System.out.print("Ensure Confidentiality? (0/1): ");
+        paramArray[0] = scanner.nextInt();
+        System.out.print("Ensure Integrity? (0/1): ");
+        paramArray[1] = scanner.nextInt();
+        System.out.print("Ensure Authenticity? (0/1): ");
+        paramArray[2] = scanner.nextInt();
+    }
 
-		if (args.length != 3) {
-			System.out
-					.println("Missing one or more parameters. Please try again.");
-			System.out.println("FORMAT: \"java Server <C> <I> <A>\"");
-			System.out
-					.println("Where <C>, <I>, <A> are represented with boolean logic.");
-			System.out.println("Usage: ");
-			System.out
-					.println("\t <C> (Confidentiality): Encrypts the message b/w endpoints.");
-			System.out
-					.println("\t <I> (Integrity): Ensures the content received by the server matches the content sent by the client.");
-			System.out.println("\t <A> (Authentication): [Placeholder] ");
-			// return;
-		}
-		startServer(args);
+	public static void main(String[] args) {
+	    textUI();
+		startServer();
 	}
 }
