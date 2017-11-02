@@ -4,16 +4,6 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.security.KeyFactory;
-import java.security.KeyPair;
-import java.security.KeyPairGenerator;
-import java.security.KeyStore;
-import java.security.KeyStoreException;
-import java.security.NoSuchAlgorithmException;
-import java.security.NoSuchProviderException;
-import java.security.PrivateKey;
-import java.security.SignatureException;
-import java.security.UnrecoverableKeyException;
 import java.security.cert.Certificate;
 import java.security.cert.CertificateException;
 import java.security.cert.CertificateFactory;
@@ -25,6 +15,12 @@ import java.security.cert.*;
 import java.security.*;
 import java.math.BigInteger;
 import java.util.Date;
+
+import javax.crypto.BadPaddingException;
+import javax.crypto.Cipher;
+import javax.crypto.IllegalBlockSizeException;
+import javax.crypto.NoSuchPaddingException;
+
 import com.sun.org.apache.xml.internal.security.utils.Base64;
 
 public class KeyPairGen {
@@ -91,11 +87,11 @@ public class KeyPairGen {
 			
 			//fill keystores with necessary data
 			char[] privateKeyPass = "".toCharArray();
-			client.setKeyEntry("ClientPrivate", ckp.getPrivate(),privateKeyPass, clientCertChain);
+			client.setKeyEntry("ClientPrivate", ckp.getPrivate(),KEYSTORE_PASS, clientCertChain);
 			client.setCertificateEntry("ClientCert", clientCert);
 			client.setCertificateEntry("ServerCert", serverCert);
 
-			server.setKeyEntry("ServerPrivate", skp.getPrivate(),privateKeyPass, serverCertChain);
+			server.setKeyEntry("ServerPrivate", skp.getPrivate(),KEYSTORE_PASS, serverCertChain);
 			server.setCertificateEntry("ClientCert", clientCert);
 			server.setCertificateEntry("ServerCert", serverCert);
 
@@ -248,7 +244,40 @@ public class KeyPairGen {
 		
 		return success;
 	}
+    
+    public static byte[] encrypt(String message, Key key){
+    	
+    	byte[] encBytes = null;
+    	
+    	try {
+        	Cipher pkCipher = Cipher.getInstance("RSA");
+			pkCipher.init(Cipher.ENCRYPT_MODE, key);
+			encBytes = pkCipher.doFinal(message.getBytes());
+		} catch (InvalidKeyException | IllegalBlockSizeException | BadPaddingException | NoSuchAlgorithmException | NoSuchPaddingException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+    	return encBytes;
+    
+    }
+    
+    public static String decrypt(byte[] encBytes, Key key){
+    	
+    	String decrypted = null;
+    	
+    	try {
+        	Cipher pkCipher = Cipher.getInstance("RSA");
+			pkCipher.init(Cipher.DECRYPT_MODE, key);
+			decrypted = new String(pkCipher.doFinal(encBytes));
+		} catch (InvalidKeyException | IllegalBlockSizeException | BadPaddingException | NoSuchAlgorithmException | NoSuchPaddingException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+    	return decrypted;
+    
+    }
 		
+    
 	public static void main(String[] args){
 		
 		KeyPair server = KeyPairGen.generateKeyPair();
