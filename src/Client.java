@@ -11,6 +11,8 @@ import java.util.Base64;
 
 import javax.crypto.SecretKey;
 
+import static java.lang.System.exit;
+
 public class Client {
 
     private static int[] paramArray = new int[3];
@@ -58,9 +60,6 @@ public class Client {
             System.out.println("Client: connection to server closed. Params do not match");
             System.err.println("IOException:  " + e);
         }
-        
-        System.out.println("Client: connection to server established. Params match.");
-
     }
     
     private static void begin(){
@@ -189,12 +188,7 @@ public class Client {
 	public static void main(String[] args) {
 
     textUI();
-		clientParams = Arrays.toString(args);
-		//for testing ease
-		if(clientParams == null || clientParams.equals("[]")){
-			clientParams = "[CIA]";
-		}
-    
+    clientParams = Arrays.toString(paramArray);
     connect();
 	}
 }
