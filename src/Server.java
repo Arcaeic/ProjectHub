@@ -78,16 +78,24 @@ public class Server {
 
 	private static boolean parametersMatch() {
 		boolean sameConfig = serverParams.equals(clientParams);
+
 		if (sameConfig) {
 			System.out.println("Server: Parameters match Client's");
 			System.out.println("Server: Connection to Client established");
-			return true;
+
 		} else {
-			System.out
-					.println("Server: MISMATCH! Client and Server parameters do not match.");
+			System.out.println("Server: MISMATCH! Client and Server parameters do not match.");
 			System.out.println("Server: Severed connection to Client.");
-			return false;
-		}
+        }
+
+        try {
+            objOut.writeBoolean(sameConfig);
+            objOut.flush();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        return sameConfig;
 	}
 
 	private static void waitForConnection() {

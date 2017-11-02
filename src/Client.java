@@ -55,10 +55,16 @@ public class Client {
             Message newMessage = new Message(clientParams);
             System.out.println("Client: Parameters: " + newMessage.get());
             objOut.writeObject(newMessage);
+            boolean matches = objIn.readBoolean();
+
+            if(!matches) {
+                System.out.println("Client: Connection to Server closed. Parameters do not match.");
+                exit(-1);
+            }
             
         } catch (IOException e) {
-            System.out.println("Client: connection to server closed. Params do not match");
-            System.err.println("IOException:  " + e);
+            e.printStackTrace();
+            exit(-1);
         }
     }
     
