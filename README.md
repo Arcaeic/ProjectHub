@@ -31,10 +31,4 @@ I am currently working on a couple other things in the background as well, such 
 	* [Course Outline](https://heat.csc.uvic.ca/coview/outline/2016/Fall/SENG/265)
 		
 ## Notes
- * For those looking for school resources: Please honour academic integrity. Don't copy these files, use these resources to improve your own work.
- * To do:
-	* OneNote -> MarkDown
-		* CSC 110
-		* The first half of Psyc 260
-	* Update notes after semester
-   * Revise assignment code/comments
+Add notes/assignments for Fall 2017 after Exams.
