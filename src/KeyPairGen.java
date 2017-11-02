@@ -10,36 +10,31 @@ import java.security.KeyPairGenerator;
 import java.security.KeyStore;
 import java.security.KeyStoreException;
 import java.security.NoSuchAlgorithmException;
+import java.security.NoSuchProviderException;
 import java.security.PrivateKey;
+import java.security.SignatureException;
 import java.security.UnrecoverableKeyException;
 import java.security.cert.Certificate;
 import java.security.cert.CertificateException;
 import java.security.cert.CertificateFactory;
 import java.security.cert.X509Certificate;
+
 import sun.security.x509.*;
+
 import java.security.cert.*;
 import java.security.*;
 import java.math.BigInteger;
 import java.util.Date;
-
-
 import com.sun.org.apache.xml.internal.security.utils.Base64;
 
-/**
- * Generate keypairs and write to file.
- * @author Timothy
- *
- */
 public class KeyPairGen {
 	
-	private static char[] KEYSTORE_PASS = "abcde".toCharArray();
+	public static char[] KEYSTORE_PASS = "abcde".toCharArray();
 	public static String KEYSTORE_PATH = System.getProperty("user.dir") + File.separator + "keyStores"+ File.separator;
 	public static String CLIENT_KEYSTORE = "clientKeys.store";
 	public static String SERVER_KEYSTORE = "serverKeys.store";
-	public static String PUBLIC_KEYSTORE = "publicKeys.store";
-	public static String SERVER_ALIAS = "The Server";
-	public static String CLIENT_ALIAS = "The Client";
-	
+	public static String SERVER_ALIAS = "Server";
+	public static String CLIENT_ALIAS = "Client";
 	
 	public static KeyPair generateKeyPair(){
 		KeyPair kp = null;
@@ -51,20 +46,15 @@ public class KeyPairGen {
 		}
 		return kp;	
 	}
-	
-	private static void createKeyStore(String filepath, String name, String password){
-		
-	}
-	
+
 	//server keystore: private and public keys
 	//client keystore: private and public keys
 	//public keystore: server and client public keys
 	private static void createKeyStores(KeyPair ckp, KeyPair skp){
-		
 		try{
-
-			String path = System.getProperty("user.dir") + File.separator + "keyStores";
-			File keyStoreDir = new File(path);
+			
+			//create the keystore folder
+			File keyStoreDir = new File(KEYSTORE_PATH);
 			if(keyStoreDir.exists()){
 				for(File file: keyStoreDir.listFiles()){
 					file.delete();
@@ -72,39 +62,24 @@ public class KeyPairGen {
 			}
 			keyStoreDir.mkdirs();
 
-			String clientFilename = path + File.separator + "clientKeys.store";
-			String serverFilename = path + File.separator + "serverKeys.store";
-			String publicFilename = path + File.separator + "publicKeys.store";
-			File cfile = new File(clientFilename);
-			File sfile = new File(serverFilename);
-			File pfile = new File(publicFilename);
-			
+			//initialize the keystores
+			File cfile = new File(KEYSTORE_PATH + CLIENT_KEYSTORE);
+			File sfile = new File(KEYSTORE_PATH + SERVER_KEYSTORE);
 			KeyStore client = KeyStore.getInstance(KeyStore.getDefaultType());
 			KeyStore server = KeyStore.getInstance(KeyStore.getDefaultType());
-			KeyStore pub = KeyStore.getInstance("JCEKS");
 	
 			client.load(null, null);
 			server.load(null, null);
-			pub.load(null, null);
 			
-			Certificate[] nullChain = {null, null};
+			//generate certificates
+			X509Certificate clientCert = generateCertificate("CN=Jory, OU=JavaSoft, O=Sun Microsystems, C=CA", ckp, 100, "SHA1withRSA");
+			X509Certificate serverCert = generateCertificate("CN=Tim, OU=JavaSoft, O=Sun Microsystems, C=CA", skp, 100, "SHA1withRSA");
 
-			X509Certificate clientCert = generateCertificate("CN=Dave, OU=JavaSoft, O=Sun Microsystems, C=US", ckp, 100, "SHA1withRSA");
-			X509Certificate serverCert = generateCertificate("CN=Tim, OU=JavaSoft, O=Sun Microsystems, C=US", skp, 100, "SHA1withRSA");
-			
-			clientCert.getPublicKey();
-			serverCert.getPublicKey();
-			
-
-			if(client == null || server == null){
-				System.out.println("null");
-			}else if(clientCert == null || serverCert == null){
-				System.out.println("nul null");
-			}
-			
-			//server is the Certificate Authority --> will sign all other certs
+			//sign the certificates (server is CA; is root cert)
 			serverCert = createSignedCertificate(serverCert,serverCert,skp.getPrivate());
 			clientCert = createSignedCertificate(clientCert,serverCert,skp.getPrivate());
+			
+			//build the certificate chain for verification
 			Certificate[] clientCertChain = new Certificate[2];
 			Certificate[] serverCertChain = new Certificate[2];
 
@@ -114,24 +89,24 @@ public class KeyPairGen {
 			serverCertChain[0] = serverCert;
 			serverCertChain[1] = serverCert;
 			
-			client.setKeyEntry("ClientPrivate", ckp.getPrivate(), "".toCharArray(), clientCertChain);
-			client.setCertificateEntry("Client - Cert", clientCert);
-			client.setCertificateEntry("Server - Cert", serverCert);
+			//fill keystores with necessary data
+			char[] privateKeyPass = "".toCharArray();
+			client.setKeyEntry("ClientPrivate", ckp.getPrivate(),privateKeyPass, clientCertChain);
+			client.setCertificateEntry("ClientCert", clientCert);
+			client.setCertificateEntry("ServerCert", serverCert);
 
-			server.setKeyEntry("ServerPrivate", skp.getPrivate(), "".toCharArray(), serverCertChain);
-			server.setCertificateEntry("Client - Cert", clientCert);
-			server.setCertificateEntry("Server - Cert", serverCert);
-			
-			//is the public keystore necessary?
-			
-			client.store(new FileOutputStream(cfile), "abcde".toCharArray());
-			server.store(new FileOutputStream(sfile), "abcde".toCharArray());
-			pub.store(new FileOutputStream(pfile), "abcde".toCharArray());
+			server.setKeyEntry("ServerPrivate", skp.getPrivate(),privateKeyPass, serverCertChain);
+			server.setCertificateEntry("ClientCert", clientCert);
+			server.setCertificateEntry("ServerCert", serverCert);
+
+			//write keystores to disk
+			client.store(new FileOutputStream(cfile), KEYSTORE_PASS);
+			server.store(new FileOutputStream(sfile), KEYSTORE_PASS);
 			
 			//verify client cert is signed by server's public key
-			Certificate clientCheck = server.getCertificate("Client - Cert");
+			Certificate clientCheck = server.getCertificate("ClientCert");
 			try{
-				clientCheck.verify(server.getCertificate("Server - Cert").getPublicKey());				
+				clientCheck.verify(server.getCertificate("ServerCert").getPublicKey());				
 				System.out.println("Client cert valid. Signed by server's public key.");
 
 			}catch(InvalidKeyException ivky){
@@ -139,104 +114,49 @@ public class KeyPairGen {
 			}
 			
 			//verify server cert is signed by server's public key
-			Certificate serverCheck = client.getCertificate("Server - Cert");
+			Certificate serverCheck = client.getCertificate("ServerCert");
 			try{
-				serverCheck.verify(client.getCertificate("Server - Cert").getPublicKey());				
+				serverCheck.verify(client.getCertificate("ServerCert").getPublicKey());				
 				System.out.println("Server cert valid. Signed by server's (the CA) public key.");
 
 			}catch(InvalidKeyException ivky){
 				System.out.println("Server cert not valid. Not signed by server's (the CA) public key.");
 			}
-				
-				
-			
-			
-			//verify client cert is signed by server's private key
-			//client.getCertificate("Client")
 			
 		}catch(Exception e){
 			System.out.println("AKeyGen: could not create key stores");
 			e.printStackTrace();
 		}
 	}
-	
-	
-	private static void createKeyStore(String filepath, String filename, String password, KeyPair kp){
-		
-		
-	}
-	
-	
-	
-	public static KeyStore retrieveKeyStore(String path) throws FileNotFoundException{
+
+	public static KeyStore retrieveKeyStore(String path){
 		File ks = new File(path);
 		KeyStore keyStore = null;
 		
 		try{
 			keyStore = KeyStore.getInstance(KeyStore.getDefaultType());
 			keyStore.load(new FileInputStream(ks), KEYSTORE_PASS);
-		}catch(IOException | KeyStoreException | NoSuchAlgorithmException | CertificateException e){
+		}catch(KeyStoreException | NoSuchAlgorithmException | CertificateException | IOException e){
 			System.out.println("Could not retrieve keyStore: " + path);
 		}
 		
 		return keyStore;
 	}
 	
-	public static void main(String[] args){
-		
-		KeyPair server = KeyPairGen.generateKeyPair();
-		KeyPair client = KeyPairGen.generateKeyPair();
-		
-		/*
-		PrivateKey serverPrk = server.getPrivate();
-		byte[] sPrk = serverPrk.getEncoded();
-		System.out.println("Server Private Key:\n"+ Base64.encode(sPrk));
-		*/
-		
-		KeyPairGen.createKeyStores(client, server);
-		
-		/*
-		KeyStore serverKs = null;
-		try {
-			serverKs = KeyPairGen.retrieveKeyStore(KEYSTORE_PATH + SERVER_KEYSTORE);
-			System.out.println("Retreived key store.");
-			//Certificate cert = KeyPairGen.generateCertificate(KEYSTORE_PATH + "serverCert");
-			Certificate cert = null;
-			Certificate[] chain = {cert};
-			serverKs.setKeyEntry("The Server", serverPrk , "".toCharArray(), chain);
-			System.out.println("added server privatekey to store");
-			PrivateKey serverPrkStore = (PrivateKey) serverKs.getKey(SERVER_ALIAS,"".toCharArray());
-			System.out.println("Server Private Key from Store:\n" + Base64.encode(serverPrkStore.getEncoded()));
-		} catch (FileNotFoundException | KeyStoreException | UnrecoverableKeyException | NoSuchAlgorithmException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-		*/
-
-		
-		
-
-		
-		
+	public static KeyStore loadClientKeyStore(){
+		return KeyPairGen.retrieveKeyStore(KEYSTORE_PATH + CLIENT_KEYSTORE);
 	}
-	
-	
-	public static X509Certificate generateCertificate(String filePath){
-		 InputStream inStream = null;
-		 X509Certificate cert = null;
-		 try {
-		     inStream = new FileInputStream(filePath);
-		     CertificateFactory cf = CertificateFactory.getInstance("X.509");
-		     cert = (X509Certificate)cf.generateCertificate(inStream);
-		 } catch (FileNotFoundException | CertificateException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		 }
-		 
-		 return cert;
-		
+	public static KeyStore loadServerKeyStore(){
+		return KeyPairGen.retrieveKeyStore(KEYSTORE_PATH + SERVER_KEYSTORE);
 	}
-	
+	public static String b64Key(Key key){
+		byte[] keyBytes = key.getEncoded();
+		return Base64.encode(keyBytes);
+	}
+	public static String shortb64Key(Key key){
+		byte[] keyBytes = key.getEncoded();
+		return Base64.encode(keyBytes).substring(0, 25);
+	}
 	
 	/** 
 	 * Create a self-signed X.509 Certificate
@@ -303,5 +223,46 @@ public class KeyPairGen {
         }
         return null;
     }
-
+    
+    public static boolean verifySignature(Certificate certToVerify, Certificate caCert, Key caPubKey){
+		boolean success = false;
+		try{
+			certToVerify.verify(caCert.getPublicKey());				
+			//System.out.println("Cert valid. Signed by ca's public key.");
+			success=true;
+		}catch(InvalidKeyException ivky){
+			//System.out.println("Cert not valid. Not signed by CA's public key.");
+		} catch (CertificateException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (NoSuchAlgorithmException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (NoSuchProviderException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (SignatureException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
+		return success;
+	}
+		
+	public static void main(String[] args){
+		
+		KeyPair server = KeyPairGen.generateKeyPair();
+		KeyPair client = KeyPairGen.generateKeyPair();
+		
+		System.out.println("Server Private Key:\n" + b64Key(server.getPrivate()));
+		System.out.println("Server Public Key:\n" + b64Key(server.getPublic()));
+		System.out.println("Client Private Key:\n" + b64Key(client.getPrivate()));
+		System.out.println("Client Public Key:\n" + b64Key(client.getPublic()));
+		
+		KeyPairGen.createKeyStores(client, server);
+		System.out.println("Client and Server KeyStores created.");
+	}
+	
 }
+	
+
