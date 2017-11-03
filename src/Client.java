@@ -86,17 +86,14 @@ public class Client {
 				
 		        //send symmetric key to server
 				
-				try {
 					PublicKey serverPubKey = keyStore.getCertificate("ServerCert").getPublicKey();
-					byte[] encryptedSessionKey = KeyPairGen.encrypt(SymmetricKeyGen.encode64(sessionKey.getEncoded()), serverPubKey);
-					String encKey = new String(encryptedSessionKey);
-					System.out.println("Client: Session Key encrypted with server's public key: "+ Base64.getEncoder().encodeToString(encKey.getBytes()));
-					objOut.writeObject(new Message(encKey));					
-					
-				} catch (KeyStoreException e1) {
-					e1.printStackTrace();
-				}
-				
+					byte[] encodedSessionKey = sessionKey.getEncoded();
+					byte[] encryptedSessionKey = KeyPairGen.encrypt(new String(encodedSessionKey), serverPubKey);
+					//String encKey = Base64.getEncoder().encodeToString(encryptedSessionKey);
+					System.out.println("Client: Session Key encrypted with server's public key: "+ new String(encryptedSessionKey));
+					objOut.write(encryptedSessionKey);
+					objOut.flush();
+
 		        //send test plaintext message to server
 		        //objOut.writeObject(new Message("hello there!"));
 		        
@@ -146,7 +143,7 @@ public class Client {
     			begin();  //allow for unlimited auth attempts
     		}
     					
-		} catch (IOException | ClassNotFoundException e) {
+		} catch (IOException | ClassNotFoundException | KeyStoreException e) {
 			e.printStackTrace();
 		}
 

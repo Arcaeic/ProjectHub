@@ -9,6 +9,7 @@ import java.security.KeyStore;
 import java.security.KeyStoreException;
 import java.security.NoSuchAlgorithmException;
 import java.security.PrivateKey;
+import java.security.UnrecoverableEntryException;
 import java.security.UnrecoverableKeyException;
 import java.security.cert.Certificate;
 import java.util.Arrays;
@@ -229,18 +230,20 @@ public class Server {
 			try {
 				
 				System.out.println("Server: waiting for encrypted session key from client.");
-				PrivateKey serverPriKey = (PrivateKey) keyStore.getKey("ServerPrivate", KeyPairGen.KEYSTORE_PASS);
-				System.out.println("Server: retreived private key from keystore.");
-				String encryptedSKey = (String) objIn.readObject();
+				PrivateKey serverPriKey = (PrivateKey) keyStore.getKey("ServerPrivate", "keypass".toCharArray());
+				System.out.println("Server: retreived private key from keystore:" + Base64.encode(serverPriKey.getEncoded()));
+				byte[] encryptedSKey = new byte[128];
+				objIn.read(encryptedSKey, 0, 128);
 				System.out.println("Server: Recieved encrypted session key.");
+				System.out.println("Server: encrypted session key: " + Base64.encode(encryptedSKey));
 
-				String decryptedEncodedKey = KeyPairGen.decrypt(encryptedSKey.getBytes(), serverPriKey);
-				byte[] sessionKeyBytes = SymmetricKeyGen.decode64(encryptedSKey);
-				sessionKey = new SecretKeySpec(sessionKeyBytes, SymmetricKeyGen.ALGO);
+				String decryptedEncodedKey = KeyPairGen.decrypt(encryptedSKey, serverPriKey);
+				//byte[] sessionKeyBytes = SymmetricKeyGen.decode64(encryptedSKey);
+				sessionKey = new SecretKeySpec(decryptedEncodedKey.getBytes(), SymmetricKeyGen.ALGO);
 			
 				System.out.println("Server: Session Key: [" + SymmetricKeyGen.encode64(sessionKey.getEncoded())+ "].");
 
-			} catch (IOException | ClassNotFoundException | KeyStoreException | NoSuchAlgorithmException | UnrecoverableKeyException e) {
+			} catch (IOException | KeyStoreException | NoSuchAlgorithmException | UnrecoverableEntryException e) {
 				System.out.println("Server: Could not receive session key.");
 				e.printStackTrace();
 			}

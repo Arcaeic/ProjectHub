@@ -19,6 +19,7 @@ import java.util.Date;
 import javax.crypto.BadPaddingException;
 import javax.crypto.Cipher;
 import javax.crypto.IllegalBlockSizeException;
+import javax.crypto.KeyGenerator;
 import javax.crypto.NoSuchPaddingException;
 
 import com.sun.org.apache.xml.internal.security.utils.Base64;
@@ -36,9 +37,10 @@ public class KeyPairGen {
 		KeyPair kp = null;
 		try {
 			KeyPairGenerator factory = KeyPairGenerator.getInstance("RSA");
-			factory.initialize(1024);
+			factory.generateKeyPair();
 			kp = factory.generateKeyPair();
 		} catch (NoSuchAlgorithmException e) {
+			System.out.println("alg not found");
 		}
 		return kp;	
 	}
@@ -86,12 +88,12 @@ public class KeyPairGen {
 			serverCertChain[1] = serverCert;
 			
 			//fill keystores with necessary data
-			char[] privateKeyPass = "".toCharArray();
-			client.setKeyEntry("ClientPrivate", ckp.getPrivate(),KEYSTORE_PASS, clientCertChain);
+			char[] privateKeyPass = "keypass".toCharArray();
+			client.setKeyEntry("ClientPrivate", ckp.getPrivate(),privateKeyPass,clientCertChain);
 			client.setCertificateEntry("ClientCert", clientCert);
 			client.setCertificateEntry("ServerCert", serverCert);
 
-			server.setKeyEntry("ServerPrivate", skp.getPrivate(),KEYSTORE_PASS, serverCertChain);
+			server.setKeyEntry("ServerPrivate", skp.getPrivate(),privateKeyPass,serverCertChain);
 			server.setCertificateEntry("ClientCert", clientCert);
 			server.setCertificateEntry("ServerCert", serverCert);
 
@@ -247,10 +249,12 @@ public class KeyPairGen {
     
     public static byte[] encrypt(String message, Key key){
     	
+		System.out.println("KPGen: encrypting bytes: " + message.getBytes().length);
+
     	byte[] encBytes = null;
     	
     	try {
-        	Cipher pkCipher = Cipher.getInstance("RSA");
+        	Cipher pkCipher = Cipher.getInstance("RSA/ECB/PKCS1PADDING");
 			pkCipher.init(Cipher.ENCRYPT_MODE, key);
 			encBytes = pkCipher.doFinal(message.getBytes());
 		} catch (InvalidKeyException | IllegalBlockSizeException | BadPaddingException | NoSuchAlgorithmException | NoSuchPaddingException e) {
@@ -263,10 +267,12 @@ public class KeyPairGen {
     
     public static String decrypt(byte[] encBytes, Key key){
     	
+		System.out.println("KPGen: decrypting bytes: " + encBytes.length);
+
     	String decrypted = null;
     	
     	try {
-        	Cipher pkCipher = Cipher.getInstance("RSA");
+        	Cipher pkCipher = Cipher.getInstance("RSA/ECB/PKCS1PADDING");
 			pkCipher.init(Cipher.DECRYPT_MODE, key);
 			decrypted = new String(pkCipher.doFinal(encBytes));
 		} catch (InvalidKeyException | IllegalBlockSizeException | BadPaddingException | NoSuchAlgorithmException | NoSuchPaddingException e) {
@@ -280,8 +286,13 @@ public class KeyPairGen {
     
 	public static void main(String[] args){
 		
+		try{
 		KeyPair server = KeyPairGen.generateKeyPair();
 		KeyPair client = KeyPairGen.generateKeyPair();
+		
+		if(server == null || client == null){
+			System.out.println("null");
+		}
 		
 		System.out.println("Server Private Key:\n" + b64Key(server.getPrivate()));
 		System.out.println("Server Public Key:\n" + b64Key(server.getPublic()));
@@ -290,7 +301,20 @@ public class KeyPairGen {
 		
 		KeyPairGen.createKeyStores(client, server);
 		System.out.println("Client and Server KeyStores created.");
+		
+		String testMsg = "secret";
+		byte[] encTestMsg = KeyPairGen.encrypt(testMsg, server.getPublic());
+		System.out.println("Encrypted message: "+ new String(encTestMsg) );
+		String decTestMsg = KeyPairGen.decrypt(encTestMsg, server.getPrivate());
+		
+		System.out.println("Decrypted message: "+ decTestMsg);
+		}catch(Exception e){
+			e.printStackTrace();
+		}
+		
+	
 	}
+	
 	
 }
 	

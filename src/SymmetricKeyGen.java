@@ -98,6 +98,7 @@ public class SymmetricKeyGen {
 			
 		} catch (NoSuchAlgorithmException | NoSuchPaddingException | InvalidKeyException | InvalidAlgorithmParameterException | IllegalBlockSizeException | BadPaddingException e) {
 			System.out.println("SymDec: Exception");
+			e.printStackTrace();
 		}
 		
 		return msg;
