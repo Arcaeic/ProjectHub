@@ -7,6 +7,7 @@ import java.net.Socket;
 import java.net.UnknownHostException;
 import java.security.KeyStore;
 import java.security.KeyStoreException;
+import java.security.PublicKey;
 import java.security.cert.Certificate;
 import java.util.Arrays;
 import java.util.Scanner;
@@ -84,9 +85,18 @@ public class Client {
 				System.out.println("Client: Session Key: [" + SymmetricKeyGen.encode64(sessionKey.getEncoded()) + "].");
 				
 		        //send symmetric key to server
-		        //TODO protect key with asymmetric encryption
-		        objOut.writeObject(sessionKey);  
-		        
+				
+				try {
+					PublicKey serverPubKey = keyStore.getCertificate("ServerCert").getPublicKey();
+					byte[] encryptedSessionKey = KeyPairGen.encrypt(SymmetricKeyGen.encode64(sessionKey.getEncoded()), serverPubKey);
+					String encKey = new String(encryptedSessionKey);
+					System.out.println("Client: Session Key encrypted with server's public key: "+ Base64.getEncoder().encodeToString(encKey.getBytes()));
+					objOut.writeObject(new Message(encKey));					
+					
+				} catch (KeyStoreException e1) {
+					e1.printStackTrace();
+				}
+				
 		        //send test plaintext message to server
 		        //objOut.writeObject(new Message("hello there!"));
 		        
@@ -114,6 +124,7 @@ public class Client {
 				        
 				        //encrypt message and send
 				        EncryptedMessage eMsg = new EncryptedMessage(message, sessionKey);
+				        
 				        objOut.writeObject(eMsg);
 						System.out.println("Client: waiting for server to respond. ");
 				        
@@ -238,4 +249,16 @@ public class Client {
     clientParams = Arrays.toString(paramArray);
     connect();
 	}
+	
+	private class SessionKey{
+		
+		
+		
+		public SessionKey(SecretKey key){
+			
+		}
+	}
+
+
 }
+

@@ -7,11 +7,15 @@ import java.net.ServerSocket;
 import java.net.Socket;
 import java.security.KeyStore;
 import java.security.KeyStoreException;
+import java.security.NoSuchAlgorithmException;
+import java.security.PrivateKey;
+import java.security.UnrecoverableKeyException;
 import java.security.cert.Certificate;
 import java.util.Arrays;
 import java.util.Scanner;
 
 import javax.crypto.SecretKey;
+import javax.crypto.spec.SecretKeySpec;
 
 import com.sun.org.apache.xerces.internal.impl.dv.util.Base64;
 
@@ -223,25 +227,37 @@ public class Server {
 			sessionKey = null;
 
 			try {
-				sessionKey = (SecretKey) objIn.readObject();
+				
+				System.out.println("Server: waiting for encrypted session key from client.");
+				PrivateKey serverPriKey = (PrivateKey) keyStore.getKey("ServerPrivate", KeyPairGen.KEYSTORE_PASS);
+				System.out.println("Server: retreived private key from keystore.");
+				String encryptedSKey = (String) objIn.readObject();
+				System.out.println("Server: Recieved encrypted session key.");
+
+				String decryptedEncodedKey = KeyPairGen.decrypt(encryptedSKey.getBytes(), serverPriKey);
+				byte[] sessionKeyBytes = SymmetricKeyGen.decode64(encryptedSKey);
+				sessionKey = new SecretKeySpec(sessionKeyBytes, SymmetricKeyGen.ALGO);
+			
 				System.out.println("Server: Session Key: [" + SymmetricKeyGen.encode64(sessionKey.getEncoded())+ "].");
 
-			} catch (IOException | ClassNotFoundException e) {
+			} catch (IOException | ClassNotFoundException | KeyStoreException | NoSuchAlgorithmException | UnrecoverableKeyException e) {
 				System.out.println("Server: Could not receive session key.");
+				e.printStackTrace();
 			}
 
 		} else {
 			System.out.println("Server: Connection to Client still open. Waiting for reauth.");
 			begin();
+			return;
 		}
 
 		// listen for any messages
 		while (true) {
-			Message msg = null;
+			Object msg = null;
 			try {
-
+				
 				// receive message from client
-				if ((msg = (Message) objIn.readObject()) != null) {
+				if ((msg = objIn.readObject()) != null) {
 					System.out.println("Server: Message received from client... ");
 
 					// TODO support plaintext message
