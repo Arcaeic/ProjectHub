@@ -105,8 +105,23 @@ public class SymmetricKeyGen {
 		
 	}
 	
+	public static void generateSalt(int bytes){
+		byte[] salt = new byte[bytes];
+	    SecureRandom secureRandom = new SecureRandom();
+	    secureRandom.nextBytes(salt);
+	}
+	
+	public static void main(String[] args){
+		SecretKey key = SymmetricKeyGen.generateSessionKey();
+		EncryptedMessage message = new EncryptedMessage("secret message", key);
 
-
+		//iv test code here.	
+		
+		//TODO master and sub keys, one for session key and one for mac key
+		//TODO add timestamp to emessage to detect replay attacks
+		
+		
+	}
 }
 
 
