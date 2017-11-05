@@ -12,7 +12,6 @@ import java.security.cert.Certificate;
 import java.util.Arrays;
 import java.util.Scanner;
 import java.util.Base64;
-
 import javax.crypto.SecretKey;
 
 import static java.lang.System.exit;
@@ -27,8 +26,9 @@ public class Client {
     private static ObjectOutputStream objOut;
     private static ObjectInputStream objIn;
     private static String clientParams;
-    private static SecretKey sessionKey;
+    private static SecretKey[] sessionKeys;
     private static KeyStore keyStore;
+	private static byte[] masterKey;
 
 	private static void connect() {
 		
@@ -80,18 +80,21 @@ public class Client {
     		boolean success = authCertToServer();
 			if(success){
 		        System.out.println("Client: connection to server open...");
-		        SymmetricKeyGen gen = new SymmetricKeyGen();
-		        sessionKey = SymmetricKeyGen.generateSessionKey();
-				System.out.println("Client: Session Key: [" + SymmetricKeyGen.encode64(sessionKey.getEncoded()) + "].");
+		        SymKeyGen master = new SymKeyGen();
+		        masterKey = SymKeyGen.generateMasterKey();
+		        SymKeyGen gen = new SymKeyGen();
+		        sessionKeys = SymKeyGen.convertKeyBytes(SymKeyGen.splitMasterKey(masterKey));
+		        
+				System.out.println("Client: Session (master) Key: [" + SymKeyGen.encode64(masterKey) + "].");
 				
 		        //send symmetric key to server
 				
 					PublicKey serverPubKey = keyStore.getCertificate("ServerCert").getPublicKey();
-					byte[] encodedSessionKey = sessionKey.getEncoded();
-					byte[] encryptedSessionKey = KeyPairGen.encrypt(new String(encodedSessionKey), serverPubKey);
+					byte[] encodedMasterKey = Base64.getEncoder().encode(masterKey);
+					byte[] encryptedSessionKeys = KeyPairGen.encrypt((new String(encodedMasterKey)), serverPubKey);
 					//String encKey = Base64.getEncoder().encodeToString(encryptedSessionKey);
-					System.out.println("Client: Session Key encrypted with server's public key: "+ new String(encryptedSessionKey));
-					objOut.write(encryptedSessionKey);
+					System.out.println("Client: Master key [" + encryptedSessionKeys.length+"] encrypted with server's public key: "+ Base64.getEncoder().encodeToString(encryptedSessionKeys));
+					objOut.write(encryptedSessionKeys);
 					objOut.flush();
 
 		        //send test plaintext message to server
@@ -120,14 +123,14 @@ public class Client {
 				        String message = sc.nextLine();
 				        
 				        //encrypt message and send
-				        EncryptedMessage eMsg = new EncryptedMessage(message, sessionKey);
+				        EncryptedMessage eMsg = new EncryptedMessage(message, sessionKeys[0]);
 				        
 				        objOut.writeObject(eMsg);
 						System.out.println("Client: waiting for server to respond. ");
 				        
 	        		   //receive from server
 						if((msg = (Message) objIn.readObject()) != null){
-							System.out.println("Client: message received: [" + ((EncryptedMessage) msg).decrypt(sessionKey)+ "].");
+							System.out.println("Client: message received: [" + ((EncryptedMessage) msg).decrypt(sessionKeys[0])+ "].");
 						}else{
 							System.out.println("Server: connection still open.......... ");
 						}

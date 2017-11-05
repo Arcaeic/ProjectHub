@@ -6,6 +6,7 @@ import java.security.InvalidAlgorithmParameterException;
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
+import java.util.Arrays;
 
 import javax.crypto.BadPaddingException;
 import javax.crypto.Cipher;
@@ -32,19 +33,52 @@ import com.sun.org.apache.xerces.internal.impl.dv.util.Base64;
  * and ensuring integrity in that process.
  */
 
-public class SymmetricKeyGen {
+public class SymKeyGen {
 	
-	public static int KEY_SIZE = 128;
+	public static int SUB_KEY_SIZE = 128 / 8;
+	public static int MASTER_KEY_SIZE = 256 / 8;
 	public static String ALGO = "AES";
 	public static String FULL_ALGO = "AES/CBC/PKCS5Padding";
 	public static int NUM_BYTES_IV = 16;
 	
-	public static SecretKey generateSessionKey(){
+	public static byte[] generateMasterKey(){
+		
+		SecretKey master = generateKey(MASTER_KEY_SIZE * 8, ALGO);
+		byte[] mKey = master.getEncoded();
+		return mKey;
+	}
+	
+	public static byte[][] splitMasterKey(byte[] master){
+		
+		byte[][] subKeys = new byte[2][SUB_KEY_SIZE];
+		subKeys[0] = Arrays.copyOfRange(master, 0, SUB_KEY_SIZE);
+		subKeys[1] = Arrays.copyOfRange(master, SUB_KEY_SIZE, master.length);
+		assert subKeys[0].length == SUB_KEY_SIZE && subKeys[1].length == SUB_KEY_SIZE;
+
+		return subKeys;
+	}
+	
+	public static SecretKey[] convertKeyBytes(byte[][] subKeys){
+		
+		SecretKey[] keys = {new SecretKeySpec(subKeys[0],ALGO),
+							new SecretKeySpec(subKeys[1],ALGO)};
+		
+		return keys;
+	}
+	
+	public static SecretKey convertKeyBytes(byte[] master){
+		
+		SecretKey key = new SecretKeySpec(master,ALGO);
+		return key;
+	}
+	
+	
+	public static SecretKey generateKey(int keySize, String algo){
 		KeyGenerator gen = null;
 		SecretKey key = null;
 		try {
-			gen = KeyGenerator.getInstance(ALGO);
-			gen.init(KEY_SIZE);
+			gen = KeyGenerator.getInstance(algo);
+			gen.init(keySize);
 			key = gen.generateKey();
 		} catch (NoSuchAlgorithmException e) {
 			// TODO Auto-generated catch block
@@ -112,8 +146,9 @@ public class SymmetricKeyGen {
 	}
 	
 	public static void main(String[] args){
-		SecretKey key = SymmetricKeyGen.generateSessionKey();
-		EncryptedMessage message = new EncryptedMessage("secret message", key);
+		
+		SecretKey[] keys = convertKeyBytes(splitMasterKey(generateMasterKey()));
+		EncryptedMessage message = new EncryptedMessage("secret message", keys[0]);
 
 		//iv test code here.	
 		

@@ -33,8 +33,10 @@ public class Server {
 	private static ObjectOutputStream objOut;
 	private static String serverParams;
 	private static String clientParams;
-	private static SecretKey sessionKey;
-	private static KeyStore keyStore;
+    private static SecretKey[] sessionKeys;
+    private static KeyStore keyStore;
+	private static byte[] masterKey;
+
 
 
 	private static void startServer() {
@@ -225,23 +227,26 @@ public class Server {
 
 			// setup session key
 			// TODO protect in transit with asymm keypairs
-			sessionKey = null;
+			sessionKeys = null;
 
 			try {
 				
 				System.out.println("Server: waiting for encrypted session key from client.");
 				PrivateKey serverPriKey = (PrivateKey) keyStore.getKey("ServerPrivate", "keypass".toCharArray());
 				System.out.println("Server: retreived private key from keystore:" + Base64.encode(serverPriKey.getEncoded()));
-				byte[] encryptedSKey = new byte[128];
-				objIn.read(encryptedSKey, 0, 128);
-				System.out.println("Server: Recieved encrypted session key.");
-				System.out.println("Server: encrypted session key: " + Base64.encode(encryptedSKey));
+				int encryptedMKeySizeBytes = SymKeyGen.SUB_KEY_SIZE * 8;
+				byte[] encryptedMKey = new byte[encryptedMKeySizeBytes];
+				System.out.println(objIn.read(encryptedMKey, 0, encryptedMKeySizeBytes) + "bytes read.");
+				System.out.println("Server: Recieved encrypted session key: " + encryptedMKey.length);
+				System.out.println("Server: encrypted session key: " + Base64.encode(encryptedMKey));
 
-				String decryptedEncodedKey = KeyPairGen.decrypt(encryptedSKey, serverPriKey);
+				String decryptedKey = KeyPairGen.decrypt(encryptedMKey, serverPriKey);
+				
 				//byte[] sessionKeyBytes = SymmetricKeyGen.decode64(encryptedSKey);
-				sessionKey = new SecretKeySpec(decryptedEncodedKey.getBytes(), SymmetricKeyGen.ALGO);
+				sessionKeys = SymKeyGen.convertKeyBytes(SymKeyGen.splitMasterKey(Base64.decode((decryptedKey))));
 			
-				System.out.println("Server: Session Key: [" + SymmetricKeyGen.encode64(sessionKey.getEncoded())+ "].");
+				System.out.println("Server: master Key: [" + decryptedKey.getBytes()+ "].");
+
 
 			} catch (IOException | KeyStoreException | NoSuchAlgorithmException | UnrecoverableEntryException e) {
 				System.out.println("Server: Could not receive session key.");
@@ -266,7 +271,7 @@ public class Server {
 					// TODO support plaintext message
 					if (true) {
 						// if is encrypted (C is in params)
-						String decMessage = ((EncryptedMessage) msg).decrypt(sessionKey);
+						String decMessage = ((EncryptedMessage) msg).decrypt(sessionKeys[0]);
 						System.out.println("Server: message decrypted: ["
 								+ decMessage + "].");
 					}
@@ -279,7 +284,7 @@ public class Server {
 				System.out.print("Message for client: ");
 				String message = sc.nextLine();
 
-				objOut.writeObject(new EncryptedMessage(message, sessionKey));
+				objOut.writeObject(new EncryptedMessage(message, sessionKeys[0]));
 
 				System.out.println("Server: waiting for client to respond. ");
 
