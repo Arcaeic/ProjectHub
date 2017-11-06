@@ -111,6 +111,8 @@ public class SymKeyGen {
 			cipher = Cipher.getInstance(FULL_ALGO);
 			cipher.init(Cipher.ENCRYPT_MODE, keySpec, new IvParameterSpec(iv)); 
 			encryptedMessage = cipher.doFinal(msg.getBytes()); 
+			System.out.println("Encrypted bytes ["+ encryptedMessage.length +"]:" + SymKeyGen.encode64(encryptedMessage));
+			
 			
 		} catch (NoSuchAlgorithmException | NoSuchPaddingException | InvalidKeyException | InvalidAlgorithmParameterException | IllegalBlockSizeException | BadPaddingException e) {
 			System.out.println("SymEnc: Exception");
@@ -139,10 +141,11 @@ public class SymKeyGen {
 		
 	}
 	
-	public static void generateSalt(int bytes){
+	public static byte[] generateSalt(int bytes){
 		byte[] salt = new byte[bytes];
 	    SecureRandom secureRandom = new SecureRandom();
 	    secureRandom.nextBytes(salt);
+		return salt;
 	}
 	
 	public static void main(String[] args){
@@ -154,6 +157,8 @@ public class SymKeyGen {
 		
 		//TODO master and sub keys, one for session key and one for mac key
 		//TODO add timestamp to emessage to detect replay attacks
+		//
+		
 		
 		
 	}

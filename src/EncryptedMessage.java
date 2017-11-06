@@ -25,6 +25,13 @@ public class EncryptedMessage extends Message{
 			this.messageAuthCode = null; //TODO implement
 		}
 		
+		EncryptedMessage(String message, SecretKey key, SecretKey macKey){
+			super();
+			this.iv = SymKeyGen.generateInitVector().getIV();
+			this.encryptedMessage = SymKeyGen.encrypt(message, key, this.iv);
+			this.messageAuthCode = null; //TODO implement
+		}
+		
 		private String encoded(){
 			String eMsg = SymKeyGen.encode64(this.iv) + ":" 
 						+ SymKeyGen.encode64(this.encryptedMessage) + ":"
@@ -37,10 +44,14 @@ public class EncryptedMessage extends Message{
 			return decryptedMsg;
 		}
 		
+		private String generateMAC(byte[] data, SecretKey key){
+			
+			return "";
+		}
+		
 		//TODO implement
 		public boolean verify(){
 			return false;
-			
 		}
 		
 		public void send(ObjectOutputStream out) throws IOException{
