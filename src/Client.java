@@ -80,9 +80,7 @@ public class Client {
     		boolean success = authCertToServer();
 			if(success){
 		        System.out.println("Client: connection to server open...");
-		        SymKeyGen master = new SymKeyGen();
 		        masterKey = SymKeyGen.generateMasterKey();
-		        SymKeyGen gen = new SymKeyGen();
 		        sessionKeys = SymKeyGen.convertKeyBytes(SymKeyGen.splitMasterKey(masterKey));
 		        
 				System.out.println("Client: Session (master) Key: [" + SymKeyGen.encode64(masterKey) + "].");
@@ -243,10 +241,26 @@ public class Client {
 	    paramArray[2] = scanner.nextInt();
     }
 
+	public static void loginInterface() {
+		Scanner scanner = new Scanner(System.in);
+		System.out.print("User: ");
+		String user = scanner.nextLine();
+		System.out.print("Password: ");
+		String password = scanner.nextLine();
+		UserDB db = new UserDB();
+		if (db.authenticate(user, password)) {
+			return;
+		} else {
+			System.out.println("Username or password is incorrect. Try again.");
+			loginInterface();
+		}
+	}
+
 	public static void main(String[] args) {
 
     textUI();
     clientParams = Arrays.toString(paramArray);
+    if(paramArray[2] == 1) { loginInterface(); }
     connect();
 	}
 	

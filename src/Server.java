@@ -291,8 +291,6 @@ public class Server {
 			} catch (ClassNotFoundException | IOException e) {
 				// TODO Auto-generated catch block
 				System.out.println("Server: connection closed.");
-
-				e.printStackTrace();
 				return;
 			}
 		}
@@ -321,11 +319,24 @@ public class Server {
         paramArray[2] = scanner.nextInt();
     }
 
+    public static void loginInterface() {
+	    Scanner scanner = new Scanner(System.in);
+	    System.out.print("User: ");
+	    String user = scanner.nextLine();
+	    System.out.print("Password: ");
+	    String password = scanner.nextLine();
+	    UserDB db = new UserDB();
+	    if(db.authenticate(user, password)) {
+	        return;
+        } else {
+	        System.out.println("Username or password is incorrect. Try again.");
+	        loginInterface();
+        }
+    }
+
 	public static void main(String[] args) {
-		//Server is CA --> user must login to server.
-		//TODO add server pass hash and user to UserDB
-		//TODO add interactive login before all else
-	    textUI();
+        textUI();
+	    if(paramArray[2] == 1) { loginInterface(); }
 		startServer();
 	}
 }
