@@ -75,104 +75,103 @@ public class Client {
     }
     
     private static void begin(){
-    	//TODO only auth if A in agreed params
+    	
+		boolean enableConfidential = paramArray[0] == 1;
+		boolean enableIntegrity = paramArray[1] == 1;
+		boolean enableAuth = paramArray[2] == 1;
+    	
     	try {
-    		boolean success = authCertToServer();
-			if(success){
+    		
+    		//mutual certificate authentication if authentication is enabled
+    		boolean authSuccess = false;
+    		if(enableAuth){
+    			authSuccess = authCertToServer();
+    			if(!authSuccess){	//recall function if auth fails (unlimited auth attempts)
+    				begin();
+    			}
+    		}else{
+    			authSuccess = true;
+    		}
+    		
+    		//establish session keys if confidential or integrity is necessary
+			if(enableConfidential || enableIntegrity && authSuccess){
+				
+				//generate and store session keys
 		        System.out.println("Client: connection to server open...");
-		        masterKey = SymKeyGen.generateMasterKey();
-		        sessionKeys = SymKeyGen.convertKeyBytes(SymKeyGen.splitMasterKey(masterKey));
-		        
+		        initializeSessionKeys();
 				System.out.println("Client: Session (master) Key: [" + SymKeyGen.encode64(masterKey) + "].");
 				
-		        //send symmetric key to server
+		        //send master key to server
+		    	PublicKey serverPubKey = keyStore.getCertificate("ServerCert").getPublicKey();
+		    	byte[] encryptedSessionKeys = protectMasterKey(serverPubKey);
+				System.out.println("Client: Master key [" + encryptedSessionKeys.length+"] encrypted with server's public key: "+ SymKeyGen.encode64(encryptedSessionKeys));
+				objOut.write(encryptedSessionKeys);
+				objOut.flush();
+			}
 				
-					PublicKey serverPubKey = keyStore.getCertificate("ServerCert").getPublicKey();
-					byte[] encodedMasterKey = Base64.getEncoder().encode(masterKey);
-					byte[] encryptedSessionKeys = KeyPairGen.encrypt((new String(encodedMasterKey)), serverPubKey);
-					//String encKey = Base64.getEncoder().encodeToString(encryptedSessionKey);
-					System.out.println("Client: Master key [" + encryptedSessionKeys.length+"] encrypted with server's public key: "+ Base64.getEncoder().encodeToString(encryptedSessionKeys));
-					objOut.write(encryptedSessionKeys);
-					objOut.flush();
-
-		        //send test plaintext message to server
-		        //objOut.writeObject(new Message("hello there!"));
-		        
-		        //send test encrypted message
-		        /*
-		        String encMsg = gen.encryptMessage("secret message!!!", sessionKey);
-		        Message encMessage = new Message(encMsg);
-				System.out.println("Client: Sending Encrypted and Encoded Message: [" + encMsg+ "].");
-		        objOut.writeObject(encMessage);
-		        objOut.flush();
-		        */
-		        
-		       //listen for any messages
-	           while(true){
-	        	   Message msg = null;
-	        	   try {
-	        		   
-	        		   //send to server
-	        		   //possibly send another message
-	        		   //TODO sendMessagePrompt();
+			while(true){
+        	   Message msg = null;
+        	   try {
+        		   
+        		   	//ask for new message input
+        		   	String message = inputMessagePrompt();
+			        
+			        //Wrap message in class; input params to control confidentiality and integrity
+			        EncryptedMessage eMsg = new EncryptedMessage(message, sessionKeys[0], sessionKeys[1], enableConfidential, enableIntegrity);
+			  
+			        //write message
+			        objOut.writeObject(eMsg);
+					System.out.println("Client: waiting for server to respond. ");
+			        
+					//receive message from server
+					if((msg = (Message) objIn.readObject()) != null){
+						System.out.println("Client: message received.");
+						EncryptedMessage recEMsg = ((EncryptedMessage) msg);
 						
-				        Scanner sc = new Scanner(System.in);
-				        System.out.print("Input message for server: ");
-				        String message = sc.nextLine();
-				        
-				        //encrypt message and send
-				        EncryptedMessage eMsg = new EncryptedMessage(message, sessionKeys[0]);
-				        
-				        objOut.writeObject(eMsg);
-						System.out.println("Client: waiting for server to respond. ");
-				        
-	        		   //receive from server
-						if((msg = (Message) objIn.readObject()) != null){
-							System.out.println("Client: message received: [" + ((EncryptedMessage) msg).decrypt(sessionKeys[0])+ "].");
+						String output = null;
+						
+						if(enableIntegrity){
+							
+							//verify message
+							if(recEMsg.verifyMAC(sessionKeys[1])){
+								System.out.println("Client: message verified.");
+								
+								//also decrypt message if necessary
+								if(enableConfidential){
+									output = recEMsg.decrypt(sessionKeys[0]);
+								}else{
+									output = new String(recEMsg.message);
+								}
+							}else{
+								System.out.println("Client: message is INVALID.");
+							}
+						
+						//no integrity checks
 						}else{
-							System.out.println("Server: connection still open.......... ");
+							
+							//also decrypt message if necessary
+							if(enableConfidential){
+								output = recEMsg.decrypt(sessionKeys[0]);
+							}else{
+								output = new String(recEMsg.message);
+							}
 						}
-						
-					} catch (ClassNotFoundException | IOException e) {
-				        System.out.println("Client: connection closed.");
-						return;
+					
+						System.out.println("Client: Message from server [" + output + "].");
+					}else{
+						System.out.println("Server: connection still open.......... ");
 					}
+					
+				} catch (ClassNotFoundException | IOException e) {
+			        System.out.println("Client: connection closed.");
+					return;
+				}
 	           }
-		            
-	
-    		}else{
-    			begin();  //allow for unlimited auth attempts
-    		}
     					
 		} catch (IOException | ClassNotFoundException | KeyStoreException e) {
 			e.printStackTrace();
 		}
 
-    }
-    
-    private static boolean authPassToServer() throws IOException, ClassNotFoundException{
-    	
-    	//authenticate
-		Scanner sc = new Scanner(System.in);
-		System.out.print("Enter username: ");
-		String userid = sc.nextLine();
-		System.out.print("Enter password: ");
-		String pass = sc.nextLine();
-		
-		//need to protect this plaintext information with encryption?
-		Message authToServer = new Message(userid + ":" + pass);
-		objOut.writeObject(authToServer);
-		System.out.println("Client: auth info sent to server.");
-
-		
-		boolean authSuccess =  objIn.readBoolean();
-		if(authSuccess){
-			System.out.println("Client: Authentication Success.");
-		}else{
-			System.out.println("Client: Authentication Failure.");
-
-		}
-		return authSuccess;	
     }
     
     private static boolean authCertToServer() throws IOException, ClassNotFoundException{
@@ -219,16 +218,23 @@ public class Client {
 		return validServerCert;	
     }
     
-    private static void sendMessagePrompt(){
-    	
+    private static String inputMessagePrompt(){
+        Scanner sc = new Scanner(System.in);
+        System.out.print("Input message for server: ");
+        String message = sc.nextLine();
+        sc.close();
+        return message;
     }
     
-    private static void sendPlaintextMessage(){
-    	
+    private static void initializeSessionKeys(){
+    	masterKey = SymKeyGen.generateMasterKey();
+        sessionKeys = SymKeyGen.convertKeyBytes(SymKeyGen.splitMasterKey(masterKey));
     }
     
-    private static void sendEncryptedMessage(){
-    	
+    private static byte[] protectMasterKey(PublicKey key){
+		byte[] encodedMasterKey = Base64.getEncoder().encode(masterKey);
+		byte[] encryptedSessionKeys = KeyPairGen.encrypt((new String(encodedMasterKey)), key);
+		return encryptedSessionKeys;
     }
 
     private static void textUI() {
@@ -263,16 +269,6 @@ public class Client {
     if(paramArray[2] == 1) { loginInterface(); }
     connect();
 	}
-	
-	private class SessionKey{
-		
-		
-		
-		public SessionKey(SecretKey key){
-			
-		}
-	}
-
 
 }
 
