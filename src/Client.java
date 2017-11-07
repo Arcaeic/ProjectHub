@@ -26,7 +26,7 @@ public class Client {
     private static ObjectOutputStream objOut;
     private static ObjectInputStream objIn;
     private static String clientParams;
-    private static SecretKey[] sessionKeys;
+    private static SecretKey[] sessionKeys = {null, null};
     private static KeyStore keyStore;
 	private static byte[] masterKey;
 
@@ -117,6 +117,14 @@ public class Client {
         		   
         		   	//ask for new message input
         		   	String message = inputMessagePrompt();
+        		   	
+        		   	if(message == null){
+    					System.out.println("message null ");
+        		   	}
+					if(sessionKeys == null){
+						System.out.println("sess keys null ");
+					}
+
 			        
 			        //Wrap message in class; input params to control confidentiality and integrity
 			        EncryptedMessage eMsg = new EncryptedMessage(message, sessionKeys[0], sessionKeys[1], enableConfidential, enableIntegrity);

@@ -35,7 +35,7 @@ public class Server {
 	private static ObjectOutputStream objOut;
 	private static String serverParams;
 	private static String clientParams;
-    private static SecretKey[] sessionKeys;
+    private static SecretKey[] sessionKeys = {null, null};
     private static KeyStore keyStore;
 	private static byte[] masterKey;
 
