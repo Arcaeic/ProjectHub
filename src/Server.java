@@ -1,3 +1,5 @@
+import static java.lang.System.exit;
+
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
@@ -133,47 +135,6 @@ public class Server {
 		}
 	}
 
-	/**
-	 * TODO need to protect integrity of this plaintext auth protocol?
-	 * 
-	 * @param "objIn"
-	 * @return is the client authenticated
-	 * @throws IOException
-	 */
-	private static boolean authenticateClient() {
-		UserDB database = new UserDB();
-		
-		System.out.println("Server: Waiting for client to begin authentication.");
-		Message authFromClient = null;
-		try {
-			authFromClient = (Message) objIn.readObject();
-		} catch (ClassNotFoundException | IOException e) {
-			e.printStackTrace();
-		}
-
-		String authInfo[] = authFromClient.get().split(":");
-		System.out.println("Server: Received auth request from client["
-				+ authInfo[0] + "] with password[" + authInfo[1] + "].");
-
-		boolean success = false;
-		if ((success = database.authenticate(authInfo[0], authInfo[1]))) {
-			System.out.println("Server: Authentication success.");
-		} else {
-			System.out.println("Server: Autentication failure.");
-		}
-
-		try {
-			objOut.writeBoolean(success);
-			objOut.flush();
-			System.out.println("Server: sent success = " + success);
-
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
-
-		return success;
-	}
-	
 	private static boolean authClientCert() {
 		
 		System.out.println("Server: Waiting for client to send certificate.");
@@ -217,20 +178,29 @@ public class Server {
 	}
 
 	private static void begin() {
-
-		/*
-		 * TODO run authentication only when in agreed params
-		 */
-		if (authClientCert()) {
-
-			System.out.println("Server: Connection to Client open...");
-
-			// setup session key
-			// TODO protect in transit with asymm keypairs
-			sessionKeys = null;
+		
+		boolean enableConfidential = paramArray[0] == 1;
+		boolean enableIntegrity = paramArray[1] == 1;
+		boolean enableAuth = paramArray[2] == 1;
+		
+		boolean authSuccess = false;
+		if(enableAuth){
+			authSuccess = authClientCert();
+			if(!authSuccess){
+				close();
+				exit(-1);
+			}
+		}else{
+			authSuccess = true;
+		}
+		
+		//session key establishment if enabled
+		if (enableConfidential || enableIntegrity && authSuccess) {
 
 			try {
+				System.out.println("Server: Connection to Client open...");
 				
+				sessionKeys = null;
 				System.out.println("Server: waiting for encrypted session key from client.");
 				PrivateKey serverPriKey = (PrivateKey) keyStore.getKey("ServerPrivate", "keypass".toCharArray());
 				System.out.println("Server: retreived private key from keystore:" + Base64.encode(serverPriKey.getEncoded()));
@@ -239,52 +209,61 @@ public class Server {
 				System.out.println(objIn.read(encryptedMKey, 0, encryptedMKeySizeBytes) + "bytes read.");
 				System.out.println("Server: Recieved encrypted session key: " + encryptedMKey.length);
 				System.out.println("Server: encrypted session key: " + Base64.encode(encryptedMKey));
-
+	
 				String decryptedKey = KeyPairGen.decrypt(encryptedMKey, serverPriKey);
-				
-				//byte[] sessionKeyBytes = SymmetricKeyGen.decode64(encryptedSKey);
 				sessionKeys = SymKeyGen.convertKeyBytes(SymKeyGen.splitMasterKey(Base64.decode((decryptedKey))));
-			
 				System.out.println("Server: master Key: [" + decryptedKey.getBytes()+ "].");
-
-
+		
 			} catch (IOException | KeyStoreException | NoSuchAlgorithmException | UnrecoverableEntryException e) {
 				System.out.println("Server: Could not receive session key.");
 				e.printStackTrace();
 			}
-
-		} else {
-			System.out.println("Server: Connection to Client still open. Waiting for reauth.");
-			begin();
-			return;
 		}
 
-		// listen for any messages
+		//listen for any messages
 		while (true) {
 			Object msg = null;
 			try {
 				
-				// receive message from client
-				if ((msg = objIn.readObject()) != null) {
-					System.out.println("Server: Message received from client... ");
-
-					// TODO support plaintext message
-					if (true) {
-						// if is encrypted (C is in params)
-						String decMessage = ((EncryptedMessage) msg).decrypt(sessionKeys[0]);
-						System.out.println("Server: message decrypted: ["
-								+ decMessage + "].");
+				//receive message from client
+				if ((msg = (Message) objIn.readObject()) != null) {
+					EncryptedMessage recEMsg = ((EncryptedMessage) msg);
+					
+					String output = null;
+					
+					if(enableIntegrity){
+						
+						//verify message
+						if(recEMsg.verifyMAC(sessionKeys[1])){
+							System.out.println("Server: message verified.");
+							
+							//also decrypt message if necessary
+							if(enableConfidential){
+								output = recEMsg.decrypt(sessionKeys[0]);
+							}else{
+								output = new String(recEMsg.message);
+							}
+						}else{
+							System.out.println("Server: message is INVALID.");
+						}
+					
+					//no integrity checks
+					}else{
+						
+						//also decrypt message if necessary
+						if(enableConfidential){
+							output = recEMsg.decrypt(sessionKeys[0]);
+						}else{
+							output = new String(recEMsg.message);
+						}
 					}
+				
+					System.out.println("Server: Message from server [" + output + "].");
 				}
 
 				//send message to client
-
-				//TODO add "send another message prompt" here
-				Scanner sc = new Scanner(System.in);
-				System.out.print("Message for client: ");
-				String message = sc.nextLine();
-
-				objOut.writeObject(new EncryptedMessage(message, sessionKeys[0]));
+				String message = inputMessagePrompt();
+				objOut.writeObject(new EncryptedMessage(message, sessionKeys[0], sessionKeys[1], enableConfidential, enableIntegrity));
 
 				System.out.println("Server: waiting for client to respond. ");
 
@@ -308,6 +287,13 @@ public class Server {
 			e.printStackTrace();
 		}
 	}
+	
+    private static String inputMessagePrompt(){
+        Scanner sc = new Scanner(System.in);
+        System.out.print("Input message for client: ");
+        String message = sc.nextLine();
+        return message;
+    }
 
 	public static void textUI() {
         Scanner scanner = new Scanner(System.in);

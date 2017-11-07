@@ -65,6 +65,7 @@ public class Client {
 
             if(!matches) {
                 System.out.println("Client: Connection to Server closed. Parameters do not match.");
+                close();
                 exit(-1);
             }
             
@@ -86,8 +87,9 @@ public class Client {
     		boolean authSuccess = false;
     		if(enableAuth){
     			authSuccess = authCertToServer();
-    			if(!authSuccess){	//recall function if auth fails (unlimited auth attempts)
-    				begin();
+    			if(!authSuccess){
+    				close();
+    				exit(-1);
     			}
     		}else{
     			authSuccess = true;
@@ -110,7 +112,7 @@ public class Client {
 			}
 				
 			while(true){
-        	   Message msg = null;
+        	   Object msg = null;
         	   try {
         		   
         		   	//ask for new message input
@@ -158,8 +160,6 @@ public class Client {
 						}
 					
 						System.out.println("Client: Message from server [" + output + "].");
-					}else{
-						System.out.println("Server: connection still open.......... ");
 					}
 					
 				} catch (ClassNotFoundException | IOException e) {
@@ -222,9 +222,20 @@ public class Client {
         Scanner sc = new Scanner(System.in);
         System.out.print("Input message for server: ");
         String message = sc.nextLine();
-        sc.close();
         return message;
     }
+    
+	private static void close() {
+		try {
+			os.close();
+			is.close();
+			objIn.close();
+			objOut.close();
+			clientSocket.close();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+	}
     
     private static void initializeSessionKeys(){
     	masterKey = SymKeyGen.generateMasterKey();
