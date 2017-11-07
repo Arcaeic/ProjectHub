@@ -248,7 +248,7 @@ public class KeyPairGen {
     
     public static byte[] encrypt(String message, Key key){
     	
-		System.out.println("KPGen: encrypting bytes: " + message.getBytes().length);
+		//System.out.println("KPGen: encrypting bytes: " + message.getBytes().length);
 
     	byte[] encBytes = null;
     	
@@ -266,7 +266,7 @@ public class KeyPairGen {
     
     public static String decrypt(byte[] encBytes, Key key){
     	
-		System.out.println("KPGen: decrypting bytes: " + encBytes.length);
+		//System.out.println("KPGen: decrypting bytes: " + encBytes.length);
 
     	String decrypted = null;
     	
