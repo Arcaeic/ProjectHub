@@ -223,32 +223,21 @@ public class KeyPairGen {
     
     public static boolean verifySignature(Certificate certToVerify, Certificate caCert, Key caPubKey){
 		boolean success = false;
-		try{
-			certToVerify.verify(caCert.getPublicKey());				
-			//System.out.println("Cert valid. Signed by ca's public key.");
-			success=true;
-		}catch(InvalidKeyException ivky){
-			//System.out.println("Cert not valid. Not signed by CA's public key.");
-		} catch (CertificateException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (NoSuchAlgorithmException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (NoSuchProviderException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (SignatureException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
+		
+			try {
+				certToVerify.verify(caCert.getPublicKey());
+				success=true;
+			} catch (InvalidKeyException | CertificateException | NoSuchAlgorithmException | NoSuchProviderException
+					| SignatureException e) {
+				e.printStackTrace();
+			}				
 		
 		return success;
 	}
     
     public static byte[] encrypt(String message, Key key){
     	
-		System.out.println("KPGen: encrypting bytes: " + message.getBytes().length);
+		//System.out.println("KPGen: encrypting bytes: " + message.getBytes().length);
 
     	byte[] encBytes = null;
     	
@@ -266,7 +255,7 @@ public class KeyPairGen {
     
     public static String decrypt(byte[] encBytes, Key key){
     	
-		System.out.println("KPGen: decrypting bytes: " + encBytes.length);
+		//System.out.println("KPGen: decrypting bytes: " + encBytes.length);
 
     	String decrypted = null;
     	

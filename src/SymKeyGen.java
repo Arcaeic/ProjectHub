@@ -100,11 +100,12 @@ public class SymKeyGen {
 			cipher = Cipher.getInstance(FULL_ALGO);
 			cipher.init(Cipher.ENCRYPT_MODE, keySpec, new IvParameterSpec(iv)); 
 			encryptedMessage = cipher.doFinal(msg.getBytes()); 
-			System.out.println("Encrypted bytes ["+ encryptedMessage.length +"]:" + SymKeyGen.encode64(encryptedMessage));
+			//System.out.println("Encrypted bytes ["+ encryptedMessage.length +"]:" + SymKeyGen.encode64(encryptedMessage));
 			
 			
 		} catch (NoSuchAlgorithmException | NoSuchPaddingException | InvalidKeyException | InvalidAlgorithmParameterException | IllegalBlockSizeException | BadPaddingException e) {
-			System.out.println("SymEnc: Exception");
+			System.out.println("Symmetric Encryption: Exception!");
+			e.printStackTrace();
 		}
 		return encryptedMessage;
 	}
@@ -122,7 +123,7 @@ public class SymKeyGen {
 			msg = new String(decryptedMessageBytes);
 			
 		} catch (NoSuchAlgorithmException | NoSuchPaddingException | InvalidKeyException | InvalidAlgorithmParameterException | IllegalBlockSizeException | BadPaddingException e) {
-			System.out.println("SymDec: Exception");
+			System.out.println("Symmetric Decryption: Exception!");
 			e.printStackTrace();
 		}
 		
