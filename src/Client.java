@@ -150,7 +150,7 @@ public class Client {
 								if(enableConfidential){
 									output = recEMsg.decrypt(sessionKeys[0]);
 								}else{
-									output = new String(recEMsg.message);
+									output = new String(recEMsg.getMessage());
 								}
 							}else{
 								System.out.println("Client: message is INVALID.");
@@ -163,7 +163,7 @@ public class Client {
 							if(enableConfidential){
 								output = recEMsg.decrypt(sessionKeys[0]);
 							}else{
-								output = new String(recEMsg.message);
+								output = new String(recEMsg.getMessage());
 							}
 						}
 					

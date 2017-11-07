@@ -9,7 +9,7 @@ import javax.crypto.spec.PBEKeySpec;
 public class UserDB {
 
     //Init HashMap and store Server/Client login
-	private static HashMap<String, String> users = new HashMap<String,String>();
+	private static HashMap<String, String> users = new HashMap<>();
 	static {
 		users.put("admin", "dm4yyPhP9hS3dokd+pEi3Q==DOU8Iz42ZPP74H7WrK2ijnWPNKoMmW4n3lQRNkvoh44=");
 		users.put("user", "fs844Wb9ue6KjORQkt+EWA==dxGE7z9Su3cmGo5kOEp48hTKuXzBAI6azX3bjdA8WCA=");

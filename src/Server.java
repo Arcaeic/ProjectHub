@@ -241,7 +241,7 @@ public class Server {
 							if(enableConfidential){
 								output = recEMsg.decrypt(sessionKeys[0]);
 							}else{
-								output = new String(recEMsg.message);
+								output = new String(recEMsg.getMessage());
 							}
 						}else{
 							System.out.println("Server: message is INVALID.");
@@ -254,7 +254,7 @@ public class Server {
 						if(enableConfidential){
 							output = recEMsg.decrypt(sessionKeys[0]);
 						}else{
-							output = new String(recEMsg.message);
+							output = new String(recEMsg.getMessage());
 						}
 					}
 				
