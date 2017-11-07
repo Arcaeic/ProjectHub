@@ -96,14 +96,14 @@ public class Server {
 			System.out.println("Server: Connection to Client established.");
 
 		} else {
-			System.out.println("Server: MISMATCH! Client and Server parameters do not match.");
+			System.out.println("Server: ERROR! Client and Server parameters do not match.");
         }
 
         try {
             objOut.writeBoolean(sameConfig);
             objOut.flush();
         } catch (IOException e) {
-			System.out.println("Server: ERROR! Could not send parameters.");
+			//System.out.println("Server: ERROR! Could not send parameters.");
             e.printStackTrace();
         }
 
@@ -173,7 +173,7 @@ public class Server {
 			if(success){
 				System.out.println("Server: SUCCESS! Mutual authentication complete.");
 			}else{
-				System.out.println("Server: ERROR! Server's certificate is invalid.");
+				System.out.println("Client: ERROR! Server's certificate is invalid.");
 			}
 			
 		} catch (IOException e) {
@@ -193,7 +193,7 @@ public class Server {
 		if(enableAuth){
 			authSuccess = authClientCert();
 			if(!authSuccess){
-				System.out.println("Server: ERROR: Mutual authentication failed. Connection closed.");
+				System.out.println("Server: ERROR! Mutual authentication failed. Connection closed.");
 				close();
 				exit(-1);
 			}
@@ -210,17 +210,13 @@ public class Server {
 				sessionKeys = null;
 				System.out.println("Server: Waiting for Client to begin session key establishment.");
 				PrivateKey serverPriKey = (PrivateKey) keyStore.getKey("ServerPrivate", "keypass".toCharArray());
-				//System.out.println("Server: retreived private key from keystore:" + SymKeyGen.encode64(serverPriKey.getEncoded()));
+
 				int encryptedMKeySizeBytes = SymKeyGen.SUB_KEY_SIZE * 8;
 				byte[] encryptedMKey = new byte[encryptedMKeySizeBytes];
 				int bytes_read = objIn.read(encryptedMKey, 0, encryptedMKeySizeBytes);
-				//System.out.println(bytes_read + "bytes read.");
-				//System.out.println("Server: Recieved session key: " + encryptedMKey.length);
-				//System.out.println("Server: encrypted session key: " + SymKeyGen.encode64(encryptedMKey));
-	
+
 				String decryptedKey = KeyPairGen.decrypt(encryptedMKey, serverPriKey);
 				sessionKeys = SymKeyGen.convertKeyBytes(SymKeyGen.splitMasterKey(SymKeyGen.decode64(decryptedKey)));
-				//System.out.println("Server: master Key: [" + decryptedKey.getBytes()+ "].");
 				System.out.println("Server: SUCCESS! Session key established.");
 				
 		
@@ -260,12 +256,10 @@ public class Server {
 								output = new String(recEMsg.message);
 							}
 							
-							System.out.println("Server: Message: [" + output + "].");
+							System.out.println("Client: [" + output + "].");
 
 						}else{
-							System.out.println("Server: ERROR! Verification failed.");
-							System.out.println("Server: INVALID Message: [" + output + "].");
-
+							System.out.println("Server: ERROR! Verification failed: [" + output + "].");
 						}
 					
 					//no integrity checks
@@ -279,7 +273,7 @@ public class Server {
 							output = new String(recEMsg.message);
 						}
 						
-						System.out.println("Server: Message: [" + output + "].");
+						System.out.println("Client: [" + output + "].");
 					}
 				
 				}
@@ -329,9 +323,9 @@ public class Server {
 
     public static void loginInterface() {
 	    Scanner scanner = new Scanner(System.in);
-	    System.out.print("Server: UserName: ");
+	    System.out.print("Server:                      Username: ");
 	    String user = scanner.nextLine();
-	    System.out.print("Server: Password: ");
+	    System.out.print("Server:                      Password: ");
 	    String password = scanner.nextLine();
 	    UserDB db = new UserDB();
 	    if(db.authenticate(user, password)) {
