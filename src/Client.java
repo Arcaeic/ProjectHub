@@ -38,6 +38,7 @@ public class Client {
 	        keyStore = KeyPairGen.loadClientKeyStore();
 			initializeStreams();
 			sendParameters();
+			if(paramArray[2] == 1) { loginInterface(); }
 			begin();
         } catch (UnknownHostException e) {
             System.err.println("Client: ERROR! Could not locate " + HOSTNAME);
@@ -280,11 +281,9 @@ public class Client {
 	}
 
 	public static void main(String[] args) {
-
-    textUI();
-    clientParams = Arrays.toString(paramArray);
-    if(paramArray[2] == 1) { loginInterface(); }
-    connect();
+		textUI();
+		clientParams = Arrays.toString(paramArray);
+		connect();
 	}
 
 }
