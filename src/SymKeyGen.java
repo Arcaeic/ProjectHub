@@ -1,7 +1,3 @@
-import java.io.IOException;
-import java.io.ObjectOutputStream;
-import java.io.OutputStream;
-import java.io.UnsupportedEncodingException;
 import java.security.InvalidAlgorithmParameterException;
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
@@ -111,11 +107,12 @@ public class SymKeyGen {
 			cipher = Cipher.getInstance(FULL_ALGO);
 			cipher.init(Cipher.ENCRYPT_MODE, keySpec, new IvParameterSpec(iv)); 
 			encryptedMessage = cipher.doFinal(msg.getBytes()); 
-			System.out.println("Encrypted bytes ["+ encryptedMessage.length +"]:" + SymKeyGen.encode64(encryptedMessage));
+			//System.out.println("Encrypted bytes ["+ encryptedMessage.length +"]:" + SymKeyGen.encode64(encryptedMessage));
 			
 			
 		} catch (NoSuchAlgorithmException | NoSuchPaddingException | InvalidKeyException | InvalidAlgorithmParameterException | IllegalBlockSizeException | BadPaddingException e) {
-			System.out.println("SymEnc: Exception");
+			System.out.println("Symmetric Encryption: Exception!");
+			e.printStackTrace();
 		}
 		return encryptedMessage;
 	}
@@ -133,7 +130,7 @@ public class SymKeyGen {
 			msg = new String(decryptedMessageBytes);
 			
 		} catch (NoSuchAlgorithmException | NoSuchPaddingException | InvalidKeyException | InvalidAlgorithmParameterException | IllegalBlockSizeException | BadPaddingException e) {
-			System.out.println("SymDec: Exception");
+			System.out.println("Symmetric Decryption: Exception!");
 			e.printStackTrace();
 		}
 		
@@ -148,20 +145,6 @@ public class SymKeyGen {
 		return salt;
 	}
 	
-	public static void main(String[] args){
-		
-		SecretKey[] keys = convertKeyBytes(splitMasterKey(generateMasterKey()));
-		EncryptedMessage message = new EncryptedMessage("secret message", keys[0]);
-
-		//iv test code here.	
-		
-		//TODO master and sub keys, one for session key and one for mac key
-		//TODO add timestamp to emessage to detect replay attacks
-		//
-		
-		
-		
-	}
 }
 
 

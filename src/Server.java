@@ -222,18 +222,23 @@ public class Server {
 				sessionKeys = SymKeyGen.convertKeyBytes(SymKeyGen.splitMasterKey(SymKeyGen.decode64(decryptedKey)));
 				//System.out.println("Server: master Key: [" + decryptedKey.getBytes()+ "].");
 				System.out.println("Server: SUCCESS! Session key established.");
+				
 		
 			} catch (IOException | KeyStoreException | NoSuchAlgorithmException | UnrecoverableEntryException e) {
-				System.out.println("Server: Could not obtain session keys.");
+				System.out.println("Server: Could not obtain/decrypt session keys.");
 				e.printStackTrace();
 			}
 		}
+		
+		System.out.println("Server: Waiting for initial message from Client.");
+
 
 		//listen for any messages
 		while (true) {
 			Object msg = null;
 			try {
 				
+
 				//receive message from client
 				if ((msg = (Message) objIn.readObject()) != null) {
 					EncryptedMessage recEMsg = ((EncryptedMessage) msg);
@@ -286,12 +291,11 @@ public class Server {
 				System.out.println("Server: Waiting for Client's response. ");
 
 			} catch (ClassNotFoundException | IOException e) {
-				System.out.println("Server: ERROR! Could not recieve/decrypt message. Connection closed.");
-				e.printStackTrace();
+				System.out.println("Server: ERROR! Connection closed.");
+				//e.printStackTrace();
 				return;
 			}
 		}
-
 	}
 
 	private static void close() {
