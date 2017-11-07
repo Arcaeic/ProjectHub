@@ -1,5 +1,4 @@
 import static java.lang.System.exit;
-
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
@@ -12,14 +11,10 @@ import java.security.KeyStoreException;
 import java.security.NoSuchAlgorithmException;
 import java.security.PrivateKey;
 import java.security.UnrecoverableEntryException;
-import java.security.UnrecoverableKeyException;
 import java.security.cert.Certificate;
 import java.util.Arrays;
 import java.util.Scanner;
-
 import javax.crypto.SecretKey;
-import javax.crypto.spec.SecretKeySpec;
-
 import com.sun.org.apache.xerces.internal.impl.dv.util.Base64;
 
 public class Server {
@@ -33,12 +28,12 @@ public class Server {
 	private static DataOutputStream os;
 	private static ObjectInputStream objIn;
 	private static ObjectOutputStream objOut;
+
 	private static String serverParams;
 	private static String clientParams;
+
     private static SecretKey[] sessionKeys = {null, null};
     private static KeyStore keyStore;
-	private static byte[] masterKey;
-
 
 
 	private static void startServer() {
@@ -64,29 +59,17 @@ public class Server {
 		try {
 			objIn = new ObjectInputStream(clientSocket.getInputStream());
 			objOut = new ObjectOutputStream(clientSocket.getOutputStream());
-
 			is = new DataInputStream(clientSocket.getInputStream());
 			os = new DataOutputStream(clientSocket.getOutputStream());
-			/*
-			 * add additional streams if necessary
-			 */
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-
+		} catch (IOException e) { e.printStackTrace(); }
 	}
 
 	private static void connect() {
 
 		waitForConnection();
 		getClientParameters();
-
-		if (parametersMatch()) {
-			begin();
-		} else {
-			close();
-		}
+		if (parametersMatch()) { begin(); }
+		else { close(); }
 
 	}
 
@@ -96,7 +79,6 @@ public class Server {
 		if (sameConfig) {
 			System.out.println("Server: Parameters match Client's");
 			System.out.println("Server: Connection to Client established");
-
 		} else {
 			System.out.println("Server: MISMATCH! Client and Server parameters do not match.");
 			System.out.println("Server: Severed connection to Client.");
@@ -105,9 +87,7 @@ public class Server {
         try {
             objOut.writeBoolean(sameConfig);
             objOut.flush();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+        } catch (IOException e) { e.printStackTrace(); }
 
         return sameConfig;
 	}
@@ -119,9 +99,7 @@ public class Server {
 			clientSocket = server.accept();
 			System.out.println("Server: Connection available.");
 			initializeStreams();
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
+		} catch (IOException e) { e.printStackTrace(); }
 	}
 
 	private static void getClientParameters() {
@@ -141,19 +119,13 @@ public class Server {
 		Certificate clientCert = null;
 		try {
 			clientCert = (Certificate) objIn.readObject();
-		} catch (ClassNotFoundException | IOException e) {
-			e.printStackTrace();
-		}
-
+		} catch (ClassNotFoundException | IOException e) { e.printStackTrace(); }
 		System.out.println("Server: Received certificate from client.");
 
 		Certificate caCert = null;
 		try {
 			caCert = keyStore.getCertificate("ServerCert");
-		} catch (KeyStoreException e1) {
-			// TODO Auto-generated catch block
-			e1.printStackTrace();
-		}
+		} catch (KeyStoreException e1) { e1.printStackTrace(); }
 		boolean success = false;
 		if (KeyPairGen.verifySignature(clientCert, caCert, caCert.getPublicKey())) {
 			System.out.println("Server: Authentication success. Client cert is valid.");
@@ -170,9 +142,7 @@ public class Server {
 			objOut.writeObject(caCert);
 			System.out.println("Server: (is CA) sent own certificate to client.");
 			success = objIn.readBoolean();
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
+		} catch (IOException e) { e.printStackTrace(); }
 
 		return success;
 	}
@@ -190,9 +160,7 @@ public class Server {
 				close();
 				exit(-1);
 			}
-		}else{
-			authSuccess = true;
-		}
+		}else{ authSuccess = true; }
 		
 		//session key establishment if enabled
 		if (enableConfidential || enableIntegrity && authSuccess) {
@@ -268,7 +236,6 @@ public class Server {
 				System.out.println("Server: waiting for client to respond. ");
 
 			} catch (ClassNotFoundException | IOException e) {
-				// TODO Auto-generated catch block
 				System.out.println("Server: connection closed.");
 				return;
 			}
@@ -283,19 +250,16 @@ public class Server {
 			objIn.close();
 			objOut.close();
 			clientSocket.close();
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
+		} catch (IOException e) { e.printStackTrace(); }
 	}
 	
     private static String inputMessagePrompt(){
         Scanner sc = new Scanner(System.in);
         System.out.print("Input message for client: ");
-        String message = sc.nextLine();
-        return message;
+        return sc.nextLine();
     }
 
-	public static void textUI() {
+	private static void textUI() {
         Scanner scanner = new Scanner(System.in);
         System.out.print("Ensure Confidentiality? (0/1): ");
         paramArray[0] = scanner.nextInt();
@@ -305,16 +269,14 @@ public class Server {
         paramArray[2] = scanner.nextInt();
     }
 
-    public static void loginInterface() {
+    private static void loginInterface() {
 	    Scanner scanner = new Scanner(System.in);
 	    System.out.print("User: ");
 	    String user = scanner.nextLine();
 	    System.out.print("Password: ");
 	    String password = scanner.nextLine();
 	    UserDB db = new UserDB();
-	    if(db.authenticate(user, password)) {
-	        return;
-        } else {
+	    if(!db.authenticate(user, password)) {
 	        System.out.println("Username or password is incorrect. Try again.");
 	        loginInterface();
         }
