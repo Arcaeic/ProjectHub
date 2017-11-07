@@ -71,7 +71,6 @@ public class SymKeyGen {
 			gen.init(keySize);
 			key = gen.generateKey();
 		} catch (NoSuchAlgorithmException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 		return key;
