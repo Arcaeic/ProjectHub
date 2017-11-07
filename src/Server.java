@@ -1,5 +1,4 @@
 import static java.lang.System.exit;
-
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
@@ -15,7 +14,6 @@ import java.security.UnrecoverableEntryException;
 import java.security.cert.Certificate;
 import java.util.Arrays;
 import java.util.Scanner;
-
 import javax.crypto.SecretKey;
 
 
@@ -30,12 +28,12 @@ public class Server {
 	private static DataOutputStream os;
 	private static ObjectInputStream objIn;
 	private static ObjectOutputStream objOut;
+
 	private static String serverParams;
 	private static String clientParams;
+
     private static SecretKey[] sessionKeys = {null, null};
     private static KeyStore keyStore;
-	private static byte[] masterKey;
-
 
 
 	private static void startServer() {
@@ -61,30 +59,17 @@ public class Server {
 		try {
 			objIn = new ObjectInputStream(clientSocket.getInputStream());
 			objOut = new ObjectOutputStream(clientSocket.getOutputStream());
-
 			is = new DataInputStream(clientSocket.getInputStream());
 			os = new DataOutputStream(clientSocket.getOutputStream());
-			/*
-			 * add additional streams if necessary
-			 */
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-
+		} catch (IOException e) { e.printStackTrace(); }
 	}
 
 	private static void connect() {
 
 		waitForConnection();
 		getClientParameters();
-
-		if (parametersMatch()) {
-			begin();
-		} else {
-			System.out.println("Server: Closed connection to Client.");
-			close();
-		}
+		if (parametersMatch()) { begin(); }
+		else { close(); }
 
 	}
 
@@ -197,9 +182,7 @@ public class Server {
 				close();
 				exit(-1);
 			}
-		}else{
-			authSuccess = true;
-		}
+		}else{ authSuccess = true; }
 		
 		//session key establishment if enabled
 		if (enableConfidential || enableIntegrity && authSuccess) {
@@ -253,7 +236,7 @@ public class Server {
 								System.out.println("Server: Message decrypted.");
 
 							}else{
-								output = new String(recEMsg.message);
+								output = new String(recEMsg.getMessage());
 							}
 							
 							System.out.println("Client: [" + output + "].");
@@ -270,7 +253,7 @@ public class Server {
 							output = recEMsg.decrypt(sessionKeys[0]);
 							System.out.println("Server: Message decrypted.");
 						}else{
-							output = new String(recEMsg.message);
+							output = new String(recEMsg.getMessage());
 						}
 						
 						System.out.println("Client: [" + output + "].");
@@ -299,19 +282,16 @@ public class Server {
 			objIn.close();
 			objOut.close();
 			clientSocket.close();
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
+		} catch (IOException e) { e.printStackTrace(); }
 	}
 	
     private static String inputMessagePrompt(){
         Scanner sc = new Scanner(System.in);
         System.out.print("Message for Client: ");
-        String message = sc.nextLine();
-        return message;
+        return sc.nextLine();
     }
 
-	public static void textUI() {
+	private static void textUI() {
         Scanner scanner = new Scanner(System.in);
         System.out.print("Server: Ensure Confidentiality? (0/1): ");
         paramArray[0] = scanner.nextInt();
@@ -321,16 +301,14 @@ public class Server {
         paramArray[2] = scanner.nextInt();
     }
 
-    public static void loginInterface() {
+    private static void loginInterface() {
 	    Scanner scanner = new Scanner(System.in);
 	    System.out.print("Server:                      Username: ");
 	    String user = scanner.nextLine();
 	    System.out.print("Server:                      Password: ");
 	    String password = scanner.nextLine();
 	    UserDB db = new UserDB();
-	    if(db.authenticate(user, password)) {
-	        return;
-        } else {
+	    if(!db.authenticate(user, password)) {
 	        System.out.println("Server: Username or password is incorrect. Try again.");
 	        loginInterface();
         }

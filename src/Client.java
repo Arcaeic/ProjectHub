@@ -150,7 +150,7 @@ public class Client {
 									System.out.println("Client: Message decrypted.");
 
 								}else{
-									output = new String(recEMsg.message);
+									output = new String(recEMsg.getMessage());
 								}
 								
 								System.out.println("Server: [" + output + "].");
@@ -166,7 +166,7 @@ public class Client {
 								output = recEMsg.decrypt(sessionKeys[0]);
 								System.out.println("Client: Message decrypted.");
 							}else{
-								output = new String(recEMsg.message);
+								output = new String(recEMsg.getMessage());
 							}
 							
 							System.out.println("Server: [" + output + "].");

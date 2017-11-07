@@ -3,7 +3,6 @@ import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
 import java.util.Arrays;
-
 import javax.crypto.BadPaddingException;
 import javax.crypto.Cipher;
 import javax.crypto.IllegalBlockSizeException;
@@ -12,7 +11,6 @@ import javax.crypto.NoSuchPaddingException;
 import javax.crypto.SecretKey;
 import javax.crypto.spec.IvParameterSpec;
 import javax.crypto.spec.SecretKeySpec;
-
 import com.sun.org.apache.xerces.internal.impl.dv.util.Base64;
 
 /*
@@ -31,20 +29,20 @@ import com.sun.org.apache.xerces.internal.impl.dv.util.Base64;
 
 public class SymKeyGen {
 	
-	public static int SUB_KEY_SIZE = 128 / 8;
-	public static int MASTER_KEY_SIZE = 256 / 8;
-	public static String ALGO = "AES";
-	public static String FULL_ALGO = "AES/CBC/PKCS5Padding";
-	public static int NUM_BYTES_IV = 16;
+	static int SUB_KEY_SIZE = 128 / 8;
+	static int MASTER_KEY_SIZE = 256 / 8;
+	static String ALGO = "AES";
+	static String FULL_ALGO = "AES/CBC/PKCS5Padding";
+	static int NUM_BYTES_IV = 16;
 	
-	public static byte[] generateMasterKey(){
+	static byte[] generateMasterKey(){
 		
 		SecretKey master = generateKey(MASTER_KEY_SIZE * 8, ALGO);
 		byte[] mKey = master.getEncoded();
 		return mKey;
 	}
 	
-	public static byte[][] splitMasterKey(byte[] master){
+	static byte[][] splitMasterKey(byte[] master){
 		
 		byte[][] subKeys = new byte[2][SUB_KEY_SIZE];
 		subKeys[0] = Arrays.copyOfRange(master, 0, SUB_KEY_SIZE);
@@ -54,22 +52,18 @@ public class SymKeyGen {
 		return subKeys;
 	}
 	
-	public static SecretKey[] convertKeyBytes(byte[][] subKeys){
-		
-		SecretKey[] keys = {new SecretKeySpec(subKeys[0],ALGO),
+	static SecretKey[] convertKeyBytes(byte[][] subKeys){
+
+		return new SecretKey[]{new SecretKeySpec(subKeys[0],ALGO),
 							new SecretKeySpec(subKeys[1],ALGO)};
-		
-		return keys;
 	}
 	
 	public static SecretKey convertKeyBytes(byte[] master){
-		
-		SecretKey key = new SecretKeySpec(master,ALGO);
-		return key;
+		return new SecretKeySpec(master,ALGO);
 	}
 	
 	
-	public static SecretKey generateKey(int keySize, String algo){
+	static SecretKey generateKey(int keySize, String algo){
 		KeyGenerator gen = null;
 		SecretKey key = null;
 		try {
@@ -77,28 +71,27 @@ public class SymKeyGen {
 			gen.init(keySize);
 			key = gen.generateKey();
 		} catch (NoSuchAlgorithmException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 		return key;
 	}
 	
-	public static IvParameterSpec generateInitVector(){
+	static IvParameterSpec generateInitVector(){
 		SecureRandom rngIV = new SecureRandom();
 		byte[] iv = new byte[NUM_BYTES_IV];
 		rngIV.nextBytes(iv);
 		return new IvParameterSpec(iv);
 	}
 	
-	public static String encode64(byte[] arr){
+	static String encode64(byte[] arr){
 		return Base64.encode(arr);
 	}
 	
-	public static byte[] decode64(String arr){
+	static byte[] decode64(String arr){
 		return Base64.decode(arr);
 	}
 	
-	public static byte[] encrypt(String msg, SecretKey key, byte[] iv){
+	static byte[] encrypt(String msg, SecretKey key, byte[] iv){
 		SecretKeySpec keySpec = new SecretKeySpec(key.getEncoded(), ALGO);
 		Cipher cipher;
 		byte[] encryptedMessage = null;
@@ -117,7 +110,7 @@ public class SymKeyGen {
 		return encryptedMessage;
 	}
 
-	public static String decrypt(byte[] eMsg, SecretKey key, byte[] iv){
+	static String decrypt(byte[] eMsg, SecretKey key, byte[] iv){
 		SecretKeySpec sessionKeySpec = new SecretKeySpec(key.getEncoded(), ALGO);
 		Cipher cipher;
 		String msg = null;
