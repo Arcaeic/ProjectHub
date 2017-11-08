@@ -254,6 +254,7 @@ public class Server {
 		}catch(Exception ex) // catch the wrapped exception sent from within the thread
 	    {
 			close();
+			gui.setVisible(false);
 			System.out.println("Server: ERROR! Connection closed.");
 			return;
 	    }
@@ -453,7 +454,6 @@ public class Server {
 			objIn.close();
 			objOut.close();
 			clientSocket.close();
-			gui.dispose();
 		} catch (IOException e) { e.printStackTrace(); }
 	}
 	
