@@ -27,28 +27,25 @@ import javax.crypto.SecretKey;
 
 public class Server {
 
-	private static ServerSocket server;
-	private static Socket clientSocket;
-	private static final int PORT = 11112;
+	private ServerSocket server;
+	private Socket clientSocket;
+	private final int PORT = 11112;
 	
-	private static boolean[] serverParams;
-	private static boolean[] clientParams;
+	private boolean[] serverParams;
 	
-	public static boolean enableA;
-	public static boolean enableI;
-	public static boolean enableC;
+	public boolean enableA;
+	public boolean enableI;
+	public boolean enableC;
 
-	private static DataInputStream is;
-	private static DataOutputStream os;
-	private static ObjectInputStream objIn;
-	public static ObjectOutputStream objOut;
+	private DataInputStream is;
+	private DataOutputStream os;
+	private ObjectInputStream objIn;
+	public ObjectOutputStream objOut;
 
-    public static SecretKey[] sessionKeys = {null, null};
-    private static KeyStore keyStore;
+    public SecretKey[] sessionKeys = {null, null};
+    private KeyStore keyStore;
     
-    public static ServerMsgGUI gui;
-    
-    
+    public ServerMsgGUI gui;
     
 	public void startServer() {
 
@@ -84,7 +81,7 @@ public class Server {
 
 	private void waitForConnection() {
 		try {
-			gui.printStatus("Listening for Client...");
+			gui.printStatus("Listening...");
 			clientSocket = server.accept();
 			gui.printStatus("Received connection request from Client.");
 			initializeStreams();
@@ -110,7 +107,7 @@ public class Server {
 	}
 
 
-	private static void initializeStreams() throws IOException {
+	private void initializeStreams() throws IOException {
 
 		objIn = new ObjectInputStream(clientSocket.getInputStream());
 		objOut = new ObjectOutputStream(clientSocket.getOutputStream());
@@ -127,7 +124,7 @@ public class Server {
 
 		if (sameConfig) {
 			gui.printStatus("Parameters match Client's.");
-			gui.printStatus("Connection to Client established.");
+			gui.printStatus("Connection to Client open.");
 
 		} else {
 			gui.printStatus("ERROR! Client and Server parameters do not match.");
@@ -201,9 +198,11 @@ public class Server {
 			if(!authSuccess){
 				gui.printStatus("ERROR! Mutual authentication failed. Connection closed.");
 				closeSocketAndStreams();
-				exit(-1);
+				return;
 			}
-		}else{ authSuccess = true; }
+		}else{ authSuccess = true;
+		
+		}
 		
 		//session key establishment if enabled
 		if (enableC || enableI && authSuccess) {
@@ -217,12 +216,11 @@ public class Server {
 
 				int encryptedMKeySizeBytes = SymKeyGen.SUB_KEY_SIZE * 8;
 				byte[] encryptedMKey = new byte[encryptedMKeySizeBytes];
-				int bytes_read = objIn.read(encryptedMKey, 0, encryptedMKeySizeBytes);
+				objIn.read(encryptedMKey, 0, encryptedMKeySizeBytes);
 
 				String decryptedKey = KeyPairGen.decrypt(encryptedMKey, serverPriKey);
 				sessionKeys = SymKeyGen.convertKeyBytes(SymKeyGen.splitMasterKey(SymKeyGen.decode64(decryptedKey)));
 				gui.printStatus("SUCCESS! Session key established.");
-				gui.enableMessaging(true);
 				gui.printStatus("You can now send messages.");
 		
 			} catch (IOException | KeyStoreException | NoSuchAlgorithmException | UnrecoverableEntryException e) {
@@ -231,13 +229,16 @@ public class Server {
 			}
 		}
 
+		gui.enableMessaging(true);
+		
 		try{
 			
 			ExecutorService executor = Executors.newSingleThreadExecutor();
 			
-			Server serv = new Server();
-			Callable<Boolean> t = serv.new ReceiveMessagesTask();
+
+			Callable<Boolean> t = this.new ReceiveMessagesTask();
 	        Future<Boolean> future = executor.submit(t);
+	        
 	        
 	        boolean finish = false;
 	        try {
@@ -253,7 +254,9 @@ public class Server {
 		}catch(Exception ex) // catch the wrapped exception sent from within the thread
 	    {
 			closeSocketAndStreams();
-			gui.setVisible(false);
+			//gui.setVisible(false);
+			gui.enableMessaging(false);
+			gui.clearChat();
 			gui.printStatus("Server: ERROR! Connection closed.");
 			return;
 	    }
@@ -317,18 +320,19 @@ public class Server {
 	    }
 	}
 
-	public static void printStatus(String message) {
+	public void printStatus(String message) {
 
 		gui.printStatus(message);
 
 	}
 
-	public static void printMessage(String message) {
-		String header = "[" + String.format("%tF %<tT.%<tL", new Date())+ "] ";
+	public void printMessage(String message) {
+		String header = "[" + String.format("%tF %<tT", new Date())+ "] ";
+		
 		gui.printMessageAsync(header + message);
 	}
 
-	private static void closeSocketAndStreams() {
+	private void closeSocketAndStreams() {
 		try {
 			os.close();
 			is.close();

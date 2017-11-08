@@ -23,17 +23,21 @@ import javax.crypto.SecretKey;
 
 public class Client {
 
-	private static int[] paramArray = new int[3];
-	public static boolean enableAuth;
-	public static boolean enableIntegrity;
-	public static boolean enableConfidential;
+	
+	
 	private static final String HOSTNAME = "localhost";
 	private static Socket clientSocket;
+	
 	private static DataOutputStream os;
 	private static DataInputStream is;
 	public static ObjectOutputStream objOut;
 	private static ObjectInputStream objIn;
-	private static String clientParams;
+	
+	private static boolean[] clientParams = new boolean[3];
+	public static boolean enableA;
+	public static boolean enableI;
+	public static boolean enableC;
+	
 	public static SecretKey[] sessionKeys = { null, null };
 	private static KeyStore keyStore;
 	private static byte[] masterKey;
@@ -42,91 +46,85 @@ public class Client {
 	public Client(){
 	}
 
-	private static void connect() {
+	public void startClient() {
 
 		try {
 			clientSocket = new Socket(HOSTNAME, 11112);
-			System.out.println("Client: Starting Client with parameters "
-					+ clientParams);
+			gui.printStatus("Starting Client...");
+			clientParams = gui.params;
+			
 			keyStore = KeyPairGen.loadClientKeyStore();
 			initializeStreams();
+			
 			sendParameters();
 
-			enableConfidential = paramArray[0] == 1;
-			enableIntegrity = paramArray[1] == 1;
-			enableAuth = paramArray[2] == 1;
+			enableC = clientParams[0];
+			enableI = clientParams[1];
+			enableA = clientParams[2];
 
-			if (paramArray[2] == 1) {
-				loginInterface();
-			}
-
-			begin();
+			beginConnection();
+			
 		} catch (UnknownHostException e) {
-			System.err.println("Client: ERROR! Could not locate " + HOSTNAME);
+			gui.printStatus("ERROR! Could not locate " + HOSTNAME);
 		} catch (IOException e) {
-			System.err
-			.println("Client: ERROR! Could not initialize I/O streams.");
+			gui.printStatus("ERROR! Could not initialize I/O streams.");
 		}
 
 	}
 
-	private static void initializeStreams() throws IOException {
+	private void initializeStreams() throws IOException {
 		os = new DataOutputStream(clientSocket.getOutputStream());
 		is = new DataInputStream(clientSocket.getInputStream());
 		objOut = new ObjectOutputStream(clientSocket.getOutputStream());
 		objIn = new ObjectInputStream(clientSocket.getInputStream());
 	}
 
-	private static void sendParameters() {
+	private void sendParameters() {
 		try {
 
-			Message newMessage = new Message(clientParams);
-			// System.out.println("Client: Parameters: " + newMessage.get());
+			Message newMessage = new Message(Arrays.toString(clientParams));
 			objOut.writeObject(newMessage);
 			boolean matches = objIn.readBoolean();
 
 			if (!matches) {
-				System.out
-				.println("Client: ERROR! Parameters do not match. Connection to Server closed.");
+				gui.printStatus("ERROR! Parameters do not match. Connection to Server closed.");
 				close();
-				exit(-1);
+				exit(0);
 			}
 
 		} catch (IOException e) {
-			System.out.println("Client: ERROR! Could not send parameters.");
-			e.printStackTrace();
-			exit(-1);
+			gui.printStatus("ERROR! Could not send parameters.");
+			//e.printStackTrace();
+			//exit(-1);
 		}
 	}
 
-	private static void begin() {
+	private void beginConnection() {
 
 		try {
 
 			// mutual certificate authentication if authentication is enabled
 			boolean authSuccess = false;
-			if (enableAuth) {
+			if (enableA) {
 				authSuccess = authCertToServer();
 				if (!authSuccess) {
-					System.out
-					.println("Client: ERROR! Mutual authentication failed. Connection closed.");
+					gui.printStatus("ERROR! Mutual authentication failed. Connection closed.");
 					close();
 					exit(-1);
 				} else {
-					System.out
-					.println("Server: SUCCESS! Mutual authentication complete.");
+					gui.printStatus("SUCCESS! Mutual authentication complete.");
 				}
 			} else {
 				authSuccess = true;
-				System.out.println("Client: Connection to Server open.");
+				gui.printStatus("Connection to Server open.");
 			}
 
 			// establish session keys if confidential or integrity is necessary
-			if (enableConfidential || enableIntegrity && authSuccess) {
+			if (enableC || enableI && authSuccess) {
 
 				// generate and store session keys
 				initializeSessionKeys();
-				System.out.println("Client: Generated session key.");
+				gui.printStatus("Generated session key.");
 
 				// send master key to server
 				PublicKey serverPubKey = keyStore.getCertificate("ServerCert")
@@ -135,50 +133,52 @@ public class Client {
 
 				objOut.write(encryptedSessionKeys);
 				objOut.flush();
-				System.out.println("Client: Sent session key to Server.");
+				gui.printStatus("Sent session key to Server.");
 
 			}
+			gui.enableMessaging(true);
+
 
 			// receive messages in new thread.
 			try{
 		
 				Thread recv = receiveMessagesAsync();
-				recv.start();
+				recv.run();
 				
-				//sendMessagesWhile();
-
+				
 				
 			}catch(Exception ex) // catch the wrapped exception sent from within the thread
 		    {
 				close();
-				System.out.println("Client: ERROR! Connection closed.");
+				gui.printStatus("ERROR! Connection closed.");
+				gui.enableMessaging(false);
 				return;
 		    }
+			
+
 
 		} catch (IOException | ClassNotFoundException | KeyStoreException e) {
-			e.printStackTrace();
+			gui.printStatus("ERROR! Connection closed.");
+			//e.printStackTrace();
 		}
 
 	}
 
-	private static boolean authCertToServer() throws IOException,
-	ClassNotFoundException {
+	private boolean authCertToServer() throws IOException, ClassNotFoundException {
 
 		Certificate clientCert = null;
 		try {
 			clientCert = keyStore.getCertificate("ClientCert");
 		} catch (KeyStoreException e) {
-			System.out
-			.println("Client: ERROR! Could not retrieve Client's certificate from the KeyStore.");
-			e.printStackTrace();
+			gui.printStatus("ERROR! Could not retrieve Client's certificate from the KeyStore.");
+			//e.printStackTrace();
 		}
 		objOut.writeObject(clientCert);
-		// System.out.println("Client: Certificate sent to server.");
+		// gui.printStatus("Client: Certificate sent to server.");
 
 		boolean validClientCert = objIn.readBoolean();
 		if (!validClientCert) {
-			System.out
-			.println("Server: ERROR! Client's certificate is invalid.");
+			gui.printStatus("ERROR! Client's certificate is invalid.");
 			return false;
 		}
 
@@ -187,15 +187,15 @@ public class Client {
 		try {
 			caCert = keyStore.getCertificate("ServerCert");
 		} catch (KeyStoreException e) {
-			System.out
-			.println("Client: ERROR! Could not retrieve Server's certificate from the KeyStore.");
-			e.printStackTrace();
+			gui.printStatus("ERROR! Could not retrieve Server's certificate from the KeyStore.");
+			//e.printStackTrace();
 		}
 
-		boolean validServerCert = KeyPairGen.verifySignature(serverCert,
+		boolean validServerCert = KeyPairGen.verifySignature(
+				serverCert,
 				caCert, caCert.getPublicKey());
 		if (!validServerCert) {
-			System.out.println("Client: ERROR! Server certificate is invalid.");
+			gui.printStatus("ERROR! Server certificate is invalid.");
 		}
 		objOut.writeBoolean(validServerCert);
 		objOut.flush();
@@ -203,109 +203,74 @@ public class Client {
 		return validServerCert;
 	}
 
-	private static String inputMessagePrompt() {
-		Scanner sc = new Scanner(System.in);
-		System.out.print("Message for Server: ");
-		String message = sc.nextLine();
-		return message;
-	}
-
-	private static void close() {
+	private void close() {
 		try {
 			os.close();
 			is.close();
 			objIn.close();
 			objOut.close();
 			clientSocket.close();
-			gui.dispose();
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
 	}
+	
+	private void closeGUI(){
+		gui.dispose();
+	}
 
-	private static void initializeSessionKeys() {
+	private void initializeSessionKeys() {
 		masterKey = SymKeyGen.generateMasterKey();
 		sessionKeys = SymKeyGen.convertKeyBytes(SymKeyGen
 				.splitMasterKey(masterKey));
 	}
 
-	private static byte[] protectMasterKey(PublicKey key) {
+	private byte[] protectMasterKey(PublicKey key) {
 		byte[] encodedMasterKey = Base64.getEncoder().encode(masterKey);
 		byte[] encryptedSessionKeys = KeyPairGen.encrypt((new String(
 				encodedMasterKey)), key);
 		return encryptedSessionKeys;
 	}
 
-	private static void textUI() {
-		Scanner scanner = new Scanner(System.in);
-		System.out.print("Client: Ensure Confidentiality? (0/1): ");
-		paramArray[0] = scanner.nextInt();
-		System.out.print("Client: Ensure Integrity?       (0/1): ");
-		paramArray[1] = scanner.nextInt();
-		System.out.print("Client: Ensure Authenticity?    (0/1): ");
-		paramArray[2] = scanner.nextInt();
-	}
-
-	public static void loginInterface() {
-		Scanner scanner = new Scanner(System.in);
-		System.out.print("Client:                  User: ");
-		String user = scanner.nextLine();
-		System.out.print("Client:              Password: ");
-		String password = scanner.nextLine();
-		UserDB db = new UserDB();
-		if (db.authenticate(user, password)) {
-			return;
-		} else {
-			System.out
-			.println("Client: Username or password is incorrect. Try again.");
-			loginInterface();
-		}
-	}
-
-	public static void main(String[] args) {
-		textUI();
-		gui = new ClientMsgGUI("Client - Chat Logs");
-		//gui.createGUI();
-		clientParams = Arrays.toString(paramArray);
-		connect();
-	}
+	public boolean authenticate(String user, String password){
+	    UserDB db = new UserDB();
+	    
+	    boolean success = false;
+	    if(!db.authenticate(user, password)) {
+	        gui.printStatus("Username or password is incorrect. Try again.");
+        }else{
+        	success = true;
+        }
+		return success;
+	    
+    }
 	
-	public  void start() {
-		textUI();
-		//gui = new ClientMsgGUI("Client - Chat Logs");
-		//gui.createGUI();
-		clientParams = Arrays.toString(paramArray);
-		connect();
-	}
-
-
-	private static Thread receiveMessagesAsync() {
+	private Thread receiveMessagesAsync() {
 
 		return new Thread() {
 
 			public void run() {
+				
 				try {
 					while (true) {
-
+				
 						Object msg = null;
 						if ((msg = (Message) objIn.readObject()) != null) {
 							EncryptedMessage recEMsg = ((EncryptedMessage) msg);
 
 							String output = null;
 
-							if (enableIntegrity) {
+							if (enableI) {
 
 								// verify message
 								if (recEMsg.verifyMAC(sessionKeys[1])) {
-									System.out
-									.println("Client: message verified.");
+									gui.printStatus("Message verified.");
 
 									// also decrypt message if necessary
-									if (enableConfidential) {
+									if (enableC) {
 										output = recEMsg
 												.decrypt(sessionKeys[0]);
-										System.out
-										.println("Client: Message decrypted.");
+										gui.printStatus("Message decrypted.");
 
 									} else {
 										output = new String(
@@ -317,8 +282,7 @@ public class Client {
 									//gui.printMessageAsync("Server:" + output);
 
 								} else {
-									System.out
-									.println("Client: ERROR! Verification failed: ["
+									gui.printStatus("ERROR! Verification failed: ["
 											+ output + "].");
 								}
 
@@ -326,10 +290,9 @@ public class Client {
 							} else {
 
 								// also decrypt message if necessary
-								if (enableConfidential) {
+								if (enableC) {
 									output = recEMsg.decrypt(sessionKeys[0]);
-									System.out
-									.println("Client: Message decrypted.");
+									gui.printStatus("Message decrypted.");
 								} else {
 									output = new String(recEMsg.getMessage());
 								}
@@ -341,95 +304,27 @@ public class Client {
 
 						}
 
-					}
+					
+				
+			
+
+		
+		
+			
+			}
 				} catch (ClassNotFoundException | IOException ex) {
+					gui.printStatus("ERROR! Can't recieve messages.");
+					//gui.printStatus(ex.toString());
 					exit(-1);
 				}
 			}
-
 		};
 
 	}
 	
-	public static void sendMessageAsync(String message){
-		
-		new Thread(){
-			public void run(){
-		
-		try {
+	public void printMessage(String message) {
 
-				if (!message.equals("") && message != null) {
-
-					// Wrap message in class; input params to control
-					// confidentiality
-					// and integrity
-					EncryptedMessage eMsg = new EncryptedMessage(message,
-							sessionKeys[0], sessionKeys[1],
-							enableConfidential, enableIntegrity);
-
-					// write message
-					objOut.writeObject(eMsg);
-					printMessage("Client: " + message);
-
-					// System.out.println("Client: Waiting for Server's response.");
-				}
-					
-
-				
-			} catch (IOException e) {
-				exit(-1);
-				e.printStackTrace();
-				return;
-			}
-			}
-		}.start();
-	}
-	
-	
-
-	public static void sendMessagesWhile() {
-
-		try {
-		while(true){
-				
-					// ask for new message input
-					String message = inputMessagePrompt();
-
-					if (!message.equals("") && message != null) {
-
-						// Wrap message in class; input params to control
-						// confidentiality
-						// and integrity
-						EncryptedMessage eMsg = new EncryptedMessage(message,
-								sessionKeys[0], sessionKeys[1],
-								enableConfidential, enableIntegrity);
-
-						// write message
-						objOut.writeObject(eMsg);
-						printMessage("Client: " + message);
-
-						// System.out.println("Client: Waiting for Server's response.");
-					}
-				
-
-			}
-		} catch (IOException e) {
-			exit(-1);
-			e.printStackTrace();
-			return;
-		}
-
-	}
-
-	public static void printStatus(String message) {
-
-		System.out.println("\nClient: " + message);
-
-	}
-
-	public static void printMessage(String message) {
-
-		String header = "[" + String.format("%tF %<tT.%<tL", new Date())+ "] ";
+		String header = "[" + String.format("%tF %<tT", new Date())+ "] ";
 		gui.printMessageAsync(header + message);
 	}
 

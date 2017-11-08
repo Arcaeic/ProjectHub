@@ -19,12 +19,9 @@ import javax.swing.JTextArea;
  */
 public class ServerMsgGUI extends javax.swing.JFrame {
 
-	public static Server server;
+	private static Server server;
 	public boolean[] params;
-	//public String[] authData;
-	/**
-	 * Creates new form MessageIO
-	 */
+
 	public ServerMsgGUI(String title) {
 		initComponents();
 		this.setTitle(title);
@@ -35,7 +32,7 @@ public class ServerMsgGUI extends javax.swing.JFrame {
 		enableParams(true);
 		enableLogin(false);
 
-		printStatus("Select communication properties...");
+		printStatus("Select properties (CIA)...");
 	}
 
 	public void runServer(){
@@ -270,7 +267,7 @@ public class ServerMsgGUI extends javax.swing.JFrame {
 		printStatus("Properties selected.");
 		enableParams(false);
 
-		if(params[0]){
+		if(params[2]){
 			printStatus("Waiting for authentication.");
 			enableLogin(true);
 		}else{
@@ -294,7 +291,7 @@ public class ServerMsgGUI extends javax.swing.JFrame {
 
 		String msg = messageInput.getText();
 		if(!msg.equals("")){
-			printMessage("Server: " + msg);
+			server.printMessage("Server(You): " + msg);
 			sendMessageAsync(msg, this.server.sessionKeys, this.server.enableC, this.server.enableI, this.server.objOut);
 		}
 
@@ -428,8 +425,10 @@ public class ServerMsgGUI extends javax.swing.JFrame {
 		vertical.setValue( vertical.getMaximum() );
 
 	}
-
-
+	
+	public void clearChat(){
+		messages.setText("");
+	}
 }
 
 
