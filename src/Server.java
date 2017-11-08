@@ -1,4 +1,5 @@
 import static java.lang.System.exit;
+
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
@@ -13,7 +14,14 @@ import java.security.PrivateKey;
 import java.security.UnrecoverableEntryException;
 import java.security.cert.Certificate;
 import java.util.Arrays;
+import java.util.Date;
 import java.util.Scanner;
+import java.util.concurrent.Callable;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
+
 import javax.crypto.SecretKey;
 
 
@@ -21,19 +29,23 @@ public class Server {
 
 	private static final int PORT = 11112;
 	private static int[] paramArray = new int[3];
+	public static boolean enableAuth;
+	public static boolean enableIntegrity;
+	public static boolean enableConfidential;
 	private static ServerSocket server;
 	private static Socket clientSocket;
 
 	private static DataInputStream is;
 	private static DataOutputStream os;
 	private static ObjectInputStream objIn;
-	private static ObjectOutputStream objOut;
+	public static ObjectOutputStream objOut;
 
 	private static String serverParams;
 	private static String clientParams;
 
-    private static SecretKey[] sessionKeys = {null, null};
+    public static SecretKey[] sessionKeys = {null, null};
     private static KeyStore keyStore;
+    public static ServerMsgGUI gui;
 
 
 	private static void startServer() {
@@ -68,7 +80,11 @@ public class Server {
 
 		waitForConnection();
 		getClientParameters();
-		if (parametersMatch()) { begin(); }
+		if (parametersMatch()) { 
+			//gui = new ServerMsgGUI("Server - Chat Logs");
+			//gui.createGUI();
+			begin(); 
+		}
 		else { close(); }
 
 	}
@@ -170,10 +186,6 @@ public class Server {
 
 	private static void begin() {
 		
-		boolean enableConfidential = paramArray[0] == 1;
-		boolean enableIntegrity = paramArray[1] == 1;
-		boolean enableAuth = paramArray[2] == 1;
-		
 		boolean authSuccess = false;
 		if(enableAuth){
 			authSuccess = authClientCert();
@@ -208,72 +220,231 @@ public class Server {
 				e.printStackTrace();
 			}
 		}
+
+		try{
+			
+			
+			ExecutorService executor = Executors.newSingleThreadExecutor();
+			
+			Server serv = new Server();
+			Callable<Boolean> t = serv.new ReceiveMessagesTask();
+	        Future<Boolean> future = executor.submit(t);
+	        
+			//sendMessagesWhile();
+	        
+	        boolean finish = false;
+	        try {
+	        	finish = future.get();
+
+			} catch (InterruptedException e) {
+				System.out.println("interrupted");
+				e.printStackTrace();
+				throw e;
+			} catch (ExecutionException e) {
+				System.out.println("execution");
+				e.printStackTrace();
+				throw e;
+			}
+	        
+			if(!finish){
+				throw new Exception("");
+			}
+
+			
+		}catch(Exception ex) // catch the wrapped exception sent from within the thread
+	    {
+			close();
+			System.out.println("Server: ERROR! Connection closed.");
+			return;
+	    }
 		
-		System.out.println("Server: Waiting for initial message from Client.");
 
+	}
+	
+	private static Thread receiveMessagesAsync() throws IOException{
 
-		//listen for any messages
-		while (true) {
-			Object msg = null;
-			try {
+		return new Thread() {
+
+			public void run() {
 				
+				try {
+					while (true) {
 
-				//receive message from client
-				if ((msg = (Message) objIn.readObject()) != null) {
-					EncryptedMessage recEMsg = ((EncryptedMessage) msg);
-					
-					String output = null;
-					
-					if(enableIntegrity){
+						Object msg = null;
 						
-						//verify message
-						if(recEMsg.verifyMAC(sessionKeys[1])){
-							System.out.println("Server: Message verified.");
-							
-							//also decrypt message if necessary
-							if(enableConfidential){
-								output = recEMsg.decrypt(sessionKeys[0]);
-								System.out.println("Server: Message decrypted.");
+							if ((msg = (Message) objIn.readObject()) != null) {
+								EncryptedMessage recEMsg = ((EncryptedMessage) msg);
 
-							}else{
-								output = new String(recEMsg.getMessage());
+								String output = null;
+
+								if (enableIntegrity) {
+
+									// verify message
+									if (recEMsg.verifyMAC(sessionKeys[1])) {
+										System.out
+										.println("Server: message verified.");
+
+										// also decrypt message if necessary
+										if (enableConfidential) {
+											output = recEMsg
+													.decrypt(sessionKeys[0]);
+											System.out
+											.println("Server: Message decrypted.");
+
+										} else {
+											output = new String(
+													recEMsg.getMessage());
+										}
+
+										printMessage("Client: " + output);
+									} else {
+										System.out
+										.println("Server: ERROR! Verification failed: ["
+												+ output + "].");
+									}
+
+									// no integrity checks
+								} else {
+
+									// also decrypt message if necessary
+									if (enableConfidential) {
+										output = recEMsg.decrypt(sessionKeys[0]);
+										System.out
+										.println("Server: Message decrypted.");
+									} else {
+										output = new String(recEMsg.getMessage());
+									}
+
+									printMessage("Client: " + output);
+								}
+
 							}
-							
-							System.out.println("Client: [" + output + "].");
-
-						}else{
-							System.out.println("Server: ERROR! Verification failed: [" + output + "].");
-						}
+						
+					}
+				} catch (ClassNotFoundException | IOException e) {
 					
-					//no integrity checks
-					}else{
-						
-						//also decrypt message if necessary
-						if(enableConfidential){
-							output = recEMsg.decrypt(sessionKeys[0]);
-							System.out.println("Server: Message decrypted.");
-						}else{
-							output = new String(recEMsg.getMessage());
-						}
-						
-						System.out.println("Client: [" + output + "].");
+						throw new RuntimeException(e);
+					
+
+				}
+			}
+
+		};
+
+	}
+
+	public static void sendMessagesWhile() {
+
+		try {
+		while(true){
+				
+					// ask for new message input
+					String message = inputMessagePrompt();
+
+					if (!message.equals("") && message != null) {
+
+						// Wrap message in class; input params to control
+						// confidentiality
+						// and integrity
+						EncryptedMessage eMsg = new EncryptedMessage(message,
+								sessionKeys[0], sessionKeys[1],
+								enableConfidential, enableIntegrity);
+
+						// write message
+						objOut.writeObject(eMsg);
+						printMessage("Server: " + message);
+
+						// System.out.println("Client: Waiting for Server's response.");
 					}
 				
-				}
 
-				//send message to client
-				String message = inputMessagePrompt();
-				objOut.writeObject(new EncryptedMessage(message, sessionKeys[0], sessionKeys[1], enableConfidential, enableIntegrity));
-
-				System.out.println("Server: Waiting for Client's response. ");
-
-			} catch (ClassNotFoundException | IOException e) {
-				System.out.println("Server: ERROR! Connection closed.");
-				//e.printStackTrace();
-				return;
 			}
+		} catch (IOException e) {
+			e.printStackTrace();
+			return;
 		}
+
 	}
+	
+	class ReceiveMessagesTask implements Callable<Boolean> {
+	    public Boolean call() throws Exception {
+	    	try {
+				while (true) {
+
+					Object msg = null;
+					
+						if ((msg = (Message) objIn.readObject()) != null) {
+							EncryptedMessage recEMsg = ((EncryptedMessage) msg);
+
+							String output = null;
+
+							if (enableIntegrity) {
+
+								// verify message
+								if (recEMsg.verifyMAC(sessionKeys[1])) {
+									System.out
+									.println("Server: message verified.");
+
+									// also decrypt message if necessary
+									if (enableConfidential) {
+										output = recEMsg
+												.decrypt(sessionKeys[0]);
+										System.out
+										.println("Server: Message decrypted.");
+
+									} else {
+										output = new String(
+												recEMsg.getMessage());
+									}
+
+									printMessage("Client: " + output);
+								} else {
+									System.out
+									.println("Server: ERROR! Verification failed: ["
+											+ output + "].");
+								}
+
+								// no integrity checks
+							} else {
+
+								// also decrypt message if necessary
+								if (enableConfidential) {
+									output = recEMsg.decrypt(sessionKeys[0]);
+									System.out
+									.println("Server: Message decrypted.");
+								} else {
+									output = new String(recEMsg.getMessage());
+								}
+
+								printMessage("Client: " + output);
+							}
+
+						}
+					
+				}
+			} catch (ClassNotFoundException | IOException e) {
+				
+					return new Boolean(false);				
+
+			}
+	    	
+	    }
+	}
+
+	public static void printStatus(String message) {
+
+		System.out.println("\nServer: " + message);
+
+	}
+
+	public static void printMessage(String message) {
+
+		String header = "[" + String.format("%tF %<tT.%<tL", new Date())+ "] ";
+		gui.printMessageAsync(header + message);
+	}
+
+	
+	
 
 	private static void close() {
 		try {
@@ -282,6 +453,7 @@ public class Server {
 			objIn.close();
 			objOut.close();
 			clientSocket.close();
+			gui.dispose();
 		} catch (IOException e) { e.printStackTrace(); }
 	}
 	
@@ -316,6 +488,18 @@ public class Server {
 
 	public static void main(String[] args) {
         textUI();
+		enableConfidential = paramArray[0] == 1;
+		enableIntegrity = paramArray[1] == 1;
+		enableAuth = paramArray[2] == 1;
+	    if(paramArray[2] == 1) { loginInterface(); }
+		startServer();
+	}
+	
+	public void start() {
+        textUI();
+		enableConfidential = paramArray[0] == 1;
+		enableIntegrity = paramArray[1] == 1;
+		enableAuth = paramArray[2] == 1;
 	    if(paramArray[2] == 1) { loginInterface(); }
 		startServer();
 	}
