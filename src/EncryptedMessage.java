@@ -9,21 +9,7 @@ class EncryptedMessage extends Message{
 		private byte[] iv = new byte[SymKeyGen.NUM_BYTES_IV];
 		private byte[] message;
 		private byte[] messageAuthCode;
-
-	/**
-	 * Encryption only. Does not store any plaintext.
-	 * @param message
-     *      The message being encrypted
-	 * @param key
-     *      The key used to encrypt the message
-	 */
-	EncryptedMessage(String message, SecretKey key){
-		super();
-		this.iv = SymKeyGen.generateInitVector().getIV();
-		this.message = SymKeyGen.encrypt(message, key, this.iv);
-		this.messageAuthCode = null;
-	}
-		
+	
 	/**
 	 * Allows toggling Confidentiality and Integrity through {@code boolean} parameters.
 	 * @param message
@@ -41,7 +27,7 @@ class EncryptedMessage extends Message{
 		super();
 		this.iv = SymKeyGen.generateInitVector().getIV();
 
-		if (enableConfidential) { this.message = SymKeyGen.encrypt(message, key, this.iv); }
+		if (enableConfidential) { this.message = SymKeyGen.encryptMessage(message, key, this.iv); }
 		else { this.message = message.getBytes(); }
 
 		if (enableIntegrity) { this.messageAuthCode = generateMAC(this.message, macKey); }
@@ -50,7 +36,7 @@ class EncryptedMessage extends Message{
 
     byte[] getMessage() {return this.message;}
 
-    String decrypt(SecretKey key){ return SymKeyGen.decrypt(this.message, key, this.iv); }
+    String decrypt(SecretKey key){ return SymKeyGen.decryptMessage(this.message, key, this.iv); }
 
 	private byte[] generateMAC(byte[] data, SecretKey key){
 

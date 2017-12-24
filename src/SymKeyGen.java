@@ -13,31 +13,24 @@ import javax.crypto.spec.IvParameterSpec;
 import javax.crypto.spec.SecretKeySpec;
 import com.sun.org.apache.xerces.internal.impl.dv.util.Base64;
 
-/*
- * Question 3: You should use symmetric encryption for 
- * confidentiality, as it is much faster than asymmetric crypto. 
- * I recommend AES - but you can use a different cipher. 
- * I suggest to create a new symmetric session key for 
- * each new session. This can be done on the client. 
- * The key can be sent to the server using 
- * asymmetric crypto (encrypted with the server's public key).
- * Question 5: Yes, AES works only with symmetrical keys. 
- * Use DES or another asymmetrical cipher for establishing 
- * the symmetrical session key 
- * and ensuring integrity in that process.
+/**
+ * SymKeyGen
+ * Handles the generation of symmetric keys for this assignment
  */
-
-public class SymKeyGen {
+ class SymKeyGen {
 	
 	static int SUB_KEY_SIZE = 128 / 8;
-	static int MASTER_KEY_SIZE = 256 / 8;
-	static String ALGO = "AES";
-	static String FULL_ALGO = "AES/CBC/PKCS5Padding";
+	private static String ALGO = "AES";
+	private static String FULL_ALGO = "AES/CBC/PKCS5Padding";
 	static int NUM_BYTES_IV = 16;
-	
-	static byte[] generateMasterKey(){
-		
-		SecretKey master = generateKey(MASTER_KEY_SIZE * 8, ALGO);
+
+
+    /**
+     * generateMasterKey
+     * @return A newly generated and encoded master key
+     */
+    static byte[] generateMasterKey(){
+		SecretKey master = generateSecretKey(256, ALGO);
 		byte[] mKey = master.getEncoded();
 		return mKey;
 	}
@@ -57,17 +50,17 @@ public class SymKeyGen {
 		return new SecretKey[]{new SecretKeySpec(subKeys[0],ALGO),
 							new SecretKeySpec(subKeys[1],ALGO)};
 	}
-	
-	public static SecretKey convertKeyBytes(byte[] master){
-		return new SecretKeySpec(master,ALGO);
-	}
-	
-	
-	static SecretKey generateKey(int keySize, String algo){
-		KeyGenerator gen = null;
+
+
+    /**generateSecretKey
+     * @param keySize The size of the key to generate
+     * @param algo The type of algorithm to use to generate
+     * @return A fresh SecretKey
+     */
+    private static SecretKey generateSecretKey(int keySize, String algo){
 		SecretKey key = null;
 		try {
-			gen = KeyGenerator.getInstance(algo);
+			KeyGenerator gen = KeyGenerator.getInstance(algo);
 			gen.init(keySize);
 			key = gen.generateKey();
 		} catch (NoSuchAlgorithmException e) {
@@ -90,39 +83,53 @@ public class SymKeyGen {
 	static byte[] decode64(String arr){
 		return Base64.decode(arr);
 	}
-	
-	static byte[] encrypt(String msg, SecretKey key, byte[] iv){
+
+    /**encryptMessage
+     * Encrypt a message using a SecretKey and initialization vector
+     * @param msg The message to encrypt
+     * @param key The SecretKey to use when encrypting the message
+     * @param iv  The initialization vector for the cipher (ECB)
+     * @return The byte[] representation of the message
+     */
+    static byte[] encryptMessage(String msg, SecretKey key, byte[] iv){
 		SecretKeySpec keySpec = new SecretKeySpec(key.getEncoded(), ALGO);
 		Cipher cipher;
 		byte[] encryptedMessage = null;
-		
+
 		try {
 			cipher = Cipher.getInstance(FULL_ALGO);
-			cipher.init(Cipher.ENCRYPT_MODE, keySpec, new IvParameterSpec(iv)); 
-			encryptedMessage = cipher.doFinal(msg.getBytes()); 
-			//System.out.println("Encrypted bytes ["+ encryptedMessage.length +"]:" + SymKeyGen.encode64(encryptedMessage));
-			
-			
-		} catch (NoSuchAlgorithmException | NoSuchPaddingException | InvalidKeyException | InvalidAlgorithmParameterException | IllegalBlockSizeException | BadPaddingException e) {
+			cipher.init(Cipher.ENCRYPT_MODE, keySpec, new IvParameterSpec(iv));
+
+			encryptedMessage = cipher.doFinal(msg.getBytes());
+
+		} catch (NoSuchAlgorithmException | NoSuchPaddingException | InvalidKeyException
+                | InvalidAlgorithmParameterException | IllegalBlockSizeException | BadPaddingException e) {
 			System.out.println("Symmetric Encryption: Exception!");
 			e.printStackTrace();
 		}
 		return encryptedMessage;
 	}
 
-	static String decrypt(byte[] eMsg, SecretKey key, byte[] iv){
+    /**decryptMessage
+     * @param eMsg The byte[] representation of the encoded message. To be decrypted.
+     * @param key The secret key used when encoding the message
+     * @param iv The initialization vector used for the cipher (ECB)
+     * @return The decrypted message as a String
+     */
+    static String decryptMessage(byte[] eMsg, SecretKey key, byte[] iv){
 		SecretKeySpec sessionKeySpec = new SecretKeySpec(key.getEncoded(), ALGO);
 		Cipher cipher;
 		String msg = null;
 		
 		try {
 			cipher = Cipher.getInstance(FULL_ALGO);			
-			IvParameterSpec ivspec = new IvParameterSpec(iv);
-			cipher.init(Cipher.DECRYPT_MODE, sessionKeySpec, ivspec); 
+			IvParameterSpec ivSpec = new IvParameterSpec(iv);
+			cipher.init(Cipher.DECRYPT_MODE, sessionKeySpec, ivSpec);
 			byte[] decryptedMessageBytes = cipher.doFinal(eMsg); 
 			msg = new String(decryptedMessageBytes);
 			
-		} catch (NoSuchAlgorithmException | NoSuchPaddingException | InvalidKeyException | InvalidAlgorithmParameterException | IllegalBlockSizeException | BadPaddingException e) {
+		} catch (NoSuchAlgorithmException | NoSuchPaddingException | InvalidKeyException
+                | InvalidAlgorithmParameterException | IllegalBlockSizeException | BadPaddingException e) {
 			System.out.println("Symmetric Decryption: Exception!");
 			e.printStackTrace();
 		}
@@ -130,14 +137,7 @@ public class SymKeyGen {
 		return msg;
 		
 	}
-	
-	public static byte[] generateSalt(int bytes){
-		byte[] salt = new byte[bytes];
-	    SecureRandom secureRandom = new SecureRandom();
-	    secureRandom.nextBytes(salt);
-		return salt;
-	}
-	
+
 }
 
 

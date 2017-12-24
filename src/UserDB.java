@@ -6,75 +6,56 @@ import javax.crypto.SecretKeyFactory;
 import javax.crypto.spec.PBEKeySpec;
 
 
-public class UserDB {
+/**
+ * UserDB
+ * Is static, always holds two users: admin and user.
+ * See the enclosed technical manual for plaintext passwords.
+ */
+ class UserDB {
 
-    //Init HashMap and store Server/Client login
 	private static HashMap<String, String> users = new HashMap<>();
 	static {
 		users.put("admin", "dm4yyPhP9hS3dokd+pEi3Q==DOU8Iz42ZPP74H7WrK2ijnWPNKoMmW4n3lQRNkvoh44=");
 		users.put("user", "fs844Wb9ue6KjORQkt+EWA==dxGE7z9Su3cmGo5kOEp48hTKuXzBAI6azX3bjdA8WCA=");
 	}
-	
-	UserDB(){
-	    
-    }
 
+     /**
+      * authenticate
+      * @param userid The userid fetched via user input. To be checked against UserDB
+      * @param pass The password fetched via user input. To be checked against UserDB
+      * @return true if username/password exist, false otherwise
+      */
     boolean authenticate(String userid, String pass){
-        //Look up user
-		String saltHashFromDB = users.get(userid);
-		if(saltHashFromDB == null){ return false; }
+		String DBHash = users.get(userid);
+		if(DBHash == null){ return false; }
 
-		//Get encodedSalt and encodedHashFromDB
-		String encodedSalt = saltHashFromDB.substring(0,24);
-		String encodedHashFromDB = saltHashFromDB.substring(24,saltHashFromDB.length());
-
-		//Decode salt and generate the fresh hash
-		byte[] decodedSalt = SymKeyGen.decode64(encodedSalt);
-		byte[] freshHash = null;
-		KeySpec spec = new PBEKeySpec(pass.toCharArray(), decodedSalt, 65536, 256);
-		try {
-			SecretKeyFactory f = SecretKeyFactory.getInstance("PBKDF2WithHmacSHA256");
-			freshHash = f.generateSecret(spec).getEncoded();
-		} catch (NoSuchAlgorithmException | InvalidKeySpecException ex) { ex.printStackTrace(); }
-
-		//Compare generated hash with stored hash
+		byte[] freshHash = computeHashWithGivenPassword(pass, DBHash);
 		String encodedFreshHash = SymKeyGen.encode64(freshHash);
-		assert encodedFreshHash != null;
+        String encodedHashFromDB = DBHash.substring(24, DBHash.length());
+
+        assert encodedFreshHash != null;
         return encodedFreshHash.equals(encodedHashFromDB);
 	}
-	
-	public static void main(String[] args){
-		/* Testing Suite
 
-		//generate hash for initial user (will store in static init)
-		byte[] salt = SymKeyGen.generateSalt(16);
-		byte[] hash = null;
-		KeySpec spec = new PBEKeySpec("adminpassword".toCharArray(), salt, 65536, 256);
-		try {
-			SecretKeyFactory f = SecretKeyFactory.getInstance("PBKDF2WithHmacSHA256");
-			hash = f.generateSecret(spec).getEncoded();
-		}
-		catch (NoSuchAlgorithmException | InvalidKeySpecException ex) { ex.printStackTrace(); }
+     /**
+      * computeHashWithGivenPassword
+      * Is a helper method for authenticate
+      * @param pass The password fetched via user input. The password to be hashed.
+      * @param DBHash A copy of the the hash being stored in UserDB
+      * @return a byte[] representation of the newly generated hash.
+      */
+     private byte[] computeHashWithGivenPassword(String pass, String DBHash) {
+        String encodedSalt = DBHash.substring(0,24);
+        byte[] decodedSalt = SymKeyGen.decode64(encodedSalt);
+        byte[] freshHash = null;
 
-		//print encoded hashes
-		Base64.Encoder enc = Base64.getEncoder();
-		System.out.printf("salt: %s%n", enc.encodeToString(salt));
-		System.out.printf("hash: %s%n", enc.encodeToString(hash));
-		
-		//auth test here
-		System.out.println("Test auth begins");
-		UserDB database = new UserDB();
-		String user = "admin";
-		String password = "adminpassword";
-		
-		boolean auth = database.authenticate(user,password);
-		
-		if(auth){ System.out.println(user + " is authenicated!"); } 
-		else{ System.out.println(user + " is NOT authenicated!"); }
-		*/
-		
-		
+        KeySpec spec = new PBEKeySpec(pass.toCharArray(), decodedSalt, 65536, 256);
+        try {
+            SecretKeyFactory f = SecretKeyFactory.getInstance("PBKDF2WithHmacSHA256");
+            freshHash = f.generateSecret(spec).getEncoded();
+        } catch (NoSuchAlgorithmException | InvalidKeySpecException ex) { ex.printStackTrace(); }
 
-	}
+        return freshHash;
+    }
 
 }
