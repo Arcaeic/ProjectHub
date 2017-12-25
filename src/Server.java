@@ -1,5 +1,3 @@
-import static java.lang.System.exit;
-
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
@@ -15,39 +13,36 @@ import java.security.UnrecoverableEntryException;
 import java.security.cert.Certificate;
 import java.util.Arrays;
 import java.util.Date;
-import java.util.Scanner;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
-
 import javax.crypto.SecretKey;
 
 
-public class Server {
+class Server {
 
 	private ServerSocket server;
 	private Socket clientSocket;
-	private final int PORT = 11112;
+
+    private boolean[] serverParams;
 	
-	private boolean[] serverParams;
-	
-	public boolean enableA;
-	public boolean enableI;
-	public boolean enableC;
+	private boolean enableA;
+    boolean enableI;
+    boolean enableC;
 
 	private DataInputStream is;
 	private DataOutputStream os;
 	private ObjectInputStream objIn;
-	public ObjectOutputStream objOut;
+    ObjectOutputStream objOut;
 
-    public SecretKey[] sessionKeys = {null, null};
+    SecretKey[] sessionKeys = {null, null};
     private KeyStore keyStore;
     
-    public ServerMsgGUI gui;
+    ServerMsgGUI gui;
     
-	public void startServer() {
+    void startServer() {
 
 		serverParams = gui.params;
 		enableC = serverParams[0];
@@ -58,7 +53,8 @@ public class Server {
 
 		try {
 
-			server = new ServerSocket(PORT);
+            int PORT = 11112;
+            server = new ServerSocket(PORT);
 			keyStore = KeyPairGen.loadServerKeyStore();
 			while (true) {
 				connect();
@@ -149,32 +145,26 @@ public class Server {
 			clientCert = (Certificate) objIn.readObject();
 		} catch (ClassNotFoundException | IOException e) {
 			gui.printStatus("ERROR! Could not receive Client's certificate.");
-			//e.printStackTrace();
 		}
-
-		//gui.printStatus("Server: Received certificate from client.");
 
 		Certificate caCert = null;
 		try {
-			caCert = keyStore.getCertificate("ServerCert");
-		} catch (KeyStoreException e1) {
-			gui.printStatus("ERROR! Could not retrieve Server's certificate from the KeyStore.");
-			//e1.printStackTrace();
-		}
-		boolean success = false;
-		if (KeyPairGen.verifySignature(clientCert, caCert, caCert.getPublicKey())) {
-			success = true;
-		} else {
-			gui.printStatus("ERROR! The Client's certificate is invalid.");
-			return false;
-		}
+            caCert = keyStore.getCertificate("ServerCert");
+            gui.printStatus("ERROR! Could not retrieve Server's certificate from the KeyStore.");
+            if (!KeyPairGen.verifySignature(clientCert, caCert, caCert.getPublicKey())) {
+                gui.printStatus("ERROR! The Client's certificate is invalid.");
+                return false;
+            }
+        } catch (KeyStoreException e1) {
+            gui.printStatus("ERROR! Could not retrieve Server's certificate from the KeyStore.");
+        }
 
 		try {
-			objOut.writeBoolean(success);
+			objOut.writeBoolean(true);
 			objOut.flush();
 			objOut.writeObject(caCert);
 
-			success = objIn.readBoolean();
+			boolean success = objIn.readBoolean();
 			
 			if(success){
 				gui.printStatus("SUCCESS! Mutual authentication complete.");
@@ -184,15 +174,15 @@ public class Server {
 			
 		} catch (IOException e) {
 			gui.printStatus("ERROR! Mutual authentication interrupted.");
-			success = false;
+			return false;
 		}
 
-		return success;
+		return true;
 	}
 
 	private void beginConnection() {
 		
-		boolean authSuccess = false;
+		boolean authSuccess;
 		if(enableA){
 			authSuccess = authClientCert();
 			if(!authSuccess){
@@ -200,12 +190,10 @@ public class Server {
 				closeSocketAndStreams();
 				return;
 			}
-		}else{ authSuccess = true;
-		
 		}
-		
+
 		//session key establishment if enabled
-		if (enableC || enableI && authSuccess) {
+		if (enableC || enableI) {
 
 			try {
 				gui.printStatus("Connection to Client open.");
@@ -243,9 +231,7 @@ public class Server {
 	        boolean finish = false;
 	        try {
 	        	finish = future.get();
-			} catch (InterruptedException e) {
-			} catch (ExecutionException e) {
-			}
+			} catch (InterruptedException | ExecutionException e) { e.printStackTrace(); }
 	        
 			if(!finish){
 				throw new Exception("message reception exception");
@@ -258,21 +244,27 @@ public class Server {
 			gui.enableMessaging(false);
 			gui.clearChat();
 			gui.printStatus("Server: ERROR! Connection closed.");
-			return;
 	    }
 	}
-	
-	class ReceiveMessagesTask implements Callable<Boolean> {
+
+    /**
+     * Performs this task whenever a message is received from the client.
+     * 1. Reads the object
+     * 2. Verifies integrity by verifying the MAC
+     *      a. Decrypts the message if necessary
+     * 2b. If integrity checks are disabled, message still needs to be decrypted
+     */
+    class ReceiveMessagesTask implements Callable<Boolean> {
 	    public Boolean call() throws Exception {
 	    	try {
 				while (true) {
 
-					Object msg = null;
+					Object msg;
 					
-						if ((msg = (Message) objIn.readObject()) != null) {
+						if ((msg = objIn.readObject()) != null) {
 							EncryptedMessage recEMsg = ((EncryptedMessage) msg);
 
-							String output = null;
+							String output;
 
 							if (enableI) {
 
@@ -285,7 +277,6 @@ public class Server {
 										output = recEMsg
 												.decrypt(sessionKeys[0]);
 										gui.printStatus("Message decrypted.");
-
 									} else {
 										output = new String(
 												recEMsg.getMessage());
@@ -293,8 +284,7 @@ public class Server {
 
 									printMessage("Client: " + output);
 								} else {
-									gui.printStatus("ERROR! Verification failed: ["
-											+ output + "].");
+									gui.printStatus("ERROR! Verification failed.");
 								}
 
 								// no integrity checks
@@ -310,29 +300,24 @@ public class Server {
 
 								printMessage("Client: " + output);
 							}
-
 						}
 				}
 			} catch (ClassNotFoundException | IOException e) {
-				return new Boolean(false);				
+				return Boolean.FALSE;
 			}
-	    	
 	    }
 	}
 
-	public void printStatus(String message) {
-
-		gui.printStatus(message);
-
-	}
-
-	public void printMessage(String message) {
+    void printMessage(String message) {
 		String header = "[" + String.format("%tF %<tT", new Date())+ "] ";
 		
 		gui.printMessageAsync(header + message);
 	}
 
-	private void closeSocketAndStreams() {
+    /** closeSocketAndStreams
+     *  Closes all the I/O streams as well as sockets.
+     */
+    private void closeSocketAndStreams() {
 		try {
 			os.close();
 			is.close();
@@ -342,18 +327,17 @@ public class Server {
 		} catch (IOException e) { e.printStackTrace(); }
 	}
 
-	public boolean authenticate(String user, String password){
+    /** authenticate
+     * @param user user is checked against the initialized DB
+     * @param password password and user are checked against the DB as a (user:password) pair
+     * @return true if user exists and password matches, false otherwise
+     */
+    boolean authenticate(String user, String password){
 	    UserDB db = new UserDB();
-	    
-	    boolean success = false;
-	    if(!db.authenticate(user, password)) {
-	        gui.printStatus("Username or password is incorrect. Try again.");
-        }else{
-        	success = true;
+        if (db.authenticate(user, password)) {
+            return true;
         }
-		return success;
-	    
+        gui.printStatus("Username or password is incorrect. Try again.");
+        return false;
     }
-
-
 }
