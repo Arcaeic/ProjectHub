@@ -1,9 +1,6 @@
-#PIBot
 __PIBot__ (or __PersonalInformationBot__) is a handy reddit bot written in Python using [Python's Reddit API Wrapper (PRAW)](https://praw.readthedocs.io/en/latest/). __PIBot__ searches through a subreddit, whether that may be 'all' or a specific subreddit, and is able to find users sharing personal email addresses, as well as non 1-800 phone numbers.
 
 In order to find emails and phone numbers, this program uses [Regular Expressions](https://regexone.com/) to identify certain formats of phone numbers and popular email domains. As a result, the bot can detect multiple national phone number formats (albiet not all).
-
-__PIBot__ is currently closed-source for the duration of its development. Once it has been released, it may become open-source.
 
 ##Features
 * (__Done__) Detect Emails using popular domains (gmail, hotmail, aol, yahoo, etc)
