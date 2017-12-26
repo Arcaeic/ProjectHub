@@ -23,8 +23,6 @@ import javax.crypto.SecretKey;
 
 public class Client {
 
-	
-	
 	private static final String HOSTNAME = "localhost";
 	private static Socket clientSocket;
 	
@@ -46,7 +44,13 @@ public class Client {
 	public Client(){
 	}
 
-	public void startClient() {
+    /** startClient
+     * 1. Creates a client socket and grabs client parameters from the GUI
+     * 2. Loads the keyStore, initializes streams, and sends parameters to the server
+     *  2b. Parameters are matched against server's parameters
+     * 3. Begins to establishes a connection with the server
+     */
+    public void startClient() {
 
 		try {
 			clientSocket = new Socket(HOSTNAME, 11112);
@@ -79,7 +83,11 @@ public class Client {
 		objIn = new ObjectInputStream(clientSocket.getInputStream());
 	}
 
-	private void sendParameters() {
+    /** sendParameters
+     *  Sends parameters to the server to ensure both the server and client
+     *  selected the same parameters
+     */
+    private void sendParameters() {
 		try {
 
 			Message newMessage = new Message(Arrays.toString(clientParams));
@@ -99,7 +107,14 @@ public class Client {
 		}
 	}
 
-	private void beginConnection() {
+    /** beginConnection
+     * 1. Mutual Certificate Authentication if Authentication is enabled
+     * 2. Establish session keys if Confidentiality or Integrity are enabled
+     *  2a. Generate and store session keys
+     *  2b. Send Master Key to server
+     * 3. Receive messages in new thread
+     */
+    private void beginConnection() {
 
 		try {
 
@@ -164,7 +179,13 @@ public class Client {
 
 	}
 
-	private boolean authCertToServer() throws IOException, ClassNotFoundException {
+    /** authClientCert
+     * Reads in Client's Cert, then generates one for Server, then writes that out to Client.
+     * @return true if Client and Server are mutually authenticated, false otherwise
+     * @throws IOException If a stream is unable to write in or out
+     * @throws ClassNotFoundException An object is not able to be r/w by the object streams
+     */
+    private boolean authCertToServer() throws IOException, ClassNotFoundException {
 
 		Certificate clientCert = null;
 		try {
@@ -191,9 +212,7 @@ public class Client {
 			//e.printStackTrace();
 		}
 
-		boolean validServerCert = KeyPairGen.verifySignature(
-				serverCert,
-				caCert);
+		boolean validServerCert = KeyPairGen.verifySignature(serverCert, caCert);
 		if (!validServerCert) {
 			gui.printStatus("ERROR! Server certificate is invalid.");
 		}
@@ -203,7 +222,10 @@ public class Client {
 		return validServerCert;
 	}
 
-	private void close() {
+    /** close
+     *  Closes all the streams, including the client socket.
+     */
+    private void close() {
 		try {
 			os.close();
 			is.close();
@@ -214,17 +236,21 @@ public class Client {
 			e.printStackTrace();
 		}
 	}
-	
-	private void closeGUI(){
-		gui.dispose();
-	}
 
-	private void initializeSessionKeys() {
+    /** initializeSessionKeys
+     *  Initializes the masterKey and the sessionKeys
+     */
+    private void initializeSessionKeys() {
 		masterKey = SymKeyGen.generateMasterKey();
 		sessionKeys = SymKeyGen.convertKeyBytes(SymKeyGen
 				.splitMasterKey(masterKey));
 	}
 
+	/**	protectedMasterKey
+	 * Used to encrypt the Master Key before sending to server
+	 * @param key The key used when encrypting the master key
+	 * @return A byte[] representation of an encrypted master key
+	 */
 	private byte[] protectMasterKey(PublicKey key) {
 		byte[] encodedMasterKey = Base64.getEncoder().encode(masterKey);
 		byte[] encryptedSessionKeys = KeyPairGen.encrypt((new String(
@@ -232,6 +258,11 @@ public class Client {
 		return encryptedSessionKeys;
 	}
 
+	/**	authenticate
+	 * @param user The username checked against the UserDB
+	 * @param password The password checked against the UserDB
+	 * @return True if the username exists and the password matches
+	 */
 	public boolean authenticate(String user, String password){
 	    UserDB db = new UserDB();
 	    
@@ -244,7 +275,10 @@ public class Client {
 		return success;
 	    
     }
-	
+
+	/**	receiveMessagesAsync
+	 * @return Creates a new Thread to receive messages
+	 */
 	private Thread receiveMessagesAsync() {
 
 		return new Thread() {
@@ -303,14 +337,6 @@ public class Client {
 							}
 
 						}
-
-					
-				
-			
-
-		
-		
-			
 			}
 				} catch (ClassNotFoundException | IOException ex) {
 					gui.printStatus("ERROR! Can't recieve messages.");
@@ -321,7 +347,10 @@ public class Client {
 		};
 
 	}
-	
+
+	/**	printMessage
+	 * @param message The message to be printed in the GUI
+	 */
 	public void printMessage(String message) {
 
 		String header = "[" + String.format("%tF %<tT", new Date())+ "] ";
