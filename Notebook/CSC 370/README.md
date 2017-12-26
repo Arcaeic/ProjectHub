@@ -1,4 +1,4 @@
-#CSC 370: Database Systems
+# CSC 370: Database Systems
 
 [Week 1: Database Design](/Week_1/)
 
