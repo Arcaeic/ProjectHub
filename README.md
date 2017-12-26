@@ -39,6 +39,3 @@ I am currently working cleaning up and polishing an instant messaging applicatio
 	* While I was designing this website, I started slowly implementing mySQL and PHP into it. As a result the purpose of this website focused more on learning both design (HTML & CSS), database systems (mySQL), and scripting (PHP).
 * [League of Legends Season 3 Watcher](/Websites/2/)
 	* The purpose of this website was to follow Riot Game's League of Legends World Championship. Straying away from back-end development and more into front-end, it allows the user to watch the stream via an embedded player, a table consisting of the teams and their regions, an introductory page for those who have not heard of League of Legends, and a bit more.
-	
-## Notes
-Add notes/assignments for Fall 2017 after Exams.
