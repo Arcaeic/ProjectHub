@@ -31,8 +31,8 @@ public class KeyPairGen {
 	public static String SERVER_KEYSTORE = "serverKeys.store";
 	public static String SERVER_ALIAS = "Server";
 	public static String CLIENT_ALIAS = "Client";
-	
-	public static KeyPair generateKeyPair(){
+
+    public static KeyPair generateKeyPair(){
 		KeyPair kp = null;
 		try {
 			KeyPairGenerator factory = KeyPairGenerator.getInstance("RSA");
@@ -44,9 +44,22 @@ public class KeyPairGen {
 		return kp;	
 	}
 
-	//server keystore: private and public keys
-	//client keystore: private and public keys
-	//public keystore: server and client public keys
+	/**	createKeyStores
+     * server keystore: private and public keys
+     * client keystore: private and public keys
+     * public keystore: server and client public keys
+	 * 	1. Create the KeyStore folder
+     * 	2. Initialize the KeyStores
+     * 	3. Generate certificates
+     * 	4. Sign the certificates
+     * 	5. Build certificate chain for verification
+     * 	6. Fill KeyStores with necessary data
+     * 	7. Write KeyStores to disk
+     * 	8. Verify Client cert is signed by server's public key
+     * 	9. Verify Server cert is signed by server's public key
+	 * @param ckp Client KeyPair
+	 * @param skp Server KeyPair
+     */
 	private static void createKeyStores(KeyPair ckp, KeyPair skp){
 		try{
 			
@@ -126,7 +139,11 @@ public class KeyPairGen {
 		}
 	}
 
-	public static KeyStore retrieveKeyStore(String path){
+    /** retrieveKeyStore
+     * @param path The path to the keyStore
+     * @return A keyStore object representation of the keyStore files
+     */
+    public static KeyStore retrieveKeyStore(String path){
 		File ks = new File(path);
 		KeyStore keyStore = null;
 		
@@ -146,15 +163,16 @@ public class KeyPairGen {
 	public static KeyStore loadServerKeyStore(){
 		return KeyPairGen.retrieveKeyStore(KEYSTORE_PATH + SERVER_KEYSTORE);
 	}
-	public static String b64Key(Key key){
+
+    /** b64Key
+     * @param key The key to encode
+     * @return The key encoded in base64
+     */
+    public static String b64Key(Key key){
 		byte[] keyBytes = key.getEncoded();
 		return Base64.encode(keyBytes);
 	}
-	public static String shortb64Key(Key key){
-		byte[] keyBytes = key.getEncoded();
-		return Base64.encode(keyBytes).substring(0, 25);
-	}
-	
+
 	/** 
 	 * Create a self-signed X.509 Certificate
 	 * @param dn the X.509 Distinguished Name, eg "CN=Test, L=London, C=GB"
@@ -192,19 +210,25 @@ public class KeyPairGen {
 	  cert = new X509CertImpl(info);
 	  cert.sign(privkey, algorithm);
 	  return cert;
-	}   
-	
-    private static X509Certificate createSignedCertificate(X509Certificate cetrificate,X509Certificate issuerCertificate,PrivateKey issuerPrivateKey){
+	}
+
+    /** createSignedCertificate
+     * @param certificate The type of certificate being used
+     * @param issuerCertificate The certificate issuer
+     * @param issuerPrivateKey The issuer's private key
+     * @return  The signed certificate
+     */
+    private static X509Certificate createSignedCertificate(X509Certificate certificate,X509Certificate issuerCertificate,PrivateKey issuerPrivateKey){
         try{
             Principal issuer = issuerCertificate.getSubjectDN();
             String issuerSigAlg = issuerCertificate.getSigAlgName();
               
-            byte[] inCertBytes = cetrificate.getTBSCertificate();
+            byte[] inCertBytes = certificate.getTBSCertificate();
             X509CertInfo info = new X509CertInfo(inCertBytes);
-            info.set(X509CertInfo.ISSUER, (X500Name) issuer);
+            info.set(X509CertInfo.ISSUER, issuer);
               
             //No need to add the BasicContraint for leaf cert
-            if(!cetrificate.getSubjectDN().getName().equals("CN=TOP")){
+            if(!certificate.getSubjectDN().getName().equals("CN=TOP")){
                 CertificateExtensions exts=new CertificateExtensions();
                 BasicConstraintsExtension bce = new BasicConstraintsExtension(true, -1);
                 exts.set(BasicConstraintsExtension.NAME,new BasicConstraintsExtension(false, bce.getExtensionValue()));
@@ -220,21 +244,25 @@ public class KeyPairGen {
         }
         return null;
     }
-    
-    public static boolean verifySignature(Certificate certToVerify, Certificate caCert, Key caPubKey){
-		boolean success = false;
-		
+
+    public static boolean verifySignature(Certificate certToVerify, Certificate caCert){
+
 			try {
 				certToVerify.verify(caCert.getPublicKey());
-				success=true;
-			} catch (InvalidKeyException | CertificateException | NoSuchAlgorithmException | NoSuchProviderException
-					| SignatureException e) {
+			} catch (InvalidKeyException | CertificateException | NoSuchAlgorithmException
+                                        | NoSuchProviderException | SignatureException e) {
 				e.printStackTrace();
+				return false;
 			}				
 		
-		return success;
+		return true;
 	}
-    
+
+    /** encrypt
+     * @param message The message/data to encrypt
+     * @param key The key (symmetric) used when encrypting
+     * @return the encrypted byte[] array
+     */
     public static byte[] encrypt(String message, Key key){
     	
 		//System.out.println("KPGen: encrypting bytes: " + message.getBytes().length);
@@ -252,7 +280,12 @@ public class KeyPairGen {
     	return encBytes;
     
     }
-    
+
+    /** decrypt
+     * @param encBytes The bytes to be decrypted
+     * @param key The key used when decrypting encBytes
+     * @return The decrypted plaintext
+     */
     public static String decrypt(byte[] encBytes, Key key){
     	
 		//System.out.println("KPGen: decrypting bytes: " + encBytes.length);
@@ -270,9 +303,15 @@ public class KeyPairGen {
     	return decrypted;
     
     }
-		
-    
-	public static void main(String[] args){
+
+
+    /** main
+     * Generates KeyPairs for the Server and Client, then stores them in a file (keyStore)
+     * Tests the keyStores by encrypting a text with the Server public key, then decrypts with the
+     * Server private key.
+     * @param args N/A
+     */
+    public static void main(String[] args){
 		
 		try{
 		KeyPair server = KeyPairGen.generateKeyPair();
@@ -281,7 +320,7 @@ public class KeyPairGen {
 		if(server == null || client == null){
 			System.out.println("null");
 		}
-		
+
 		System.out.println("Server Private Key:\n" + b64Key(server.getPrivate()));
 		System.out.println("Server Public Key:\n" + b64Key(server.getPublic()));
 		System.out.println("Client Private Key:\n" + b64Key(client.getPrivate()));

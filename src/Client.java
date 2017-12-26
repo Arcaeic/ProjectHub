@@ -193,7 +193,7 @@ public class Client {
 
 		boolean validServerCert = KeyPairGen.verifySignature(
 				serverCert,
-				caCert, caCert.getPublicKey());
+				caCert);
 		if (!validServerCert) {
 			gui.printStatus("ERROR! Server certificate is invalid.");
 		}

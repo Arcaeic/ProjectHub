@@ -177,7 +177,7 @@ class Server {
 		try {
             caCert = keyStore.getCertificate("ServerCert");
             gui.printStatus("ERROR! Could not retrieve Server's certificate from the KeyStore.");
-            if (!KeyPairGen.verifySignature(clientCert, caCert, caCert.getPublicKey())) {
+            if (!KeyPairGen.verifySignature(clientCert, caCert)) {
                 gui.printStatus("ERROR! The Client's certificate is invalid.");
                 return false;
             }
