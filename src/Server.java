@@ -41,7 +41,10 @@ class Server {
     private KeyStore keyStore;
     
     ServerMsgGUI gui;
-    
+
+    /** startServer
+     * Grabs Server parameters, creates a socket @ port 11112 and listens for another connection
+     */
     void startServer() {
 
 		serverParams = gui.params;
@@ -64,8 +67,11 @@ class Server {
 			gui.printStatus("ERROR! Could not start server.");
 		}
 	}
-	
-	private void connect() {
+
+    /** connect
+     *  Once a connection is established, compare parameters. Rejects connection if they do not match.
+     */
+    private void connect() {
 
 		waitForConnection();
 		if (parametersMatch()) { 
@@ -75,7 +81,11 @@ class Server {
 
 	}
 
-	private void waitForConnection() {
+    /** waitForConnection
+     *  The server listens for a connection @ server.accept(),
+     *  which the streams are initialize and a connection is made
+     */
+    private void waitForConnection() {
 		try {
 			gui.printStatus("Listening...");
 			clientSocket = server.accept();
@@ -87,7 +97,11 @@ class Server {
 		}
 	}
 
-	private String getClientParameters() {
+    /** getClientParameters
+     * Used in parametersMatch() to grab the client parameters
+     * @return The client parameters as a string
+     */
+    private String getClientParameters() {
 		
 		String clientParams = "";
 		try {
@@ -103,7 +117,12 @@ class Server {
 	}
 
 
-	private void initializeStreams() throws IOException {
+    /** initializeStreams
+     * Handles initializing the Streams used to communicate with the Client
+     * (See closeStreamsAndSockets)
+     * @throws IOException If clientSocket is null, or Stream object could not be created
+     */
+    private void initializeStreams() throws IOException {
 
 		objIn = new ObjectInputStream(clientSocket.getInputStream());
 		objOut = new ObjectOutputStream(clientSocket.getOutputStream());
@@ -112,7 +131,10 @@ class Server {
 	
 	}
 
-	private boolean parametersMatch() {
+    /** parametersMatch
+     * @return true if Server parameters match Client's, false otherwise
+     */
+    private boolean parametersMatch() {
 		
 		String serverP = Arrays.toString(serverParams);
 		String clientP = getClientParameters();
@@ -137,7 +159,11 @@ class Server {
         return sameConfig;
 	}
 
-	private boolean authClientCert() {
+    /** authClientCert
+     * Reads in Client's Cert, then generates one for Server, then writes that out to Client.
+     * @return true if Client and Server are mutually authenticated, false otherwise
+     */
+    private boolean authClientCert() {
 		
 		//gui.printStatus("Server: Waiting for client to send certificate.");
 		Certificate clientCert = null;
@@ -180,7 +206,12 @@ class Server {
 		return true;
 	}
 
-	private void beginConnection() {
+    /** beginConnection()
+     * 1. If Authentication is enabled, the Server will need to authenticate itself for the Client
+     * 2. If Integrity or Confidentiality are enabled, the Server will need to establish session keys
+     * 3. Messaging is enabled, monitor for received messages
+     */
+    private void beginConnection() {
 		
 		boolean authSuccess;
 		if(enableA){
@@ -222,12 +253,9 @@ class Server {
 		try{
 			
 			ExecutorService executor = Executors.newSingleThreadExecutor();
-			
-
 			Callable<Boolean> t = this.new ReceiveMessagesTask();
 	        Future<Boolean> future = executor.submit(t);
-	        
-	        
+
 	        boolean finish = false;
 	        try {
 	        	finish = future.get();
