@@ -1,19 +1,17 @@
 import java.io.Serializable;
 
 
-public class Message implements Serializable{
-
+class Message implements Serializable {
 	private static final long serialVersionUID = 1L;
 	private String text;
-	
-	public Message(){ }
-	
-	public Message(String text){
+
+	/**	Message
+	 * @param text the message encapsulated as a Message object
+	 */
+	Message(String text){
 		this.text = text;
 	}
 	
-	public String get(){
-		return this.text;
-	}
+	String get(){ return this.text; }
 	
 }

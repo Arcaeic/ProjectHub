@@ -6,9 +6,9 @@ import javax.crypto.SecretKey;
 class EncryptedMessage extends Message{
 
     private static final long serialVersionUID = 1L;
-		private byte[] iv = new byte[SymKeyGen.NUM_BYTES_IV];
-		private byte[] message;
-		private byte[] messageAuthCode;
+	private byte[] iv = new byte[SymKeyGen.NUM_BYTES_IV];
+	private byte[] message;
+	private byte[] messageAuthCode;
 
 	/**
 	 * EncryptedMessage
@@ -25,7 +25,7 @@ class EncryptedMessage extends Message{
      *      Inherited from paramArray[1]: Toggles MAC
 	 */
 	EncryptedMessage(String message, SecretKey key, SecretKey macKey, boolean enableConfidential, boolean enableIntegrity){
-		super();
+		super(message);
 		this.iv = SymKeyGen.generateInitVector().getIV();
 
 		if (enableConfidential) { this.message = SymKeyGen.encryptMessage(message, key, this.iv); }
