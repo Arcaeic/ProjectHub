@@ -13,6 +13,7 @@ I am currently working cleaning up and polishing an instant messaging applicatio
 * [CSC 226: Algorithms & Data Structures II](/Assignments/CSC%20226) (Java)
 * [CSC 230: Introduction to Computer Architecture](/Assignments/CSC%20230) (Assembly) 
 * [CSC 370: Database Systems](/Assignments/CSC%20370) (SQL/Oracle/SQLite/Excel)
+	* [Project: Musicbrainz Data Analytics](/Assignments/CSC%20370/Project/Report.pdf)
 * [SENG 265: Software Development Methods](/Assignments/SENG%20265) (Python/C)
 ### [Notebook](/Notebook/)
 * [CSC 230: Introduction to Computer Architecture](/Notebook/CSC%20230/)
