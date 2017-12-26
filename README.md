@@ -9,7 +9,7 @@ I am currently working cleaning up and polishing an instant messaging applicatio
 
 ## University-Related
 ### [Assignments](/Assignments/)
-* [CSC 225: Algorithms & Data Structures I](/Assignments/CSC 225/) (Java)
+* [CSC 225: Algorithms & Data Structures I](/Assignments/CSC%20225/) (Java)
 * [CSC 226: Algorithms & Data Structures II](/Assignments/CSC\ 226) (Java)
 * [CSC 230: Introduction to Computer Architecture](/Assignments/CSC\ 230) (Assembly) 
 * [CSC 370: Database Systems](/Assignments/CSC\ 370) (SQL/Oracle/SQLite/Excel)
