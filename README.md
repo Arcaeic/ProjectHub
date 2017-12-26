@@ -1,7 +1,7 @@
 ## Projects
 I am currently working cleaning up and polishing an instant messaging application. some unstarted projects are another Reddit bot and a web scraping application. 
 ### Programs
- * [Crypto-IM App \(SENG360\)](/Instant\ Messenger\ App\ \(SENG\ 360\)/)
+ * [Crypto-IM App \(SENG360\)](/Instant%20Messenger%20App%20(SENG%20360))
     * Establishes a connection between a server/client and allows the two parties to communicate. Options for providing confidentiality (symmetric key encryption), integrity (via Message Authentication Codes), and mutual authentication are included.
     * The included technical manual includes instructions for building/compiling, as well as running the server and client.
  * [PIBot](/PIBot/): 
@@ -10,22 +10,22 @@ I am currently working cleaning up and polishing an instant messaging applicatio
 ## University-Related
 ### [Assignments](/Assignments/)
 * [CSC 225: Algorithms & Data Structures I](/Assignments/CSC%20225/) (Java)
-* [CSC 226: Algorithms & Data Structures II](/Assignments/CSC\ 226) (Java)
-* [CSC 230: Introduction to Computer Architecture](/Assignments/CSC\ 230) (Assembly) 
+* [CSC 226: Algorithms & Data Structures II](/Assignments/CSC%20226) (Java)
+* [CSC 230: Introduction to Computer Architecture](/Assignments/CSC%20230) (Assembly) 
 * [CSC 370: Database Systems](/Assignments/CSC\ 370) (SQL/Oracle/SQLite/Excel)
-* [SENG 265: Software Development Methods](/Assignments/SENG\ 265) (Python/C)
+* [SENG 265: Software Development Methods](/Assignments/SENG%20265) (Python/C)
 ### [Notebook](/Notebook/)
-* [CSC 230: Introduction to Computer Architecture](/Notebook/CSC\ 230/)
+* [CSC 230: Introduction to Computer Architecture](/Notebook/CSC%20230/)
 	* [Course Outline](https://heat.csc.uvic.ca/coview/outline/2017/Spring/CSC/230)
-* [CSC 370: Database Systems](/Notebook/CSC\ 370)
+* [CSC 370: Database Systems](/Notebook/CSC%20370)
     * [Course Outline](http://heat.csc.uvic.ca/coview/outline/2017/Fall/CSC/370)
-* [PSYC 251: Introduction to Mind & Brain](/Notebook/PSYC\ 251)
+* [PSYC 251: Introduction to Mind & Brain](/Notebook/PSYC%20251)
 	* [Course Outline](/Notebook/Psyc251/PSYC251-CourseOutline-Revised.pdf)
-* [PSYC 260: Introduction to Mental Health & Well-Being](/Notebook/PSYC\ 260)
+* [PSYC 260: Introduction to Mental Health & Well-Being](/Notebook/PSYC%20260)
 	* [Course Outline](/Notebook/Psyc260/260A01CourseOutlineWoodin.pdf)
-* [SENG 265: Software Development Methods](/Notebook/SENG\ 265)
+* [SENG 265: Software Development Methods](/Notebook/SENG%20265)
 	* [Course Outline](https://heat.csc.uvic.ca/coview/outline/2016/Fall/SENG/265) 
-* [SENG 360: Security Engineering](/Notebook/SENG\ 360)
+* [SENG 360: Security Engineering](/Notebook/SENG%20360)
     * [Course Outline](https://heat.csc.uvic.ca/coview/outline/2017/Fall/SENG/360)
 	
 ### [Photoshop](/Photoshop)
