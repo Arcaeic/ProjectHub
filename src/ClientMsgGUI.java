@@ -13,11 +13,27 @@ import javax.crypto.SecretKey;
 import javax.swing.JScrollBar;
 import javax.swing.JTextArea;
 
-/**
- *
- * @author Timothy
- */
 public class ClientMsgGUI extends javax.swing.JFrame {
+
+    private javax.swing.JButton authBtn;
+    private javax.swing.JCheckBox checkAuth;
+    private javax.swing.JCheckBox checkConfidential;
+    private javax.swing.JCheckBox checkIntegrity;
+    private javax.swing.JLabel jLabel1;
+    private javax.swing.JLabel jLabel2;
+    private javax.swing.JLabel jLabel3;
+    private javax.swing.JPanel jPanel1;
+    private javax.swing.JPanel jPanel2;
+    private javax.swing.JScrollPane jScrollPane1;
+    private javax.swing.JScrollPane jScrollPane2;
+    private javax.swing.JSeparator jSeparator1;
+    private javax.swing.JTextField messageInput;
+    private static javax.swing.JTextArea messages;
+    private javax.swing.JButton paramConfirmBtn;
+    private javax.swing.JPasswordField passwordInput;
+    private javax.swing.JButton sendBtn;
+    private javax.swing.JTextArea status;
+    private javax.swing.JTextField usernameInput;
 
 	private Client client;
 	public boolean[] params;
@@ -44,9 +60,12 @@ public class ClientMsgGUI extends javax.swing.JFrame {
 		}.start();
 	}
 
-	@SuppressWarnings("unchecked")
-	// <editor-fold defaultstate="collapsed" desc="Generated Code">                          
-	private void initComponents() {
+
+    /** initComponents
+     * Initializes required components, before building the UI. The UI code was created by Nimbus(?),
+     * a UI designing application
+     */
+    private void initComponents() {
 
 		sendBtn = new javax.swing.JButton();
 		messageInput = new javax.swing.JTextField();
@@ -75,7 +94,7 @@ public class ClientMsgGUI extends javax.swing.JFrame {
 		sendBtn.setText("Send");
 		sendBtn.addActionListener(new java.awt.event.ActionListener() {
 			public void actionPerformed(java.awt.event.ActionEvent evt) {
-				sendBtnActionPerformed(evt);
+				sendBtnActionPerformed();
 			}
 		});
 
@@ -105,7 +124,7 @@ public class ClientMsgGUI extends javax.swing.JFrame {
 		paramConfirmBtn.setText("Confirm");
 		paramConfirmBtn.addActionListener(new java.awt.event.ActionListener() {
 			public void actionPerformed(java.awt.event.ActionEvent evt) {
-				paramConfirmBtnActionPerformed(evt);
+				paramConfirmBtnActionPerformed();
 			}
 		});
 
@@ -149,7 +168,7 @@ public class ClientMsgGUI extends javax.swing.JFrame {
 		authBtn.setText("Authenticate");
 		authBtn.addActionListener(new java.awt.event.ActionListener() {
 			public void actionPerformed(java.awt.event.ActionEvent evt) {
-				authBtnActionPerformed(evt);
+				authBtnActionPerformed();
 			}
 		});
 
@@ -240,8 +259,11 @@ public class ClientMsgGUI extends javax.swing.JFrame {
 	}// </editor-fold
 
 
-
-	private void paramConfirmBtnActionPerformed(java.awt.event.ActionEvent evt) {                                                
+    /** paramConfirmBtnActionPerformed
+     * Disables parameter selection once parameters have been sent
+     * Will enable login if Authentication is selected
+     */
+    private void paramConfirmBtnActionPerformed() {
 		params = checkParams();       
 		printStatus("Properties selected.");
 		enableParams(false);
@@ -252,9 +274,12 @@ public class ClientMsgGUI extends javax.swing.JFrame {
 		}else{
 			runClient();
 		}
-	}                                               
+	}
 
-	private void authBtnActionPerformed(java.awt.event.ActionEvent evt) {   
+    /** authBtnActionPerformed
+     * Grabs the user/pass inputs and attempts to authenticate it
+     */
+    private void authBtnActionPerformed() {
 		String user = usernameInput.getText();
 		String pass = passwordInput.getText();
 		if(client.authenticate(user, pass)){
@@ -263,15 +288,18 @@ public class ClientMsgGUI extends javax.swing.JFrame {
 		}else{
 			printStatus("ERROR! Auth failure.");
 		}
-	} 
+	}
 
-    
-	private void sendBtnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_sendBtnActionPerformed
+
+    /** sendBtnActionPerformed
+     * Sends the message to the server once the send button is pressed
+     */
+    private void sendBtnActionPerformed() {
 
 		String msg = messageInput.getText();
 		if(!msg.equals("")){
 			client.printMessage("Client(You): " + msg);
-			sendMessageAsync(msg, this.client.sessionKeys, this.client.enableC, this.client.enableI, this.client.objOut);
+			sendMessageAsync(msg, Client.sessionKeys, Client.enableC, Client.enableI, Client.objOut);
 		}
 
 		//auto scroll
@@ -283,15 +311,8 @@ public class ClientMsgGUI extends javax.swing.JFrame {
 
 	}
 
-    /**
-     * @param args the command line arguments
-     */
     public static void main(String[] args) {
-        /* Set the Nimbus look and feel */
-        //<editor-fold defaultstate="collapsed" desc=" Look and feel setting code (optional) ">
-        /* If Nimbus (introduced in Java SE 6) is not available, stay with the default look and feel.
-         * For details see http://download.oracle.com/javase/tutorial/uiswing/lookandfeel/plaf.html 
-         */
+
         try {
             for (javax.swing.UIManager.LookAndFeelInfo info : javax.swing.UIManager.getInstalledLookAndFeels()) {
                 if ("Windows".equals(info.getName())) {
@@ -325,30 +346,6 @@ public class ClientMsgGUI extends javax.swing.JFrame {
         
     }
 
-
-	// Variables declaration - do not modify                     
-	private javax.swing.JButton authBtn;
-	private javax.swing.JCheckBox checkAuth;
-	private javax.swing.JCheckBox checkConfidential;
-	private javax.swing.JCheckBox checkIntegrity;
-	private javax.swing.JLabel jLabel1;
-	private javax.swing.JLabel jLabel2;
-	private javax.swing.JLabel jLabel3;
-	private javax.swing.JPanel jPanel1;
-	private javax.swing.JPanel jPanel2;
-	private javax.swing.JScrollPane jScrollPane1;
-	private javax.swing.JScrollPane jScrollPane2;
-	private javax.swing.JSeparator jSeparator1;
-	private javax.swing.JTextField messageInput;
-	private static javax.swing.JTextArea messages;
-	private javax.swing.JButton paramConfirmBtn;
-	private javax.swing.JPasswordField passwordInput;
-	private javax.swing.JButton sendBtn;
-	private javax.swing.JTextArea status;
-	private javax.swing.JTextField usernameInput;
-	// End of variables declaration               
-
-
     public void printMessageAsync(String message){
 
 		new Thread(){
@@ -360,7 +357,16 @@ public class ClientMsgGUI extends javax.swing.JFrame {
 		}.start();
 	}
 
-	public static void sendMessageAsync(String message, SecretKey[] sessionKeys, boolean enableConfidential, boolean enableIntegrity, ObjectOutputStream objOut){
+    /** sendMessagesAsync
+     * Sends messages to the server in another thread.
+     * @param message The message being sent
+     * @param sessionKeys The session keys used to encrypt
+     * @param enableConfidential true if Confidentiality is enabled
+     * @param enableIntegrity true if Integrity is enabled
+     * @param objOut The object output stream for the client
+     */
+    public static void sendMessageAsync(String message, SecretKey[] sessionKeys, boolean enableConfidential,
+                                        boolean enableIntegrity, ObjectOutputStream objOut){
 
 		new Thread(){
 			public void run(){
@@ -388,30 +394,30 @@ public class ClientMsgGUI extends javax.swing.JFrame {
 	}
 
 
-	public void printMessage(String message){
-
-		messages.append(message + "\n");
-
-	}
-
-	public String getMessageInput(){
-		return messageInput.getText();
-	}
-
-
-	public void enableMessaging(boolean b){
+    /** enableMessaging
+     * @param b true to enable message input and send button, false otherwise
+     */
+    public void enableMessaging(boolean b){
 		messageInput.setEnabled(b);
 		sendBtn.setEnabled(b);
 	}
 
-	private void enableParams(boolean b){
+    /** enableParams
+     * "Un-greys" the parameter boxes and submit button
+     * @param b true to un-grey the boxes, false otherwise
+     */
+    private void enableParams(boolean b){
 		checkConfidential.setEnabled(b);
 		checkIntegrity.setEnabled(b);
 		checkAuth.setEnabled(b);
 		paramConfirmBtn.setEnabled(b);
 	}
 
-	private boolean[] checkParams(){
+    /** checkParams
+     *  Used for ensuring client and server have matching parameters
+     * @return  A truth array corresponding to [C,I,A]
+     */
+    private boolean[] checkParams(){
 
 		boolean[] params = {checkConfidential.isSelected(), checkIntegrity.isSelected(), checkAuth.isSelected()};
 
@@ -419,11 +425,20 @@ public class ClientMsgGUI extends javax.swing.JFrame {
 
 	}
 
-	private void enableLogin(boolean b){
+    /** enableLogin
+     * Enables the ability to log-in once Authentication is selected
+     * @param b true enables the login section, false disables
+     */
+    private void enableLogin(boolean b){
 		usernameInput.setEnabled(b);
 		passwordInput.setEnabled(b);
 		authBtn.setEnabled(b);
 	}
+
+	/**	printStatus
+	 * Prints to the status (bottom-left) field
+	 * @param st The string to print
+	 */
 	public  void printStatus(String st){
 
 		status.append(st + "\n");
