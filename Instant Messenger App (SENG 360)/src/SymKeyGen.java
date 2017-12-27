@@ -24,15 +24,13 @@ import com.sun.org.apache.xerces.internal.impl.dv.util.Base64;
 	private static String FULL_ALGO = "AES/CBC/PKCS5Padding";
 	static int NUM_BYTES_IV = 16;
 
-
     /**
      * generateMasterKey
      * @return A newly generated and encoded master key
      */
     static byte[] generateMasterKey(){
-		SecretKey master = generateSecretKey(256, ALGO);
-		byte[] mKey = master.getEncoded();
-		return mKey;
+		SecretKey master = generateSecretKey(ALGO);
+		return master.getEncoded();
 	}
 	
 	static byte[][] splitMasterKey(byte[] master){
@@ -40,8 +38,8 @@ import com.sun.org.apache.xerces.internal.impl.dv.util.Base64;
 		byte[][] subKeys = new byte[2][SUB_KEY_SIZE];
 		subKeys[0] = Arrays.copyOfRange(master, 0, SUB_KEY_SIZE);
 		subKeys[1] = Arrays.copyOfRange(master, SUB_KEY_SIZE, master.length);
-		assert subKeys[0].length == SUB_KEY_SIZE && subKeys[1].length == SUB_KEY_SIZE;
 
+		assert subKeys[0].length == SUB_KEY_SIZE && subKeys[1].length == SUB_KEY_SIZE;
 		return subKeys;
 	}
 	
@@ -51,17 +49,15 @@ import com.sun.org.apache.xerces.internal.impl.dv.util.Base64;
 							new SecretKeySpec(subKeys[1],ALGO)};
 	}
 
-
     /**generateSecretKey
-     * @param keySize The size of the key to generate
      * @param algo The type of algorithm to use to generate
-     * @return A fresh SecretKey
+     * @return A fresh AES 256-bit key
      */
-    private static SecretKey generateSecretKey(int keySize, String algo){
+    private static SecretKey generateSecretKey(String algo){
 		SecretKey key = null;
 		try {
 			KeyGenerator gen = KeyGenerator.getInstance(algo);
-			gen.init(keySize);
+			gen.init(256);
 			key = gen.generateKey();
 		} catch (NoSuchAlgorithmException e) {
 			e.printStackTrace();
@@ -99,7 +95,6 @@ import com.sun.org.apache.xerces.internal.impl.dv.util.Base64;
 		try {
 			cipher = Cipher.getInstance(FULL_ALGO);
 			cipher.init(Cipher.ENCRYPT_MODE, keySpec, new IvParameterSpec(iv));
-
 			encryptedMessage = cipher.doFinal(msg.getBytes());
 
 		} catch (NoSuchAlgorithmException | NoSuchPaddingException | InvalidKeyException
@@ -119,25 +114,23 @@ import com.sun.org.apache.xerces.internal.impl.dv.util.Base64;
     static String decryptMessage(byte[] eMsg, SecretKey key, byte[] iv){
 		SecretKeySpec sessionKeySpec = new SecretKeySpec(key.getEncoded(), ALGO);
 		Cipher cipher;
-		String msg = null;
-		
+		byte[] decryptedMessageBytes= null;
+
 		try {
 			cipher = Cipher.getInstance(FULL_ALGO);			
 			IvParameterSpec ivSpec = new IvParameterSpec(iv);
 			cipher.init(Cipher.DECRYPT_MODE, sessionKeySpec, ivSpec);
-			byte[] decryptedMessageBytes = cipher.doFinal(eMsg); 
-			msg = new String(decryptedMessageBytes);
-			
+			decryptedMessageBytes = cipher.doFinal(eMsg);
+
 		} catch (NoSuchAlgorithmException | NoSuchPaddingException | InvalidKeyException
                 | InvalidAlgorithmParameterException | IllegalBlockSizeException | BadPaddingException e) {
 			System.out.println("Symmetric Decryption: Exception!");
 			e.printStackTrace();
 		}
-		
-		return msg;
-		
-	}
 
+        assert decryptedMessageBytes != null;
+        return new String(decryptedMessageBytes);
+	}
 }
 
 

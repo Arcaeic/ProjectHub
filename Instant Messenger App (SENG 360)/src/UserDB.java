@@ -8,7 +8,7 @@ import javax.crypto.spec.PBEKeySpec;
 
 /**
  * UserDB
- * Is static, always holds two users: admin and user.
+ * HashMap only instantiates with user information once, always holds two users: admin and user.
  * See the enclosed technical manual for plaintext passwords.
  */
  class UserDB {
@@ -45,8 +45,7 @@ import javax.crypto.spec.PBEKeySpec;
       * @return a byte[] representation of the newly generated hash.
       */
      private byte[] computeHashWithGivenPassword(String pass, String DBHash) {
-        String encodedSalt = DBHash.substring(0,24);
-        byte[] decodedSalt = SymKeyGen.decode64(encodedSalt);
+        byte[] decodedSalt = SymKeyGen.decode64(DBHash.substring(0, 24));
         byte[] freshHash = null;
 
         KeySpec spec = new PBEKeySpec(pass.toCharArray(), decodedSalt, 65536, 256);

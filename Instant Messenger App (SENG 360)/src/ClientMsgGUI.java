@@ -298,7 +298,7 @@ public class ClientMsgGUI extends javax.swing.JFrame {
 
 		String msg = messageInput.getText();
 		if(!msg.equals("")){
-			client.printMessage("Client(You): " + msg);
+			client.printMessage("Client (You): " + msg);
 			sendMessageAsync(msg, Client.sessionKeys, Client.enableC, Client.enableI, Client.objOut);
 		}
 
