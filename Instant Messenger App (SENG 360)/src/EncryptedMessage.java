@@ -22,7 +22,7 @@ class EncryptedMessage extends Message{
 	 * @param enableConfidential
      *      Inherited from paramArray[0]: Toggles encryption
 	 * @param enableIntegrity
-     *      Inherited from paramArray[1]: Toggles MAC
+     *      Inherited from paramArray[1]: Toggles MAC integrity checks
 	 */
 	EncryptedMessage(String message, SecretKey key, SecretKey macKey, boolean enableConfidential, boolean enableIntegrity){
 		super(message);
@@ -37,7 +37,7 @@ class EncryptedMessage extends Message{
 
     byte[] getMessage() { return this.message; }
 
-    String decrypt(SecretKey key){ return SymKeyGen.decryptMessage(this.message, key, this.iv); }
+    String decrypt(SecretKey key) { return SymKeyGen.decryptMessage(this.message, key, this.iv); }
 
     /** generateMAC
      * @param data The data used when generating the MAC
@@ -52,8 +52,7 @@ class EncryptedMessage extends Message{
 			  theMac.init(key);
 
 			  macSig = theMac.doFinal(data);
-		}
-		catch (NoSuchAlgorithmException | InvalidKeyException ex) { ex.printStackTrace(); }
+		} catch (NoSuchAlgorithmException | InvalidKeyException ex) { ex.printStackTrace(); }
 
 		return macSig;
 	}
@@ -63,16 +62,13 @@ class EncryptedMessage extends Message{
      * @return true if the generated MAC matches the message's MAC, false otherwise
      */
     boolean verifyMAC(SecretKey macKey) {
+        assert this.message != null;
 
-        if (this.message != null) {
-            byte[] newMac = generateMAC(this.message, macKey);
-            String encodedNewMac = SymKeyGen.encode64(newMac);
-            String encodedMac = SymKeyGen.encode64(this.messageAuthCode);
+        byte[] newMac = generateMAC(this.message, macKey);
+        String encodedNewMac = SymKeyGen.encode64(newMac);
+        String encodedMac = SymKeyGen.encode64(this.messageAuthCode);
 
-            if (encodedNewMac.equals(encodedMac)) {
-                return true;
-            }
-        }
-        return false;
+        return encodedNewMac.equals(encodedMac);
+
     }
 }
