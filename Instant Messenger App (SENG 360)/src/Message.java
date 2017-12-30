@@ -12,6 +12,5 @@ class Message implements Serializable {
 		this.text = text;
 	}
 	
-	String get(){ return this.text; }
-	
+	String get() { return this.text; }
 }
