@@ -93,7 +93,6 @@ class Server {
 			initializeStreams();
 		} catch (IOException e) {
 			gui.printStatus("ERROR! Could not accept connection from Client.");
-			//e.printStackTrace();
 		}
 	}
 
@@ -107,10 +106,8 @@ class Server {
 		try {
 			Message paramsMsg = (Message) objIn.readObject();
 			clientParams = paramsMsg.get();
-			//gui.printStatus("Server: Client Parameters Received: "+ clientParams);
 		} catch (IOException | ClassNotFoundException e) {
-			gui.printStatus("ERROR! Did not recieve client parameters.");
-			//e.printStackTrace();
+			gui.printStatus("ERROR! Did not receive client parameters.");
 		}
 		return clientParams;
 		
@@ -143,7 +140,6 @@ class Server {
 		if (sameConfig) {
 			gui.printStatus("Parameters match Client's.");
 			gui.printStatus("Connection to Client open.");
-
 		} else {
 			gui.printStatus("ERROR! Client and Server parameters do not match.");
         }
@@ -153,7 +149,6 @@ class Server {
             objOut.flush();
         } catch (IOException e) {
 			gui.printStatus("ERROR! Could not send parameters acknowledgement.");
-            //e.printStackTrace();
         }
 
         return sameConfig;
@@ -223,57 +218,59 @@ class Server {
 			}
 		}
 
-		//session key establishment if enabled
 		if (enableC || enableI) {
-
-			try {
-				gui.printStatus("Connection to Client open.");
-				
-				sessionKeys = null;
-				gui.printStatus("Waiting for Client to begin session key establishment.");
-				PrivateKey serverPriKey = (PrivateKey) keyStore.getKey("ServerPrivate", "keypass".toCharArray());
-
-				int encryptedMKeySizeBytes = SymKeyGen.SUB_KEY_SIZE * 8;
-				byte[] encryptedMKey = new byte[encryptedMKeySizeBytes];
-				objIn.read(encryptedMKey, 0, encryptedMKeySizeBytes);
-
-				String decryptedKey = KeyPairGen.decrypt(encryptedMKey, serverPriKey);
-				sessionKeys = SymKeyGen.convertKeyBytes(SymKeyGen.splitMasterKey(SymKeyGen.decode64(decryptedKey)));
-				gui.printStatus("SUCCESS! Session key established.");
-				gui.printStatus("You can now send messages.");
-		
-			} catch (IOException | KeyStoreException | NoSuchAlgorithmException | UnrecoverableEntryException e) {
-				gui.printStatus("ERROR! Could not obtain/decrypt session keys.");
-				//e.printStackTrace();
-			}
+			establishSessionKeys();
 		}
-
 		gui.enableMessaging(true);
-		
-		try{
-			
-			ExecutorService executor = Executors.newSingleThreadExecutor();
-			Callable<Boolean> t = this.new ReceiveMessagesTask();
-	        Future<Boolean> future = executor.submit(t);
-
-	        boolean finish = false;
-	        try {
-	        	finish = future.get();
-			} catch (InterruptedException | ExecutionException e) { e.printStackTrace(); }
-	        
-			if(!finish){
-				throw new Exception("message reception exception");
-			}
-			
-		}catch(Exception ex) // catch the wrapped exception sent from within the thread
-	    {
-			closeSocketAndStreams();
-			//gui.setVisible(false);
-			gui.enableMessaging(false);
-			gui.clearChat();
-			gui.printStatus("Server: ERROR! Connection closed.");
-	    }
+		lookForMessages();
 	}
+
+	private void establishSessionKeys() {
+        try {
+            gui.printStatus("Connection to Client open.");
+
+            sessionKeys = null;
+            gui.printStatus("Waiting for Client to begin session key establishment.");
+            PrivateKey serverPriKey = (PrivateKey) keyStore.getKey("ServerPrivate", "keypass".toCharArray());
+
+            int encryptedMKeySizeBytes = SymKeyGen.SUB_KEY_SIZE * 8;
+            byte[] encryptedMKey = new byte[encryptedMKeySizeBytes];
+            objIn.read(encryptedMKey, 0, encryptedMKeySizeBytes);
+
+            String decryptedKey = KeyPairGen.decrypt(encryptedMKey, serverPriKey);
+            sessionKeys = SymKeyGen.convertKeyBytes(SymKeyGen.splitMasterKey(SymKeyGen.decode64(decryptedKey)));
+            gui.printStatus("SUCCESS! Session key established.");
+            gui.printStatus("You can now send messages.");
+
+        } catch (IOException | KeyStoreException | NoSuchAlgorithmException | UnrecoverableEntryException e) {
+            gui.printStatus("ERROR! Could not obtain/decrypt session keys.");
+        }
+    }
+
+    private void lookForMessages() {
+        try{
+
+            ExecutorService executor = Executors.newSingleThreadExecutor();
+            Callable<Boolean> t = this.new ReceiveMessagesTask();
+            Future<Boolean> future = executor.submit(t);
+
+            boolean finish = false;
+            try {
+                finish = future.get();
+            } catch (InterruptedException | ExecutionException e) { e.printStackTrace(); }
+
+            if(!finish){
+                throw new Exception("Exception: No longer able to receive messages from client.");
+            }
+
+        }catch(Exception ex) // catch the wrapped exception sent from within the thread
+        {
+            closeSocketAndStreams();
+            gui.enableMessaging(false);
+            gui.clearChat();
+            gui.printStatus("Server: ERROR! Connection closed.");
+        }
+    }
 
     /**
      * Performs this task whenever a message is received from the client.
@@ -286,59 +283,44 @@ class Server {
 	    public Boolean call() throws Exception {
 	    	try {
 				while (true) {
+                    Object msg = objIn.readObject();
+                    if (msg == null && !enableI) {
+                        continue;
+                    }
 
-					Object msg;
-					
-						if ((msg = objIn.readObject()) != null) {
-							EncryptedMessage recEMsg = ((EncryptedMessage) msg);
+                    EncryptedMessage recEMsg = (EncryptedMessage) msg;
+                    assert recEMsg != null;
 
-							String output;
+                    if (recEMsg.verifyMAC(sessionKeys[1])) {
+                        gui.printStatus("Message verified.");
+                        printMessage("Client: " + getMessage(recEMsg));
+                    } else {
+                        gui.printStatus("ERROR! Verification failed.");
+                    }
+                }
 
-							if (enableI) {
-
-								// verify message
-								if (recEMsg.verifyMAC(sessionKeys[1])) {
-									gui.printStatus("Message verified.");
-
-									// also decrypt message if necessary
-									if (enableC) {
-										output = recEMsg
-												.decrypt(sessionKeys[0]);
-										gui.printStatus("Message decrypted.");
-									} else {
-										output = new String(
-												recEMsg.getMessage());
-									}
-
-									printMessage("Client: " + output);
-								} else {
-									gui.printStatus("ERROR! Verification failed.");
-								}
-
-								// no integrity checks
-							} else {
-
-								// also decrypt message if necessary
-								if (enableC) {
-									output = recEMsg.decrypt(sessionKeys[0]);
-									gui.printStatus("Message decrypted.");
-								} else {
-									output = new String(recEMsg.getMessage());
-								}
-
-								printMessage("Client: " + output);
-							}
-						}
-				}
 			} catch (ClassNotFoundException | IOException e) {
 				return Boolean.FALSE;
 			}
 	    }
 	}
 
+	private String getMessage(EncryptedMessage EncrMsg) {
+        String output;
+        if (enableC) {
+            output = EncrMsg
+                    .decrypt(sessionKeys[0]);
+            gui.printStatus("Message decrypted.");
+        } else {
+            output = new String(
+                    EncrMsg.getMessage());
+        }
+
+        return output;
+    }
+
     void printMessage(String message) {
 		String header = "[" + String.format("%tF %<tT", new Date())+ "] ";
-		
 		gui.printMessageAsync(header + message);
 	}
 
@@ -362,9 +344,11 @@ class Server {
      */
     boolean authenticate(String user, String password){
 	    UserDB db = new UserDB();
+
         if (db.authenticate(user, password)) {
             return true;
         }
+
         gui.printStatus("Username or password is incorrect. Try again.");
         return false;
     }
