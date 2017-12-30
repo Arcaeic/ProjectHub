@@ -1,38 +1,28 @@
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.InputStream;
 import java.security.cert.Certificate;
 import java.security.cert.CertificateException;
-import java.security.cert.CertificateFactory;
 import java.security.cert.X509Certificate;
-
 import sun.security.x509.*;
-
-import java.security.cert.*;
 import java.security.*;
 import java.math.BigInteger;
 import java.util.Date;
-
 import javax.crypto.BadPaddingException;
 import javax.crypto.Cipher;
 import javax.crypto.IllegalBlockSizeException;
-import javax.crypto.KeyGenerator;
 import javax.crypto.NoSuchPaddingException;
 import com.sun.org.apache.xerces.internal.impl.dv.util.Base64;
 
 public class KeyPairGen {
 	
-	public static char[] KEYSTORE_PASS = "abcde".toCharArray();
-	public static String KEYSTORE_PATH = System.getProperty("user.dir") + File.separator + "keyStores"+ File.separator;
-	public static String CLIENT_KEYSTORE = "clientKeys.store";
-	public static String SERVER_KEYSTORE = "serverKeys.store";
-	public static String SERVER_ALIAS = "Server";
-	public static String CLIENT_ALIAS = "Client";
+	private static char[] KEYSTORE_PASS = "abcde".toCharArray();
+	private static String KEYSTORE_PATH = System.getProperty("user.dir") + File.separator + "keyStores"+ File.separator;
+	private static String CLIENT_KEYSTORE = "clientKeys.store";
+	private static String SERVER_KEYSTORE = "serverKeys.store";
 
-    public static KeyPair generateKeyPair(){
+    private static KeyPair generateKeyPair(){
 		KeyPair kp = null;
 		try {
 			KeyPairGenerator factory = KeyPairGenerator.getInstance("RSA");
@@ -82,8 +72,8 @@ public class KeyPairGen {
 			server.load(null, null);
 			
 			//generate certificates
-			X509Certificate clientCert = generateCertificate("CN=Jory, OU=JavaSoft, O=Sun Microsystems, C=CA", ckp, 100, "SHA1withRSA");
-			X509Certificate serverCert = generateCertificate("CN=Tim, OU=JavaSoft, O=Sun Microsystems, C=CA", skp, 100, "SHA1withRSA");
+			X509Certificate clientCert = generateCertificate("CN=Jory, OU=JavaSoft, O=Sun Microsystems, C=CA", ckp);
+			X509Certificate serverCert = generateCertificate("CN=Tim, OU=JavaSoft, O=Sun Microsystems, C=CA", skp);
 
 			//sign the certificates (server is CA; is root cert)
 			serverCert = createSignedCertificate(serverCert,serverCert,skp.getPrivate());
@@ -143,7 +133,7 @@ public class KeyPairGen {
      * @param path The path to the keyStore
      * @return A keyStore object representation of the keyStore files
      */
-    public static KeyStore retrieveKeyStore(String path){
+    private static KeyStore retrieveKeyStore(String path){
 		File ks = new File(path);
 		KeyStore keyStore = null;
 		
@@ -157,10 +147,10 @@ public class KeyPairGen {
 		return keyStore;
 	}
 	
-	public static KeyStore loadClientKeyStore(){
+	static KeyStore loadClientKeyStore(){
 		return KeyPairGen.retrieveKeyStore(KEYSTORE_PATH + CLIENT_KEYSTORE);
 	}
-	public static KeyStore loadServerKeyStore(){
+	static KeyStore loadServerKeyStore(){
 		return KeyPairGen.retrieveKeyStore(KEYSTORE_PATH + SERVER_KEYSTORE);
 	}
 
@@ -168,49 +158,47 @@ public class KeyPairGen {
      * @param key The key to encode
      * @return The key encoded in base64
      */
-    public static String b64Key(Key key){
+    private static String b64Key(Key key){
 		byte[] keyBytes = key.getEncoded();
 		return Base64.encode(keyBytes);
 	}
 
 	/** 
-	 * Create a self-signed X.509 Certificate
+	 * Create a self-signed X.509 Certificate. Is valid for 100 days.
 	 * @param dn the X.509 Distinguished Name, eg "CN=Test, L=London, C=GB"
 	 * @param pair the KeyPair
-	 * @param days how many days from now the Certificate is valid for
-	 * @param algorithm the signing algorithm, eg "SHA1withRSA"
-	 */ 
-	public static X509Certificate generateCertificate(String dn, KeyPair pair, int days, String algorithm)
-	  throws GeneralSecurityException, IOException
-	{
-	  PrivateKey privkey = pair.getPrivate();
-	  X509CertInfo info = new X509CertInfo();
-	  Date from = new Date();
-	  Date to = new Date(from.getTime() + days * 86400000l);
-	  CertificateValidity interval = new CertificateValidity(from, to);
-	  BigInteger sn = new BigInteger(64, new SecureRandom());
-	  X500Name owner = new X500Name(dn);
-	 
-	  info.set(X509CertInfo.VALIDITY, interval);
-	  info.set(X509CertInfo.SERIAL_NUMBER, new CertificateSerialNumber(sn));
-	  info.set(X509CertInfo.SUBJECT, owner);
-	  info.set(X509CertInfo.ISSUER, owner);
-	  info.set(X509CertInfo.KEY, new CertificateX509Key(pair.getPublic()));
-	  info.set(X509CertInfo.VERSION, new CertificateVersion(CertificateVersion.V3));
-	  AlgorithmId algo = new AlgorithmId(AlgorithmId.md5WithRSAEncryption_oid);
-	  info.set(X509CertInfo.ALGORITHM_ID, new CertificateAlgorithmId(algo));
-	 
-	  // Sign the cert to identify the algorithm that's used.
-	  X509CertImpl cert = new X509CertImpl(info);
-	  cert.sign(privkey, algorithm);
-	 
-	  // Update the algorith, and resign.
-	  algo = (AlgorithmId)cert.get(X509CertImpl.SIG_ALG);
-	  info.set(CertificateAlgorithmId.NAME + "." + CertificateAlgorithmId.ALGORITHM, algo);
-	  cert = new X509CertImpl(info);
-	  cert.sign(privkey, algorithm);
-	  return cert;
-	}
+	 */
+	private static X509Certificate generateCertificate(String dn, KeyPair pair)
+            throws GeneralSecurityException, IOException {
+
+	    String algorithm = "SHA1withRSA";
+        PrivateKey privkey = pair.getPrivate();
+        X509CertInfo info = new X509CertInfo();
+        Date from = new Date();
+        Date to = new Date(from.getTime() + (100 * 86400000L));
+        CertificateValidity interval = new CertificateValidity(from, to);
+        BigInteger sn = new BigInteger(64, new SecureRandom());
+        X500Name owner = new X500Name(dn);
+
+        info.set(X509CertInfo.VALIDITY, interval);
+        info.set(X509CertInfo.SERIAL_NUMBER, new CertificateSerialNumber(sn));
+        info.set(X509CertInfo.SUBJECT, owner);
+        info.set(X509CertInfo.ISSUER, owner);
+        info.set(X509CertInfo.KEY, new CertificateX509Key(pair.getPublic()));
+        info.set(X509CertInfo.VERSION, new CertificateVersion(CertificateVersion.V3));
+        AlgorithmId algo = new AlgorithmId(AlgorithmId.md5WithRSAEncryption_oid);
+        info.set(X509CertInfo.ALGORITHM_ID, new CertificateAlgorithmId(algo));
+        // Sign the cert to identify the algorithm that's used
+        X509CertImpl cert = new X509CertImpl(info);
+        cert.sign(privkey, algorithm);
+
+        // Update the algorith, and resign.
+        algo = (AlgorithmId) cert.get(X509CertImpl.SIG_ALG);
+        info.set(CertificateAlgorithmId.NAME + "." + CertificateAlgorithmId.ALGORITHM, algo);
+        cert = new X509CertImpl(info);
+        cert.sign(privkey, algorithm);
+        return cert;
+    }
 
     /** createSignedCertificate
      * @param certificate The type of certificate being used
@@ -245,7 +233,7 @@ public class KeyPairGen {
         return null;
     }
 
-    public static boolean verifySignature(Certificate certToVerify, Certificate caCert){
+	static boolean verifySignature(Certificate certToVerify, Certificate caCert){
 
 			try {
 				certToVerify.verify(caCert.getPublicKey());
@@ -263,7 +251,7 @@ public class KeyPairGen {
      * @param key The key (symmetric) used when encrypting
      * @return the encrypted byte[] array
      */
-    public static byte[] encrypt(String message, Key key){
+	static byte[] encrypt(String message, Key key){
     	
 		//System.out.println("KPGen: encrypting bytes: " + message.getBytes().length);
 
@@ -274,7 +262,6 @@ public class KeyPairGen {
 			pkCipher.init(Cipher.ENCRYPT_MODE, key);
 			encBytes = pkCipher.doFinal(message.getBytes());
 		} catch (InvalidKeyException | IllegalBlockSizeException | BadPaddingException | NoSuchAlgorithmException | NoSuchPaddingException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
     	return encBytes;
@@ -286,7 +273,7 @@ public class KeyPairGen {
      * @param key The key used when decrypting encBytes
      * @return The decrypted plaintext
      */
-    public static String decrypt(byte[] encBytes, Key key){
+	static String decrypt(byte[] encBytes, Key key){
     	
 		//System.out.println("KPGen: decrypting bytes: " + encBytes.length);
 
@@ -297,7 +284,6 @@ public class KeyPairGen {
 			pkCipher.init(Cipher.DECRYPT_MODE, key);
 			decrypted = new String(pkCipher.doFinal(encBytes));
 		} catch (InvalidKeyException | IllegalBlockSizeException | BadPaddingException | NoSuchAlgorithmException | NoSuchPaddingException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
     	return decrypted;
