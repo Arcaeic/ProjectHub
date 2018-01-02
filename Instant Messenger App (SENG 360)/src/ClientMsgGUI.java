@@ -1,17 +1,7 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
-
-import static java.lang.System.exit;
-
 import java.io.IOException;
 import java.io.ObjectOutputStream;
-
 import javax.crypto.SecretKey;
-import javax.swing.JScrollBar;
-import javax.swing.JTextArea;
+import javax.swing.*;
 
 public class ClientMsgGUI extends javax.swing.JFrame {
 
@@ -19,30 +9,24 @@ public class ClientMsgGUI extends javax.swing.JFrame {
     private javax.swing.JCheckBox checkAuth;
     private javax.swing.JCheckBox checkConfidential;
     private javax.swing.JCheckBox checkIntegrity;
-    private javax.swing.JLabel jLabel1;
-    private javax.swing.JLabel jLabel2;
-    private javax.swing.JLabel jLabel3;
-    private javax.swing.JPanel jPanel1;
-    private javax.swing.JPanel jPanel2;
     private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JScrollPane jScrollPane2;
-    private javax.swing.JSeparator jSeparator1;
     private javax.swing.JTextField messageInput;
-    private static javax.swing.JTextArea messages;
     private javax.swing.JButton paramConfirmBtn;
     private javax.swing.JPasswordField passwordInput;
     private javax.swing.JButton sendBtn;
     private javax.swing.JTextArea status;
     private javax.swing.JTextField usernameInput;
+    private static javax.swing.JTextArea messages;
 
 	private Client client;
-	public boolean[] params;
+	boolean[] params;
 
-    public ClientMsgGUI(String title) {
+    private ClientMsgGUI(String title) {
         initComponents();
         this.setTitle(title);
         client = new Client();
-        client.gui = this;
+        Client.gui = this;
         
         enableMessaging(false);
 		enableParams(true);
@@ -52,12 +36,8 @@ public class ClientMsgGUI extends javax.swing.JFrame {
 
     }
 
-	public void runClient(){
-		new Thread(){
-			public void run(){
-				client.startClient();
-			}
-		}.start();
+	private void runClient(){
+		new Thread(() -> client.startClient()).start();
 	}
 
 
@@ -67,24 +47,24 @@ public class ClientMsgGUI extends javax.swing.JFrame {
      */
     private void initComponents() {
 
-		sendBtn = new javax.swing.JButton();
-		messageInput = new javax.swing.JTextField();
-		jScrollPane1 = new javax.swing.JScrollPane();
-		messages = new javax.swing.JTextArea();
-		jSeparator1 = new javax.swing.JSeparator();
-		jScrollPane2 = new javax.swing.JScrollPane();
-		status = new javax.swing.JTextArea();
-		jLabel3 = new javax.swing.JLabel();
-		jPanel1 = new javax.swing.JPanel();
-		checkConfidential = new javax.swing.JCheckBox();
-		checkAuth = new javax.swing.JCheckBox();
-		checkIntegrity = new javax.swing.JCheckBox();
-		paramConfirmBtn = new javax.swing.JButton();
-		jPanel2 = new javax.swing.JPanel();
-		passwordInput = new javax.swing.JPasswordField();
-		jLabel2 = new javax.swing.JLabel();
-		usernameInput = new javax.swing.JTextField();
-		jLabel1 = new javax.swing.JLabel();
+        JLabel jLabel1 = new javax.swing.JLabel();
+        JLabel jLabel2 = new javax.swing.JLabel();
+        JLabel jLabel3 = new javax.swing.JLabel();
+        JPanel jPanel1 = new javax.swing.JPanel();
+        JPanel jPanel2 = new javax.swing.JPanel();
+        JSeparator jSeparator1 = new javax.swing.JSeparator();
+        sendBtn = new javax.swing.JButton();
+        messageInput = new javax.swing.JTextField();
+        jScrollPane1 = new javax.swing.JScrollPane();
+        messages = new javax.swing.JTextArea();
+        jScrollPane2 = new javax.swing.JScrollPane();
+        status = new javax.swing.JTextArea();
+        checkConfidential = new javax.swing.JCheckBox();
+        checkAuth = new javax.swing.JCheckBox();
+        checkIntegrity = new javax.swing.JCheckBox();
+        paramConfirmBtn = new javax.swing.JButton();
+        passwordInput = new javax.swing.JPasswordField();
+        usernameInput = new javax.swing.JTextField();
 		authBtn = new javax.swing.JButton();
 
 		setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
@@ -92,11 +72,7 @@ public class ClientMsgGUI extends javax.swing.JFrame {
 		setResizable(false);
 
 		sendBtn.setText("Send");
-		sendBtn.addActionListener(new java.awt.event.ActionListener() {
-			public void actionPerformed(java.awt.event.ActionEvent evt) {
-				sendBtnActionPerformed();
-			}
-		});
+		sendBtn.addActionListener(evt -> sendBtnActionPerformed());
 
 		messages.setEditable(false);
 		messages.setColumns(20);
@@ -111,22 +87,13 @@ public class ClientMsgGUI extends javax.swing.JFrame {
 		jLabel3.setText("Status:");
 
 		checkConfidential.setText("Confidentiality");
-		checkConfidential.addActionListener(new java.awt.event.ActionListener() {
-			public void actionPerformed(java.awt.event.ActionEvent evt) {
-				//checkConfidentialActionPerformed(evt);
-			}
-		});
 
 		checkAuth.setText("Authentication");
 
 		checkIntegrity.setText("Integrity");
 
 		paramConfirmBtn.setText("Confirm");
-		paramConfirmBtn.addActionListener(new java.awt.event.ActionListener() {
-			public void actionPerformed(java.awt.event.ActionEvent evt) {
-				paramConfirmBtnActionPerformed();
-			}
-		});
+		paramConfirmBtn.addActionListener(evt -> paramConfirmBtnActionPerformed());
 
 		javax.swing.GroupLayout jPanel1Layout = new javax.swing.GroupLayout(jPanel1);
 		jPanel1.setLayout(jPanel1Layout);
@@ -166,11 +133,7 @@ public class ClientMsgGUI extends javax.swing.JFrame {
 		jLabel1.setText("Username:");
 
 		authBtn.setText("Authenticate");
-		authBtn.addActionListener(new java.awt.event.ActionListener() {
-			public void actionPerformed(java.awt.event.ActionEvent evt) {
-				authBtnActionPerformed();
-			}
-		});
+		authBtn.addActionListener(evt -> authBtnActionPerformed());
 
 		javax.swing.GroupLayout jPanel2Layout = new javax.swing.GroupLayout(jPanel2);
 		jPanel2.setLayout(jPanel2Layout);
@@ -256,7 +219,7 @@ public class ClientMsgGUI extends javax.swing.JFrame {
 				);
 
 		pack();
-	}// </editor-fold
+	}
 
 
     /** paramConfirmBtnActionPerformed
@@ -281,8 +244,8 @@ public class ClientMsgGUI extends javax.swing.JFrame {
      */
     private void authBtnActionPerformed() {
 		String user = usernameInput.getText();
-		String pass = passwordInput.getText();
-		if(client.authenticate(user, pass)){
+		char[] pass = passwordInput.getPassword();
+		if(client.authenticate(user, new String(pass))){
 			enableLogin(false);
 			runClient();
 		}else{
@@ -302,12 +265,10 @@ public class ClientMsgGUI extends javax.swing.JFrame {
 			sendMessageAsync(msg, Client.sessionKeys, Client.enableC, Client.enableI, Client.objOut);
 		}
 
-		//auto scroll
 		JScrollBar vertical = jScrollPane1.getVerticalScrollBar();
 		vertical.setValue( vertical.getMaximum() );
 
-		//clear input
-		messageInput.setText("");
+        messageInput.setText("");
 
 	}
 
@@ -320,41 +281,23 @@ public class ClientMsgGUI extends javax.swing.JFrame {
                     break;
                 }
             }
-        } catch (ClassNotFoundException ex) {
-            java.util.logging.Logger.getLogger(ClientMsgGUI.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
-        } catch (InstantiationException ex) {
-            java.util.logging.Logger.getLogger(ClientMsgGUI.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
-        } catch (IllegalAccessException ex) {
-            java.util.logging.Logger.getLogger(ClientMsgGUI.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
-        } catch (javax.swing.UnsupportedLookAndFeelException ex) {
+        } catch (ClassNotFoundException | IllegalAccessException | InstantiationException |
+                javax.swing.UnsupportedLookAndFeelException ex) {
             java.util.logging.Logger.getLogger(ClientMsgGUI.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
         }
         //</editor-fold>
 
         /* Create and display the form */
-        java.awt.EventQueue.invokeLater(new Runnable() {
-            public void run() {
-                ClientMsgGUI gui = new ClientMsgGUI("ClientMessageGUI");
-                gui.setVisible(true);
-                
-                
-                //for(int i = 0; i < 10; i++){
-                    //printMessageAsync("Hello World");
-                //}
-            }
+        java.awt.EventQueue.invokeLater(() -> {
+            ClientMsgGUI gui = new ClientMsgGUI("ClientMessageGUI");
+            gui.setVisible(true);
         });
         
     }
 
-    public void printMessageAsync(String message){
+    void printMessageAsync(String message){
 
-		new Thread(){
-
-			public void run() {
-				messages.append(message + "\n");
-			}
-
-		}.start();
+		new Thread(() -> messages.append(message + "\n")).start();
 	}
 
     /** sendMessagesAsync
@@ -365,39 +308,37 @@ public class ClientMsgGUI extends javax.swing.JFrame {
      * @param enableIntegrity true if Integrity is enabled
      * @param objOut The object output stream for the client
      */
-    public static void sendMessageAsync(String message, SecretKey[] sessionKeys, boolean enableConfidential,
+    private static void sendMessageAsync(String message, SecretKey[] sessionKeys, boolean enableConfidential,
                                         boolean enableIntegrity, ObjectOutputStream objOut){
 
-		new Thread(){
-			public void run(){
+		new Thread(() -> {
 
-				try {
-					if (!message.equals("") && message != null) {
-						
-						EncryptedMessage eMsg = new EncryptedMessage(
-								message,
-								sessionKeys[0], sessionKeys[1],
-								enableConfidential, enableIntegrity);
-						
-						objOut.writeObject(eMsg);
-					}
+            try {
+                if (!message.equals("")) {
 
+                    EncryptedMessage eMsg = new EncryptedMessage(
+                            message,
+                            sessionKeys[0], sessionKeys[1],
+                            enableConfidential, enableIntegrity);
+
+                    objOut.writeObject(eMsg);
+                }
 
 
-				} catch (IOException e) {
-					//exit(-1);
-					//e.printStackTrace();
-					//return;
-				}
-			}
-		}.start();
+
+            } catch (IOException e) {
+                //exit(-1);
+                //e.printStackTrace();
+                //return;
+            }
+        }).start();
 	}
 
 
     /** enableMessaging
      * @param b true to enable message input and send button, false otherwise
      */
-    public void enableMessaging(boolean b){
+    void enableMessaging(boolean b){
 		messageInput.setEnabled(b);
 		sendBtn.setEnabled(b);
 	}
@@ -419,8 +360,7 @@ public class ClientMsgGUI extends javax.swing.JFrame {
      */
     private boolean[] checkParams(){
 
-		boolean[] params = {checkConfidential.isSelected(), checkIntegrity.isSelected(), checkAuth.isSelected()};
-
+		params = new boolean[] {checkConfidential.isSelected(), checkIntegrity.isSelected(), checkAuth.isSelected()};
 		return params;
 
 	}
@@ -439,11 +379,10 @@ public class ClientMsgGUI extends javax.swing.JFrame {
 	 * Prints to the status (bottom-left) field
 	 * @param st The string to print
 	 */
-	public  void printStatus(String st){
+	void printStatus(String st){
 
 		status.append(st + "\n");
 		
-		//auto scroll
 		JScrollBar vertical = jScrollPane2.getVerticalScrollBar();
 		vertical.setValue( vertical.getMaximum() );
 
