@@ -160,7 +160,6 @@ class Server {
      */
     private boolean authClientCert() {
 		
-		//gui.printStatus("Server: Waiting for client to send certificate.");
 		Certificate clientCert = null;
 		try {
 			clientCert = (Certificate) objIn.readObject();
@@ -283,19 +282,21 @@ class Server {
 	    	try {
 				while (true) {
                     Object msg = objIn.readObject();
-                    if (msg == null && !enableI) {
+                    if (msg == null) {
                         continue;
                     }
 
                     EncryptedMessage recEMsg = (EncryptedMessage) msg;
-                    assert recEMsg != null;
-
-                    if (recEMsg.verifyMAC(sessionKeys[1])) {
-                        gui.printStatus("Message verified.");
-                        printMessage("Client: " + getMessage(recEMsg));
-                    } else {
-                        gui.printStatus("ERROR! Verification failed.");
-                    }
+					if (enableI) {
+						if (recEMsg.verifyMAC(sessionKeys[1])) {
+							gui.printStatus("Message verified.");
+							printMessage("Client: " + getMessage(recEMsg));
+						} else {
+							gui.printStatus("ERROR! Verification failed.");
+						}
+					} else {
+						printMessage("Client: " + getMessage(recEMsg));
+					}
                 }
 
 			} catch (ClassNotFoundException | IOException e) {
