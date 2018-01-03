@@ -29,7 +29,7 @@ import javax.crypto.spec.PBEKeySpec;
 		String DBHash = users.get(userid);
 		if(DBHash == null){ return false; }
 
-		byte[] freshHash = computeHashWithGivenPassword(pass, DBHash);
+		byte[] freshHash = computeHashWithGivenPassword(pass, DBHash.substring(0, 24));
 		String encodedFreshHash = SymKeyGen.encode64(freshHash);
         String encodedHashFromDB = DBHash.substring(24, DBHash.length());
 
@@ -41,11 +41,11 @@ import javax.crypto.spec.PBEKeySpec;
       * computeHashWithGivenPassword
       * Is a helper method for authenticate
       * @param pass The password fetched via user input. The password to be hashed.
-      * @param DBHash A copy of the the hash being stored in UserDB
+      * @param salt A copy of the salt being stored in UserDB
       * @return a byte[] representation of the newly generated hash.
       */
-     private byte[] computeHashWithGivenPassword(String pass, String DBHash) {
-        byte[] decodedSalt = SymKeyGen.decode64(DBHash.substring(0, 24));
+     byte[] computeHashWithGivenPassword(String pass, String salt) {
+        byte[] decodedSalt = SymKeyGen.decode64(salt);
         byte[] freshHash = null;
 
         KeySpec spec = new PBEKeySpec(pass.toCharArray(), decodedSalt, 65536, 256);
@@ -55,6 +55,10 @@ import javax.crypto.spec.PBEKeySpec;
         } catch (NoSuchAlgorithmException | InvalidKeySpecException ex) { ex.printStackTrace(); }
 
         return freshHash;
+    }
+
+    void addUser(String user, String pass) {
+        users.put(user, pass);
     }
 
 }
