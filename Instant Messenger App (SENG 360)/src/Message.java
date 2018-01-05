@@ -13,4 +13,8 @@ class Message implements Serializable {
 	}
 	
 	String get() { return this.text; }
+
+	boolean equals(Message m1) {
+		return this.get().equals(m1.get());
+	}
 }
