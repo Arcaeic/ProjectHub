@@ -1,30 +1,39 @@
+import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
 import javax.crypto.SecretKey;
-import javax.crypto.spec.SecretKeySpec;
 
 public class EncryptedMessageTests {
 
-    private EncryptedMessage m1;
+    private byte[] masterKey;
+    private SecretKey[] sessionKeys;
+    private EncryptedMessage[] msgArr;
 
     @Before
     public void main() {
 
-        SecretKey testKey = new SecretKeyS;
-        SecretKey testMAC = new SecretKeySpec();
-        m1 = new EncryptedMessage("Msg.", testKey, testMAC, false, false);
-
-
+        masterKey = SymKeyGen.generateMasterKey();
+        sessionKeys = SymKeyGen.convertKeyBytes(SymKeyGen.splitMasterKey(masterKey));
+        EncryptedMessage m1 = new EncryptedMessage("Msg.", sessionKeys[0], sessionKeys[1], true, true);
+        EncryptedMessage m2 = new EncryptedMessage("Msg2.", sessionKeys[0], sessionKeys[1], false, true);
+        msgArr = new EncryptedMessage[] {m1, m2};
     }
 
     @Test
     public void verifyMACInvalidShouldReturnFalse(){
+        SecretKey[] oldSessionKeys = sessionKeys;
+        masterKey = SymKeyGen.generateMasterKey();
+        sessionKeys = SymKeyGen.convertKeyBytes(SymKeyGen.splitMasterKey(masterKey));
+        EncryptedMessage someMsg = new EncryptedMessage("Hello", sessionKeys[0], sessionKeys[1], true, true );
+
+        Assert.assertFalse(someMsg.verifyMAC(oldSessionKeys[1]));
 
     }
 
     @Test
     public void verifyMacValidShouldReturnTrue() {
-
+        for(EncryptedMessage msg: msgArr)
+        Assert.assertTrue(msg.verifyMAC(sessionKeys[1]));
     }
 }
