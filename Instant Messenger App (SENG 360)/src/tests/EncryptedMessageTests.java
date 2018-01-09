@@ -8,16 +8,15 @@ public class EncryptedMessageTests {
 
     private byte[] masterKey;
     private SecretKey[] sessionKeys;
-    private EncryptedMessage[] msgArr;
-
+    private EncryptedMessage m1, m2, m3;
     @Before
     public void main() {
 
         masterKey = SymKeyGen.generateMasterKey();
         sessionKeys = SymKeyGen.convertKeyBytes(SymKeyGen.splitMasterKey(masterKey));
-        EncryptedMessage m1 = new EncryptedMessage("Msg.", sessionKeys[0], sessionKeys[1], true, true);
-        EncryptedMessage m2 = new EncryptedMessage("Msg2.", sessionKeys[0], sessionKeys[1], false, true);
-        msgArr = new EncryptedMessage[] {m1, m2};
+        m1 = new EncryptedMessage("Msg.", sessionKeys[0], sessionKeys[1], true, true);
+        m2 = new EncryptedMessage("Msg2.", sessionKeys[0], sessionKeys[1], false, true);
+        m3 = new EncryptedMessage("Msg3.", sessionKeys[0], sessionKeys[1], true, false);
     }
 
     @Test
@@ -33,7 +32,21 @@ public class EncryptedMessageTests {
 
     @Test
     public void verifyMacValidShouldReturnTrue() {
-        for(EncryptedMessage msg: msgArr)
-        Assert.assertTrue(msg.verifyMAC(sessionKeys[1]));
+        Assert.assertTrue(m1.verifyMAC(sessionKeys[1]));
+        Assert.assertTrue(m2.verifyMAC(sessionKeys[1]));
+
     }
+
+    @Test
+    public void getShouldReturnSet() {
+        Assert.assertEquals(m1.get(), "Msg.");
+        Assert.assertEquals(m2.get(), "Msg2.");
+    }
+
+    @Test
+    public void decryptShouldReturnMsg() {
+        Assert.assertEquals(m1.decrypt(sessionKeys[0]), "Msg.");
+        Assert.assertEquals(m3.decrypt(sessionKeys[0]), "Msg3.");
+    }
+
 }

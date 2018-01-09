@@ -13,7 +13,7 @@ class EncryptedMessage extends Message{
 	/**
 	 * EncryptedMessage
 	 * Allows toggling Confidentiality and Integrity through {@code boolean} parameters.
-	 * @param message
+	 * @param msg
      *      The message being sent
 	 * @param key
      *      The key being used to encrypt the message
@@ -24,12 +24,13 @@ class EncryptedMessage extends Message{
 	 * @param enableIntegrity
      *      Inherited from paramArray[1]: Toggles MAC integrity checks
 	 */
-	EncryptedMessage(String message, SecretKey key, SecretKey macKey, boolean enableConfidential, boolean enableIntegrity){
-		super(message);
+	EncryptedMessage(String msg, SecretKey key, SecretKey macKey, boolean enableConfidential, boolean enableIntegrity){
+		super(msg);
 		this.iv = SymKeyGen.generateInitVector().getIV();
+		this.message = SymKeyGen.encryptMessage(msg, key, iv);
 
-		if (enableConfidential) { this.message = SymKeyGen.encryptMessage(message, key, this.iv); }
-		else { this.message = message.getBytes(); }
+		if (enableConfidential) { this.message = SymKeyGen.encryptMessage(msg, key, this.iv); }
+		else { this.message = msg.getBytes(); }
 
 		if (enableIntegrity) { this.messageAuthCode = generateMAC(this.message, macKey); }
 		else { this.messageAuthCode = null; }
