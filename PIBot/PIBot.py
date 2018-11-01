@@ -24,8 +24,6 @@ def scan_comment(comment, domains, email_pattern, phone_pattern, comment_cache):
 	elif phone_regex:
 		print_match_text(phone_regex.group(0), comment.author.name)
 		report(comment)
-	else:
-		print("TEST: New comment! No match found!")
 	return
 
 
