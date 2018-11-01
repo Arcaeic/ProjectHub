@@ -2,11 +2,7 @@ import re
 import praw
 
 def bot_login():
-	reddit = praw.Reddit(client_id='n9gWxG8ZB5g1TQ',
-						 client_secret='Krxt6RmXTSrD-WMWdUeOXJ4C87E',
-						 password='***********',
-						 user_agent='reddit:PrivacyBot V1.0 by /u/GreyLlama',
-						 username='PrivacyRobit')
+	reddit = praw.Reddit('PIBot')
 	print("Success! This program is logged in under " + str(reddit.user.me()) + "!")
 	return reddit
 
