@@ -19,18 +19,20 @@ def scan_comment(comment, domains, email_pattern, phone_pattern, comment_cache):
 	if email_regex:
 		for match in email_regex.groups():
 			if match in domains:
-				print("\n   Found Match!")
-				print("   Email(s): " + email_regex.group(1))
-				print("   Author: " + comment.author.name)
+				print_match_text(email_regex.group(0), comment.author.name)
 				report(comment)
 	elif phone_regex:
-		print("\n   Found Match!")
-		print("   Phone(s): " + phone_regex.group(0))
-		print("   Author: " + comment.author.name)
+		print_match_text(phone_regex.group(0), comment.author.name)
 		report(comment)
 	else:
 		print("TEST: New comment! No match found!")
 	return
+
+
+def print_match_text(data, author):
+	print("\n   Found Match!")
+	print("   Phone(s): " + data)
+	print("   Author: " + author)
 
 
 def skim(reddit):
@@ -52,6 +54,5 @@ def main():
 
 
 # End main
-
 if __name__ == '__main__':
 	main()
