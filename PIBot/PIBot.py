@@ -1,51 +1,57 @@
 import re
 import praw
 
+
 def bot_login():
 	reddit = praw.Reddit('PIBot')
 	print("Success! This program is logged in under " + str(reddit.user.me()) + "!")
 	return reddit
 
-def report(comment):
-	return #Placeholder
 
-def scan_comment(comment,domains, emailPattern, phonePattern, commentCache):
-	commentCache.append(comment.id) #Add comment to cache, prevents spam
-	emailMatch = re.match(emailPattern, comment.body) #Check for email and phone matches
-	phoneMatch = re.match(phonePattern, comment.body)
-	if emailMatch:
-		for match in emailMatch.groups():
+def report(comment):
+	return comment     # Placeholder
+
+
+def scan_comment(comment, domains, email_pattern, phone_pattern, comment_cache):
+	comment_cache.append(comment.id)                      # Add comment to cache, prevents spam
+	email_regex = re.match(email_pattern, comment.body)  # Check for email and phone matches
+	phone_regex = re.match(phone_pattern, comment.body)
+	if email_regex:
+		for match in email_regex.groups():
 			if match in domains:
 				print("\n   Found Match!")
-				print("   Email(s): " + emailMatch.group(1))
-				print("   Perp: " + comment.author.name)
+				print("   Email(s): " + email_regex.group(1))
+				print("   Author: " + comment.author.name)
 				report(comment)
-	elif phoneMatch:
+	elif phone_regex:
 		print("\n   Found Match!")
-		print("   Phone(s): " + phoneMatch.group(0))
-		print("   Perp: " + comment.author.name)
+		print("   Phone(s): " + phone_regex.group(0))
+		print("   Author: " + comment.author.name)
 		report(comment)
 	else:
 		print("TEST: New comment! No match found!")
 	return
 
+
 def skim(reddit):
-	subreddit = reddit.subreddit('test') #Placeholder, production will be set to 'all'
-	emailDomains = ['@gmail.com','@hotmail.com','@live.ca','@yahoo.com',
-					'@yahoo.ca','@aol.com','@outlook.com'] 		#Popular email domains
-	commentIDCache = [] 						#Container for previously visited comments
-	emailPattern = r"(\b(\w+(@\w+.[a-z]{0,3})))"
-	phonePattern = r"(?<!\w)[1 ]?[- ]?(?!800)\(?\d{3}\)?\s?[- ]?\d{3}[- ]?\d{4}(?!\d+?)"
-	for comment in subreddit.stream.comments(): 			#Look at each new comment as they are submitted
-		if comment.id in commentIDCache:					#Check if comment has already been visited, not likely
+	subreddit = reddit.subreddit('test')  # Placeholder, production will be set to 'all'
+	email_domains = ['@gmail.com', '@hotmail.com', '@live.ca', '@yahoo.com', '@yahoo.ca', '@aol.com', '@outlook.com']
+	comment_id_cache = []  # Container for previously visited comments
+	email_pattern = r"(\b(\w+(@\w+.[a-z]{0,3})))"
+	phone_pattern = r"(?<!\w)[1 ]?[- ]?(?!800)\(?\d{3}\)?\s?[- ]?\d{3}[- ]?\d{4}(?!\d+?)"
+	for comment in subreddit.stream.comments():  # Look at each new comment as they are submitted
+		if comment.id in comment_id_cache:  # Check if comment has already been visited, not likely
 			print("\n   Found! Oh...I've already replied to this comment, skipping...")
 			continue
-		scan_comment(comment, emailDomains, emailPattern, phonePattern, commentIDCache)
+		scan_comment(comment, email_domains, email_pattern, phone_pattern, comment_id_cache)
+
 
 def main():
-	reddit = bot_login() #Initiate Reddit instance
-	skim(reddit)		 #Begin skimming for information
-	#End main
+	reddit = bot_login()  # Initiate Reddit instance
+	skim(reddit)  # Begin skimming for information
+
+
+# End main
 
 if __name__ == '__main__':
 	main()
