@@ -14,16 +14,17 @@ def report(comment):
 
 def scan_comment(comment, domains, email_pattern, phone_pattern, comment_cache):
 	comment_cache.append(comment.id)                      # Add comment to cache, prevents spam
-	email_regex = re.match(email_pattern, comment.body)  # Check for email and phone matches
-	phone_regex = re.match(phone_pattern, comment.body)
+	email_regex = re.findall(email_pattern, comment.body)  # Check for email and phone matches
+	phone_regex = re.findall(phone_pattern, comment.body)
 	if email_regex:
-		for match in email_regex.groups():
-			if match in domains:
-				print_match_text(email_regex.group(0), comment.author.name)
+		for match in range(0, len(email_regex)):
+			if email_regex[match] in domains:
+				print_match_text(email_regex[match], comment.author.name)
 				report(comment)
 	elif phone_regex:
-		print_match_text(phone_regex.group(0), comment.author.name)
-		report(comment)
+		for match in range(0, len(phone_regex)):
+			print_match_text(phone_regex[match], comment.author.name)
+			report(comment)
 	return
 
 
