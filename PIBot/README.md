@@ -18,8 +18,12 @@ In order to find emails and phone numbers, this program uses [Regular Expression
 	
 ##Suggestions
 * (__Development__) Look for other popular email domains
-* (__Deprecated__) Use a .txt file to keep a list of comment.id already replied to, then when script is executed, read in existing comment.id
+    * Move email domains to a config file, load into list
+* (__TBA__) Only report phone number or email address once
+    * Move information into a local file, add to .gitignore, and encrypt the file
+* (__Development__) Use a .txt file to keep a list of comment.id already replied to, then when script is executed, read in existing comment.id
 	* This will prevent the bot from spamming users when the program is terminated.
+	* Move comment ID to a config file, store into file and load into list on start-up
 * (__Deprecated__) Iff someone PMs the bot with a certain format followed by an email or number, the number is blacklisted from being detected. Use a link to help human.
 
 ####Preventing PIBot from being banned Reddit-wide
