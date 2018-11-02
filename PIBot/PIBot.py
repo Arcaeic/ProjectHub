@@ -1,8 +1,9 @@
 import re
 import praw
 
-#Global Config
+# Global Config
 blacklist_file = "comment_blacklist.txt"
+
 
 def bot_login():
 	reddit = praw.Reddit('PIBot')
@@ -14,26 +15,43 @@ def report(comment):
 	return comment     # Placeholder
 
 
-def scan_comment(comment, domains, email_pattern, phone_pattern):
-	email_regex = re.findall(email_pattern, comment.body)  # Check for email and phone matches
-	phone_regex = re.findall(phone_pattern, comment.body)
+def scan_text(text, domains, email_pattern, phone_pattern):
+
+	email_regex = ""
+	phone_regex = ""
+
+	# Check if object is a Comment or Submission
+	if isinstance(text, praw.reddit.models.Comment):
+		email_regex = re.findall(email_pattern, text.body)
+		phone_regex = re.findall(phone_pattern, text.body)
+	elif isinstance(text, praw.reddit.models.Submission):
+
+		# Check if Submission is a self-post or link
+		if text.selftext:
+			email_regex = re.findall(email_pattern, text.selftext)
+			phone_regex = re.findall(phone_pattern, text.selftext)
+		else:
+			email_regex = re.findall(email_pattern, text.title)
+			phone_regex = re.findall(phone_pattern, text.title)
+
+	# Check for pattern-matching
 	if email_regex:
 		for match in range(0, len(email_regex)):
 			if email_regex[match] in domains:
-				print_match_text(email_regex[match], comment.author.name)
-				report(comment)
+				print_match_text(email_regex[match], text.author.name)
+				report(text)
 	elif phone_regex:
 		for match in range(0, len(phone_regex)):
-			print_match_text(phone_regex[match], comment)
-			report(comment)
+			print_match_text(phone_regex[match], text)
+			report(text)
 	return
 
 
-def print_match_text(data, comment):
+def print_match_text(pi, text):
 	print("\nFound Match!")
-	print("Phone(s): " + data)
-	if comment.author:
-		print("Author: " + comment.author.name)
+	print("Phone / E-Mail: " + pi)
+	if text.author:
+		print("Author: " + text.author.name)
 	return
 
 
@@ -58,16 +76,24 @@ def skim(reddit):
 	comment_blacklist.close()
 
 	for comment in subreddit.stream.comments():  # Look at each new comment as they are submitted
-		if comment.id in stripped_blacklist:  # Check if comment has already been visited, not likely
+		if comment.id not in stripped_blacklist:  # Check if comment has already been visited.
+			scan_text(comment, email_domains, email_pattern, phone_pattern)
+			add_comment_to_blacklist(comment.id)
+			stripped_blacklist.append(comment.id)
+		else:
 			print("\nFound! Oh...I've already found comment " + comment.id + ", skipping...")
-			continue
-		scan_comment(comment, email_domains, email_pattern, phone_pattern)
-		add_comment_to_blacklist(comment.id)
-		stripped_blacklist.append(comment.id)
+
+		if comment.submission.id not in stripped_blacklist:
+			scan_text(comment.submission, email_domains, email_pattern, phone_pattern)
+			add_comment_to_blacklist(comment.submission.id)
+			stripped_blacklist.append(comment.submission.id)
+		else:
+			print("\nFound! Oh...I've already found submission " + comment.submission.id + ", skipping...")
+
 
 def main():
-	reddit = bot_login()  # Initiate Reddit instance
-	skim(reddit)  # Begin skimming for information
+	reddit = bot_login()
+	skim(reddit)
 
 
 # End main
