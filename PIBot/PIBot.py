@@ -5,14 +5,31 @@ import praw
 blacklist_file = "comment_blacklist.txt"
 
 
+''' bot_login()
+:desc       Refers to praw.ini and logs into the designated account.
+:returns    An instance of reddit
+'''
+
+
 def bot_login():
 	reddit = praw.Reddit('PIBot')
 	print("Success! This program is logged in under " + str(reddit.user.me()) + "!")
 	return reddit
 
 
+# TODO
 def report(comment):
-	return comment     # TODO
+	return comment
+
+
+''' scan_text(text, domains, email_pattern, phone_pattern, instance_type)
+:param text             The reddit instance
+:param domains          The email domains to filter against
+:param email_pattern    The regular expression pattern used to catch emails
+:param phone_pattern    The regular expression pattern used to catch emails
+:param instance_type    A string determining the type of Reddit instance
+:desc Scans the Reddit instance, then iterates through all the matches of either Emails and Phone Numbers
+'''
 
 
 def scan_text(text, domains, email_pattern, phone_pattern, instance_type):
@@ -37,13 +54,18 @@ def scan_text(text, domains, email_pattern, phone_pattern, instance_type):
 	if email_regex:
 		for match in range(0, len(email_regex)):
 			if email_regex[match] in domains:
-				print_match_text(email_regex[match], text.author.name)
+				print_match_text(email_regex[match], text)
 				report(text)
 	elif phone_regex:
 		for match in range(0, len(phone_regex)):
 			print_match_text(phone_regex[match], text)
 			report(text)
-	return
+
+
+''' print_match_text(pi, text)
+:param pi   The Personal Information (PI) skimmed from a Reddit instance
+:param text The Reddit instance - used for getting the author name
+'''
 
 
 def print_match_text(pi, text):
@@ -51,15 +73,25 @@ def print_match_text(pi, text):
 	print("Phone / E-Mail: " + pi)
 	if text.author:
 		print("Author: " + text.author.name)
-	return
 
 
+# Make redundant
 def add_id_to_blacklist(cid):
 
 	blacklist = open(blacklist_file, "a")
 	blacklist.write(cid + "\n")
 	blacklist.close()
-	return
+
+
+''' scan_id(reddit_instance, blacklist, email_domains, email_pattern, phone_pattern)
+:param reddit_instance  A Comment or Submission instance
+:param blacklist        The stripped blacklist
+:param email_domains    A list of email domains to filter against
+:param email_pattern    The regex pattern used to catch email addresses
+:param phone_pattern    The regex pattern used to catch phone numbers
+:desc   Checks if the Reddit instance is a comment or submission, then scans the instance for emails for phone numbers
+		The instance ID is added to the blacklist file and list.
+'''
 
 
 def scan_id(reddit_instance, blacklist, email_domains, email_pattern, phone_pattern):
@@ -77,9 +109,16 @@ def scan_id(reddit_instance, blacklist, email_domains, email_pattern, phone_patt
 		print("\nFound! Oh...I've already found " + instance_type + " " + reddit_instance.id + ", skipping...")
 
 
-def skim(reddit):
+''' skim(reddit, subreddit)
+:param reddit       The bot, that is currently connected to Reddit
+:param subreddit    A string designating the target subreddit.
+:desc               Opens the blacklist file then loads the IDs into a list, then scans comments and submissions
+'''
 
-	subreddit = reddit.subreddit('Readet')  # Placeholder, production will be set to 'all'
+
+def skim(reddit, subreddit):
+
+	subreddit = reddit.subreddit(subreddit)  # Placeholder, production will be set to 'all'
 	email_domains = ['@gmail.com', '@hotmail.com', '@live.ca', '@yahoo.com', '@yahoo.ca', '@aol.com', '@outlook.com']
 	email_pattern = r"(\b(\w+(@\w+.[a-z]{0,3})))"
 	phone_pattern = r"(?<!\w)[1 ]?[- ]?(?!800)\(?\d{3}\)?\s?[- ]?\d{3}[- ]?\d{4}(?!\d+?)"
@@ -95,9 +134,9 @@ def skim(reddit):
 
 def main():
 	reddit = bot_login()
-	skim(reddit)
+	skim(reddit, "Readet")
 
 
-# End main
+# Added for better accessibility at command line
 if __name__ == '__main__':
 	main()
