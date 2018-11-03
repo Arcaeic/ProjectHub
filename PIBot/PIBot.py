@@ -1,9 +1,13 @@
 import re
 import praw
+import os.path
 
+def create_local_cache(filename):
+	if os.path.isfile(filename):
+		return open(filename, "r+")
+	else:
+		return open(filename, "w+")
 
-# Global Config
-blacklist_file = "comment_blacklist.txt"
 
 
 ''' bot_login()
@@ -117,13 +121,14 @@ def skim(reddit, subreddit):
 	email_pattern = r"(\b(\w+(@\w+.[a-z]{0,3})))"
 	phone_pattern = r"(?<!\w)[1 ]?[- ]?(?!800)\(?\d{3}\)?\s?[- ]?\d{3}[- ]?\d{4}(?!\d+?)"
 
-	comment_blacklist = open(blacklist_file, "a+")
+	comment_blacklist = create_local_cache("id_blacklist.txt")
 	blacklist = [x.strip() for x in comment_blacklist.readlines()]
 
-	for comment in subreddit.stream.comments():  # Look at each new comment as they are submitted
+	for comment in subreddit.stream.comments():  # Look at each new comment as they are submitted, infinite
 		scan_id(comment, comment_blacklist, blacklist, email_domains, email_pattern, phone_pattern)
 		scan_id(comment.submission, comment_blacklist, blacklist, email_domains, email_pattern, phone_pattern)
 
+	comment_blacklist.close()
 
 def main():
 	reddit = bot_login()
