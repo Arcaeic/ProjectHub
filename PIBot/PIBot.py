@@ -1,6 +1,7 @@
 import re
 import praw
 
+
 # Global Config
 blacklist_file = "comment_blacklist.txt"
 
@@ -75,16 +76,9 @@ def print_match_text(pi, text):
 		print("Author: " + text.author.name)
 
 
-# Make redundant
-def add_id_to_blacklist(cid):
-
-	blacklist = open(blacklist_file, "a")
-	blacklist.write(cid + "\n")
-	blacklist.close()
-
-
-''' scan_id(reddit_instance, blacklist, email_domains, email_pattern, phone_pattern)
+''' scan_id(reddit_instance, local_cache, blacklist, email_domains, email_pattern, phone_pattern)
 :param reddit_instance  A Comment or Submission instance
+:param local_cache      The file containing already traversed instance IDs
 :param blacklist        The stripped blacklist
 :param email_domains    A list of email domains to filter against
 :param email_pattern    The regex pattern used to catch email addresses
@@ -94,7 +88,7 @@ def add_id_to_blacklist(cid):
 '''
 
 
-def scan_id(reddit_instance, blacklist, email_domains, email_pattern, phone_pattern):
+def scan_id(reddit_instance, local_cache, blacklist, email_domains, email_pattern, phone_pattern):
 
 	if isinstance(reddit_instance, praw.reddit.models.Comment):
 		instance_type = "comment"
@@ -103,7 +97,7 @@ def scan_id(reddit_instance, blacklist, email_domains, email_pattern, phone_patt
 
 	if reddit_instance.id not in blacklist:
 		scan_text(reddit_instance, email_domains, email_pattern, phone_pattern, instance_type)
-		add_id_to_blacklist(reddit_instance.id)
+		local_cache.write(reddit_instance.id + "\n")
 		blacklist.append(reddit_instance.id)
 	else:
 		print("\nFound! Oh...I've already found " + instance_type + " " + reddit_instance.id + ", skipping...")
@@ -123,13 +117,12 @@ def skim(reddit, subreddit):
 	email_pattern = r"(\b(\w+(@\w+.[a-z]{0,3})))"
 	phone_pattern = r"(?<!\w)[1 ]?[- ]?(?!800)\(?\d{3}\)?\s?[- ]?\d{3}[- ]?\d{4}(?!\d+?)"
 
-	comment_blacklist = open(blacklist_file, "r")
+	comment_blacklist = open(blacklist_file, "a+")
 	blacklist = [x.strip() for x in comment_blacklist.readlines()]
-	comment_blacklist.close()
 
 	for comment in subreddit.stream.comments():  # Look at each new comment as they are submitted
-		scan_id(comment, blacklist, email_domains, email_pattern, phone_pattern)
-		scan_id(comment.submission, blacklist, email_domains, email_pattern, phone_pattern)
+		scan_id(comment, comment_blacklist, blacklist, email_domains, email_pattern, phone_pattern)
+		scan_id(comment.submission, comment_blacklist, blacklist, email_domains, email_pattern, phone_pattern)
 
 
 def main():
