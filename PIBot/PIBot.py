@@ -12,20 +12,19 @@ def bot_login():
 
 
 def report(comment):
-	return comment     # Placeholder
+	return comment     # TODO
 
 
-def scan_text(text, domains, email_pattern, phone_pattern):
+def scan_text(text, domains, email_pattern, phone_pattern, instance_type):
 
 	email_regex = ""
 	phone_regex = ""
 
 	# Check if object is a Comment or Submission
-	if isinstance(text, praw.reddit.models.Comment):
+	if instance_type is "comment":
 		email_regex = re.findall(email_pattern, text.body)
 		phone_regex = re.findall(phone_pattern, text.body)
-	elif isinstance(text, praw.reddit.models.Submission):
-
+	elif instance_type is "submission":
 		# Check if Submission is a self-post or link
 		if text.selftext:
 			email_regex = re.findall(email_pattern, text.selftext)
@@ -55,13 +54,28 @@ def print_match_text(pi, text):
 	return
 
 
-def add_comment_to_blacklist(cid):
+def add_id_to_blacklist(cid):
 
 	blacklist = open(blacklist_file, "a")
 	blacklist.write(cid + "\n")
 	blacklist.close()
-
 	return
+
+
+def scan_id(reddit_instance, blacklist, email_domains, email_pattern, phone_pattern):
+
+	instance_type = ""
+	if isinstance(reddit_instance, praw.reddit.models.Comment):
+		instance_type = "comment"
+	else:
+		instance_type = "submission"
+
+	if reddit_instance.id not in blacklist:
+		scan_text(reddit_instance, email_domains, email_pattern, phone_pattern, instance_type)
+		add_id_to_blacklist(reddit_instance.id)
+		blacklist.append(reddit_instance.id)
+	else:
+		print("\nFound! Oh...I've already found " + instance_type + " " + reddit_instance.id + ", skipping...")
 
 
 def skim(reddit):
@@ -72,23 +86,12 @@ def skim(reddit):
 	phone_pattern = r"(?<!\w)[1 ]?[- ]?(?!800)\(?\d{3}\)?\s?[- ]?\d{3}[- ]?\d{4}(?!\d+?)"
 
 	comment_blacklist = open(blacklist_file, "r")
-	stripped_blacklist = [x.strip() for x in comment_blacklist.readlines()]
+	blacklist = [x.strip() for x in comment_blacklist.readlines()]
 	comment_blacklist.close()
 
 	for comment in subreddit.stream.comments():  # Look at each new comment as they are submitted
-		if comment.id not in stripped_blacklist:  # Check if comment has already been visited.
-			scan_text(comment, email_domains, email_pattern, phone_pattern)
-			add_comment_to_blacklist(comment.id)
-			stripped_blacklist.append(comment.id)
-		else:
-			print("\nFound! Oh...I've already found comment " + comment.id + ", skipping...")
-
-		if comment.submission.id not in stripped_blacklist:
-			scan_text(comment.submission, email_domains, email_pattern, phone_pattern)
-			add_comment_to_blacklist(comment.submission.id)
-			stripped_blacklist.append(comment.submission.id)
-		else:
-			print("\nFound! Oh...I've already found submission " + comment.submission.id + ", skipping...")
+		scan_id(comment, blacklist, email_domains, email_pattern, phone_pattern)
+		scan_id(comment.submission, blacklist, email_domains, email_pattern, phone_pattern)
 
 
 def main():
