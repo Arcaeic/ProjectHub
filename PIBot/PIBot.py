@@ -64,7 +64,6 @@ def add_id_to_blacklist(cid):
 
 def scan_id(reddit_instance, blacklist, email_domains, email_pattern, phone_pattern):
 
-	instance_type = ""
 	if isinstance(reddit_instance, praw.reddit.models.Comment):
 		instance_type = "comment"
 	else:
