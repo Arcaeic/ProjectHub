@@ -45,11 +45,9 @@ the number is blacklisted from being detected. Use a link to help human.
 
 
 ##Todo
-0. Add documentation for each function. 
-    * Will cut down on in-line comments.
 1. Finish Report
     * Check subreddit blacklist before reporting
-    * Find a moderator of the current subreddit
+    * Find a moderator of the current subreddit: Subreddit.message(subject, message)
     * Prepare a template, then have the bot send a message to the moderator (with footer)
     * Filter match in local file to prevent spam
 2. Finish Opt-Out / Subreddit Blacklist
