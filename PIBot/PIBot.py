@@ -9,7 +9,6 @@ def create_local_cache(filename):
 		return open(filename, "w+")
 
 
-
 ''' bot_login()
 :desc       Refers to praw.ini and logs into the designated account.
 :returns    An instance of reddit
@@ -129,6 +128,7 @@ def skim(reddit, subreddit):
 		scan_id(comment.submission, comment_blacklist, blacklist, email_domains, email_pattern, phone_pattern)
 
 	comment_blacklist.close()
+
 
 def main():
 	reddit = bot_login()
