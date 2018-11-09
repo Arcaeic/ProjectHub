@@ -19,7 +19,6 @@ import java.util.Arrays;
 //Do not change the name of the ShortestPath class
 public class ShortestPath{
 
-    //TODO: Your code here   
     public static int numVerts;
     public static int[] distance;	//Contains distance of each vertex from source.
     public static int[] root;		//Contains the "parent" of each path's vertices. (Think union find)
