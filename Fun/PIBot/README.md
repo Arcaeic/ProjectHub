@@ -7,7 +7,7 @@ In order to find emails and phone numbers, this program uses [Regular Expression
 to identify certain formats of phone numbers and popular email domains. As a result, the bot can detect 
 multiple national phone number formats (albiet not all).
 
-##Features
+## Features
 * (__Done__) Detect Emails using popular domains (gmail, hotmail, aol, yahoo, etc)
 	* (__Done__)Make sure it doesnt detect private email domains
 	* (__Done__) Match, then check if the domain list contains the domain of the email
@@ -23,7 +23,7 @@ multiple national phone number formats (albiet not all).
     * Filter to prevent repeat reports (store matches in local file)
     * Finds a moderator to report to
 	
-##Suggestions
+## Suggestions
 * (__Development__) Look for other popular email domains
     * Move email domains to a config file, load into list
 * (__TBA__) Only report phone number or email address once
@@ -35,7 +35,7 @@ then when script is executed, read in existing comment.id
 * (__Deprecated__) Iff someone PMs the bot with a certain format followed by an email or number, 
 the number is blacklisted from being detected. Use a link to help human.
 
-####Preventing PIBot from being banned Reddit-wide
+#### Preventing PIBot from being banned Reddit-wide
 * (__TBA__) Give mods the ability to blacklist the bot from their subreddits
 * (__TBA__) Make sure PIBot only comments when asked, if at all.
 	* (__Done__) No comments! Interacts with mods via report msg / modmail.
@@ -44,7 +44,7 @@ the number is blacklisted from being detected. Use a link to help human.
 	information has been compromised.
 
 
-##Todo
+## Todo
 1. Finish Report
     * Check subreddit blacklist before reporting
     * Find a moderator of the current subreddit: Subreddit.message(subject, message)
