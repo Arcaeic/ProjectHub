@@ -2,6 +2,7 @@ import re
 import praw
 import os.path
 
+
 def create_local_cache(filename):
 	if os.path.isfile(filename):
 		return open(filename, "r+")
@@ -40,6 +41,7 @@ def scan_text(text, domains, email_pattern, phone_pattern, instance_type):
 
 	email_regex = ""
 	phone_regex = ""
+	match_found = 0
 
 	# Check if object is a Comment or Submission
 	if instance_type is "comment":
@@ -57,14 +59,19 @@ def scan_text(text, domains, email_pattern, phone_pattern, instance_type):
 	# Check for pattern-matching
 	if email_regex:
 		for match in range(0, len(email_regex)):
-			if email_regex[match] in domains:
-				print_match_text(email_regex[match], text)
+			length_match_list = len(email_regex[match])
+			if email_regex[match][length_match_list - 1] in domains:
+				print_match_text(email_regex[match][0], text)
 				report(text)
+				match_found = 1
+
 	elif phone_regex:
 		for match in range(0, len(phone_regex)):
 			print_match_text(phone_regex[match], text)
 			report(text)
+			match_found = 1
 
+	return text.id if match_found is 1 else None
 
 ''' print_match_text(pi, text)
 :param pi   The Personal Information (PI) skimmed from a Reddit instance
@@ -130,11 +137,7 @@ def skim(reddit, subreddit):
 	comment_blacklist.close()
 
 
-def main():
-	reddit = bot_login()
-	skim(reddit, "Readet")
-
-
 # Added for better accessibility at command line
 if __name__ == '__main__':
-	main()
+	reddit = bot_login()
+	skim(reddit, "Readet")
