@@ -10,9 +10,8 @@ Also: Connect to GitHub CI/CD.
 '''
 
 
-from PIBot import PIBot
+from Fun.PIBot import PIBot
 import unittest
-import praw
 from os import remove
 
 
