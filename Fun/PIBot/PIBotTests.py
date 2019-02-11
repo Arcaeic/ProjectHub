@@ -32,11 +32,11 @@ class TestMatching(unittest.TestCase):
 
 	def setUp(self):
 		self.reddit = PIBot.bot_login()
+		self.local_cache = PIBot.create_local_cache("id_blacklist.txt")
+		self.blacklist = [x.strip() for x in self.local_cache.readlines()]
 		self.email_domains = ['@gmail.com', '@hotmail.com', '@live.ca', '@yahoo.com', '@yahoo.ca', '@aol.com', '@outlook.com']
 		self.email_pattern = r"(\b(\w+(@\w+.[a-z]{0,3})))"
 		self.phone_pattern = r"(?<!\w)[1 ]?[- ]?(?!800)\(?\d{3}\)?\s?[- ]?\d{3}[- ]?\d{3,4}(?!\d+?)"
-		self.comment_blacklist = PIBot.create_local_cache("id_blacklist.txt")
-		self.blacklist = [x.strip() for x in self.comment_blacklist.readlines()]
 
 	def tearDown(self):
 		os.remove("id_blacklist.txt")
