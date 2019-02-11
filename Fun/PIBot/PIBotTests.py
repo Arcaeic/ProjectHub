@@ -42,34 +42,56 @@ class TestMatching(unittest.TestCase):
 		os.remove("id_blacklist.txt")
 
 	def test_phone_match(self):
-		test_comment = self.reddit.comment(id='e8wh8wk')
-		results = PIBot.scan_text(test_comment, self.email_domains, self.email_pattern, self.phone_pattern, "comment")
-		self.assertIsNotNone(results)
-		self.assertEqual(test_comment.id, results)
+		self.helper_scan_text(self.reddit, "comment", "e8wh8wk")
 
 	def test_email_match_match(self):
-		test_comment = self.reddit.comment(id='eg5hbcc')
-		results = PIBot.scan_text(test_comment, self.email_domains, self.email_pattern, self.phone_pattern, "comment")
-		self.assertIsNotNone(results)
-		self.assertEqual(test_comment.id, results)
+		self.helper_scan_text(self.reddit, "comment", "eg5hbcc")
 
-	def test_submission_multiple_match(self):
-		test_submission = self.reddit.submission(id='9thiao')
-		results = PIBot.scan_text(test_submission, self.email_domains, self.email_pattern, self.phone_pattern, "submission")
-		self.assertIsNotNone(results)
-		self.assertEqual(results.id, test_submission.id)
+	def test_submission_title_phone(self):
+		self.helper_scan_text(self.reddit, "submission", "9ti3g8")
+
+	def test_submission_title_email(self):
+		self.helper_scan_text(self.reddit, "submission", "apd4wu")
+
+	def test_submission_multiple_phone_match(self):
+		self.helper_scan_text(self.reddit, "submission", "9thiao")
 
 	def test_comment_multiple_match(self):
-		test_comment = self.reddit.comment(id='e8wcwlq')
-		results = PIBot.scan_text(test_comment, self.email_domains, self.email_pattern, self.phone_pattern, "comment")
-		self.assertIsNotNone(results)
-		self.assertEqual(results.id, test_comment.id)
+		self.helper_scan_text(self.reddit, "comment", "e8wcwlq")
 
-	def test_submission_title_match(self):
-		test_submission = self.reddit.submission(id='9ti3g8')
-		results = PIBot.scan_text(test_submission, self.email_domains, self.email_pattern, self.phone_pattern, "submission")
+	def test_blacklist_no_duplicates_comment(self):
+		self.helper_test_blacklist(self.local_cache, self.reddit.comment("e8wcwlq"))
+
+	def test_blacklist_no_duplicates_comment_multi(self):
+		self.helper_test_blacklist(self.local_cache, self.reddit.comment("eg7kdbg"))
+
+	def test_blacklist_no_duplicates_submission(self):
+		self.helper_test_blacklist(self.local_cache, self.reddit.submission("9thiao"))
+
+	def helper_test_blacklist(self, file, reddit_object):
+
+		PIBot.scan_id(reddit_object, file, self.blacklist, self.email_domains, self.email_pattern, self.phone_pattern)
+		PIBot.scan_id(reddit_object, file, self.blacklist, self.email_domains, self.email_pattern, self.phone_pattern)
+		PIBot.scan_id(reddit_object, file, self.blacklist, self.email_domains, self.email_pattern, self.phone_pattern)
+
+		file.close()
+		data = open("id_blacklist.txt", "r+").read()
+		self.assertEqual(1, data.count(reddit_object.id))
+
+	def helper_scan_text(self, reddit, instance_type, object_id):
+		test_object = ""
+		if instance_type is "submission":
+			test_object = reddit.submission(id=object_id)
+		elif instance_type is "comment":
+			test_object = reddit.comment(id=object_id)
+
+		results = PIBot.scan_text(test_object, self.email_domains, self.email_pattern, self.phone_pattern, instance_type)
+
 		self.assertIsNotNone(results)
-		self.assertEqual(test_submission.id, results)
+		if isinstance(results, str):
+			self.assertEqual(test_object.id, results)
+		else:
+			self.assertEqual(test_object.id, results.id)
 
 
 if __name__ == '__main__':
