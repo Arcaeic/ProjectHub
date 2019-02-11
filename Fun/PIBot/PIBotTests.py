@@ -1,8 +1,5 @@
 '''
 TODO: Here's a list of unit tests to create in order to prevent regression (use test subreddit):
-3. Can add information into a (test) log file
-4. Can add comment IDs into a (test) local cache
-5. Can log into the bot.
 6. Find a phone/email in a title, self, and comment
 7. Check id_blacklist.txt for duplicates
 Also: Connect to GitHub CI/CD.
@@ -12,9 +9,10 @@ Also: Connect to GitHub CI/CD.
 from Fun.PIBot import PIBot
 import unittest
 import os
-
+import praw
 
 class TestMatching(unittest.TestCase):
+
 
 	def setUp(self):
 		self.reddit = PIBot.bot_login()
@@ -26,6 +24,10 @@ class TestMatching(unittest.TestCase):
 
 	def tearDown(self):
 		os.remove("id_blacklist.txt")
+
+	def test_login(self):
+		self.assertIsNotNone(self.reddit)
+		self.assertEqual(self.reddit.user.me(), praw.reddit.Reddit.redditor(self.reddit, name='PrivacyRobit'))
 
 	def test_phone_match(self):
 		test_comment = self.reddit.comment(id='e8wh8wk')
