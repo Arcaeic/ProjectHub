@@ -11,7 +11,7 @@ Also: Connect to GitHub CI/CD.
 
 from Fun.PIBot import PIBot
 import unittest
-from os import remove
+import os
 
 
 class TestMatching(unittest.TestCase):
@@ -25,7 +25,7 @@ class TestMatching(unittest.TestCase):
 		self.blacklist = [x.strip() for x in self.comment_blacklist.readlines()]
 
 	def tearDown(self):
-		remove("id_blacklist.txt")
+		os.remove("id_blacklist.txt")
 
 	def test_phone_match(self):
 		test_comment = self.reddit.comment(id='e8wh8wk')
@@ -50,6 +50,9 @@ class TestMatching(unittest.TestCase):
 		results = PIBot.scan_text(test_comment, self.email_domains, self.email_pattern, self.phone_pattern, "comment")
 		self.assertIsNotNone(results)
 		self.assertEqual(results.id, test_comment.id)
+
+	def test_writeable_cache(self):
+		self.assertTrue(os.access("id_blacklist.txt", os.W_OK))
 
 if __name__ == '__main__':
 	unittest.main()
