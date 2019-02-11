@@ -1,7 +1,5 @@
 '''
 TODO: Here's a list of unit tests to create in order to prevent regression (use test subreddit):
-6. Find a phone/email in a title, self, and comment
-7. Check id_blacklist.txt for duplicates
 Also: Connect to GitHub CI/CD.
 '''
 
@@ -11,8 +9,26 @@ import unittest
 import os
 import praw
 
-class TestMatching(unittest.TestCase):
 
+class TestRedditAndOS(unittest.TestCase):
+
+	def setUp(self):
+		self.reddit = PIBot.bot_login()
+
+	def test_login(self):
+		self.assertIsNotNone(self.reddit)
+		self.assertEqual(self.reddit.user.me(), praw.reddit.Reddit.redditor(self.reddit, name='PrivacyRobit'))
+
+	def test_writeable_cache(self):
+		self.assertTrue(os.access("./", os.R_OK))
+		self.assertTrue(os.access("./", os.W_OK))
+
+		self.comment_blacklist = PIBot.create_local_cache("id_blacklist.txt")
+		self.assertTrue(os.access("id_blacklist.txt", os.W_OK))
+		os.remove("id_blacklist.txt")
+
+
+class TestMatching(unittest.TestCase):
 
 	def setUp(self):
 		self.reddit = PIBot.bot_login()
@@ -24,10 +40,6 @@ class TestMatching(unittest.TestCase):
 
 	def tearDown(self):
 		os.remove("id_blacklist.txt")
-
-	def test_login(self):
-		self.assertIsNotNone(self.reddit)
-		self.assertEqual(self.reddit.user.me(), praw.reddit.Reddit.redditor(self.reddit, name='PrivacyRobit'))
 
 	def test_phone_match(self):
 		test_comment = self.reddit.comment(id='e8wh8wk')
@@ -59,9 +71,6 @@ class TestMatching(unittest.TestCase):
 		self.assertIsNotNone(results)
 		self.assertEqual(test_submission.id, results)
 
-
-	def test_writeable_cache(self):
-		self.assertTrue(os.access("id_blacklist.txt", os.W_OK))
 
 if __name__ == '__main__':
 	unittest.main()
