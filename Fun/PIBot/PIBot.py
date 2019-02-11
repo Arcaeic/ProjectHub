@@ -34,6 +34,7 @@ def report(comment):
 :param phone_pattern    The regular expression pattern used to catch emails
 :param instance_type    A string determining the type of Reddit instance
 :desc Scans the Reddit instance, then iterates through all the matches of either Emails and Phone Numbers
+:return Returns the id of the comment if a match is found, returns the reddit object if more than 1, else None
 '''
 
 
@@ -63,15 +64,17 @@ def scan_text(text, domains, email_pattern, phone_pattern, instance_type):
 			if email_regex[match][length_match_list - 1] in domains:
 				print_match_text(email_regex[match][0], text)
 				report(text)
-				match_found = 1
+				match_found += 1
 
 	elif phone_regex:
 		for match in range(0, len(phone_regex)):
 			print_match_text(phone_regex[match], text)
 			report(text)
-			match_found = 1
+			match_found += 1
 
-	return text.id if match_found is 1 else None
+	if match_found >= 1:
+		return text.id if match_found is 1 else text
+	return None
 
 ''' print_match_text(pi, text)
 :param pi   The Personal Information (PI) skimmed from a Reddit instance
