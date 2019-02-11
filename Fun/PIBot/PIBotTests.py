@@ -35,23 +35,30 @@ class TestMatching(unittest.TestCase):
 		self.assertIsNotNone(results)
 		self.assertEqual(test_comment.id, results)
 
-	def test_email_match(self):
+	def test_email_match_match(self):
 		test_comment = self.reddit.comment(id='eg5hbcc')
 		results = PIBot.scan_text(test_comment, self.email_domains, self.email_pattern, self.phone_pattern, "comment")
 		self.assertIsNotNone(results)
 		self.assertEqual(test_comment.id, results)
 
-	def test_submission_multiple(self):
+	def test_submission_multiple_match(self):
 		test_submission = self.reddit.submission(id='9thiao')
 		results = PIBot.scan_text(test_submission, self.email_domains, self.email_pattern, self.phone_pattern, "submission")
 		self.assertIsNotNone(results)
 		self.assertEqual(results.id, test_submission.id)
 
-	def test_comment_multiple(self):
+	def test_comment_multiple_match(self):
 		test_comment = self.reddit.comment(id='e8wcwlq')
 		results = PIBot.scan_text(test_comment, self.email_domains, self.email_pattern, self.phone_pattern, "comment")
 		self.assertIsNotNone(results)
 		self.assertEqual(results.id, test_comment.id)
+
+	def test_submission_title_match(self):
+		test_submission = self.reddit.submission(id='9ti3g8')
+		results = PIBot.scan_text(test_submission, self.email_domains, self.email_pattern, self.phone_pattern, "submission")
+		self.assertIsNotNone(results)
+		self.assertEqual(test_submission.id, results)
+
 
 	def test_writeable_cache(self):
 		self.assertTrue(os.access("id_blacklist.txt", os.W_OK))
