@@ -5,7 +5,7 @@ I am currently working cleaning up and polishing an instant messaging applicatio
     * Establishes a connection between a server/client and allows the two parties to communicate. Options for providing confidentiality (symmetric key encryption), integrity (via Message Authentication Codes), and mutual authentication are included.
     * The included technical manual includes instructions for building/compiling, as well as running the server and client.
     * Created by Jory Anderson, Tim Salomonsson, and Purvika Dutt
- * [PIBot](/Fun/PIBot/): 
+ * [PIBot](https://github.com/JoryAnderson/PIBot): 
 	* Searches for Personal Information (PI) and reports distrbution to the Reddit mods/admins. Distributing personal information without the person's consent is against Reddit's Terms of Use. I made this bot primarily to practice writing an application in Python, but also because I wanted to write something that could help others.
 
 ## University-Related
