@@ -1,0 +1,26 @@
+#IncludeRegexLine: ^[ 	]*[#%][ 	]*(include|import)[ 	]*[<"]([^">]+)([">])
+
+#IncludeRegexScan: ^.*$
+
+#IncludeRegexComplain: ^$
+
+#IncludeRegexTransform: 
+
+/home/arcaeic/Repos/Local/CSC360A2/main.cpp
+iostream
+-
+vector
+-
+cstring
+-
+algorithm
+-
+thread
+-
+mutex
+-
+condition_variable
+-
+unistd.h
+-
+

@@ -1,0 +1,4 @@
+/home/arcaeic/Documents/CLion/bin/cmake/bin/cmake -DCMAKE_BUILD_TYPE=Debug -G "CodeBlocks - Unix Makefiles" /home/arcaeic/Repos/Local/CSC360A2
+-- Configuring done
+-- Generating done
+-- Build files have been written to: /home/arcaeic/Repos/Local/CSC360A2/cmake-build-debug

@@ -1,0 +1,1 @@
+/usr/bin/c++  -pthread -g   CMakeFiles/CSC360A2.dir/main.cpp.o  -o CSC360A2 

@@ -1,0 +1,3 @@
+/home/arcaeic/Repos/Local/CSC360A2/cmake-build-debug/CMakeFiles/edit_cache.dir
+/home/arcaeic/Repos/Local/CSC360A2/cmake-build-debug/CMakeFiles/rebuild_cache.dir
+/home/arcaeic/Repos/Local/CSC360A2/cmake-build-debug/CMakeFiles/CSC360A2.dir
