@@ -1,0 +1,87 @@
+---
+title: "Untitled"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(readxl)
+data <- read.csv("stat123_regression.csv")
+```
+
+```{r Summary}
+# Median burden index is 69.50, indicating the spread of elderly is fairly large
+summary(data$KBI)
+# A closer looks reveals that the majority of the elderly require some assistance, while fewer require either none or a lot of assistance.
+hist(data$KBI)
+sd(data$KBI)
+
+# Again, activities daily shows a large variability between older adults.
+boxplot(data$ADL)
+# The majority of older adults with dimentia require assistance doing their daily activities, while another large portion of the sample requires less.
+hist(data$ADL)
+
+# Most older adults have little behavioural or memory problems, since the median is in the lower half of the range, and the range of 50% of data above and below the median is small.
+# Some outliers exist as well, there are a few individuals who have severe memory/behavioural issues.
+boxplot(data$MEM)
+# We can see the data is skewed to the right, and is unimodal. 
+hist(data$MEM)
+
+# While no range of possible scores is given, every sampled receieved a very low score in terms of cognitive impairment. This measure has the least variance, since the entire range of scores is between 0 and 25.
+boxplot(data$COG)
+# The majority scored between 10 and 20, while a large portion received from a score of below 5.
+hist(data$COG)
+```
+
+
+```{r ADL Boxplot}
+# There appears to be no outliers within the ADL observations.
+boxplot(data$ADL, outline = TRUE)
+```
+
+``` {r Scatterplots}
+# Assuming "Y" is mean to mean KBI
+
+# Yes, as KBI will naturally correlate to each of the explanatory variables in a certain way. For example, ADL and COG will decrease as KBI increases, and MEM will increase as KBI increases
+plot(data$KBI, data$ADL)
+plot(data$KBI, data$MEM)
+plot(data$KBI, data$COG)
+
+#For the size of the sample, all but ADL vs. COG return moderately weak correlations. ADL and COG are negatively associated, therefore the more an older adult can function independantly, the less cognitive impairment they experience.  
+cor(data$ADL, data$COG)
+cor(data$MEM, data$ADL)
+cor(data$COG, data$MEM)
+cor(data$MEM, data$ADL)
+```
+
+``` {r Linear Models}
+# a. y = 31.4121 + 0.3818x
+# b. Those with a higher KBI will most likely have a higher ADL, therefore the intercept will be much higher, and the slope is positive
+# c. An r-squared of 0.1443208 means only an approximate 14.5% of observations can be explained by the straight-line tie between the two variables. We would expect those with high KBI to have large ADL, which would mean a larger R-squared, therefore we can say that ADL isn't a great predictor for high KBI.
+plot(data$KBI, data$ADL)
+abline(lm(data$ADL ~ data$KBI))
+cor(data$KBI, data$ADL)^2
+
+# a. y = -0.2078 + 0.3828x
+# b. Has negative intercept due to relationship between the two variables. KBI increases as MEM increases, creating a steeper positive slope.
+# c. Has an r-squared of 25.2%, which is the highest r-squared we find. Therefore a quarter of the observations can be explained by the linear model. We can say that a high MEM score is a good predictor for a high KBI score.
+plot(data$KBI, data$MEM)
+abline(lm(data$MEM ~ data$KBI))
+cor(data$KBI, data$MEM)^2
+
+# a. y= 21.0482 - 0.1063x
+# b. Those with a higher KBI will tend to have a lower cognitive score, which means the slope will be negative (negative correlation).
+# c. KBI vs COG received the lowest R-Squared score, which is 7.6%. This could mean those with lower COG scores could still receive both high and low KBI scores, and therefore KBI scores should not be used as a predictor for COG scores.
+plot(data$KBI, data$COG)
+abline(lm(data$COG ~ data$KBI))
+cor(data$KBI, data$COG)^2
+
+#d. y = intercept + slope(x)
+#     intercept: Where the line crosses the y-axis. In our case this would show us what the patient's X score would be if KBI was zero.
+#     slope: The magnitude at which an explanatory variable increases or decreases when the KBI increases by a single unit. 
+#     X: The dependant variable (KBI)
+#     Y: The independant variable (COG/MEM/ABL)
+
+
+```
+

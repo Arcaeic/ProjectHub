@@ -18,6 +18,7 @@ I am currently working cleaning up and polishing an instant messaging applicatio
 * [CSC 350: Computer Architecture](/Assignments/CSC%20350) (Assembly/Supercomputers/Parallelism)
 	* [Project: IBM Summit - A Comparative Analysis](/Assignments/CSC%20350/P2/Report.pdf) 
 * [SENG 265: Software Development Methods](/Assignments/SENG%20265) (Python/C)
+* [STAT 123: Data Science](/Assignments/STAT%20123) (R)
 ### [Notebook](/Notebook/)
 * [CSC 230: Introduction to Computer Architecture](/Notebook/CSC%20230/)
 	* [Course Outline](https://heat.csc.uvic.ca/coview/outline/2017/Spring/CSC/230)
