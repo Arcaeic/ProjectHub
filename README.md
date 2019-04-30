@@ -21,6 +21,8 @@ I am currently working cleaning up and polishing an instant messaging applicatio
 ### [Notebook](/Notebook/)
 * [CSC 230: Introduction to Computer Architecture](/Notebook/CSC%20230/)
 	* [Course Outline](https://heat.csc.uvic.ca/coview/outline/2017/Spring/CSC/230)
+* [CSC 350: Computer Architecture](/Notepad/CSC%20350/)
+	* [Course Outline](https://heat.csc.uvic.ca/coview/outline/2019/Spring/CSC/350)
 * [CSC 370: Database Systems](/Notebook/CSC%20370)
     * [Course Outline](http://heat.csc.uvic.ca/coview/outline/2017/Fall/CSC/370)
 * [PSYC 251: Introduction to Mind & Brain](/Notebook/PSYC%20251)
