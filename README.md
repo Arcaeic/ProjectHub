@@ -15,6 +15,8 @@ I am currently working cleaning up and polishing an instant messaging applicatio
 * [CSC 230: Introduction to Computer Architecture](/Assignments/CSC%20230) (Assembly) 
 * [CSC 370: Database Systems](/Assignments/CSC%20370) (SQL/Oracle/SQLite/Excel)
 	* [Project: Musicbrainz Data Analytics](/Assignments/CSC%20370/Project/Report.pdf)
+* [CSC 350: Computer Architecture](/Assignments/CSC%20350) (Assembly/Supercomputers/Parallelism)
+	* [Project: IBM Summit - A Comparative Analysis](/Assignments/CSC%20350/P2/Report.pdf) 
 * [SENG 265: Software Development Methods](/Assignments/SENG%20265) (Python/C)
 ### [Notebook](/Notebook/)
 * [CSC 230: Introduction to Computer Architecture](/Notebook/CSC%20230/)
