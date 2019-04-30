@@ -32,7 +32,7 @@ I am currently working cleaning up and polishing an instant messaging applicatio
 * [SENG 265: Software Development Methods](/Notebook/SENG%20265)
 	* [Course Outline](https://heat.csc.uvic.ca/coview/outline/2016/Fall/SENG/265) 
 * [SENG 360: Security Engineering](/Notebook/SENG%20360)
-    * [Course Outline](https://heat.csc.uvic.ca/coview/outline/2017/Fall/SENG/360)
+  	* [Course Outline](https://heat.csc.uvic.ca/coview/outline/2017/Fall/SENG/360)
 	
 ### [Photoshop](/Photoshop)
 * [ADSS Graphics](/Photoshop/Misc/ADSS/)
