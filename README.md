@@ -1,5 +1,7 @@
+This repository is deprecated and not likely to be maintained. My new projects will be hosted in separate repositories and publicized either through 'pinned repositories' or through my profile's README repository.
+
 ## Projects
-I am currently taking a condensed Machine Learning course, and have suspended development on some of my projects. My current project is a personal-information detecting Reddit bot. 
+I am currently taking a condensed Machine Learning course, and have suspended development on some of my projects. My current project is a personal-information detecting Reddit bot. Please see below for more information.
 
 ### Programs
  * [Crypto-IM App \(SENG360\)](https://github.com/JoryAnderson/University/tree/master/Instant%20Messenger%20App%20(SENG%20360))
