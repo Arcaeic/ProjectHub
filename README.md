@@ -1,5 +1,5 @@
 ## Projects
-I am currently working cleaning up and polishing an instant messaging application. some unstarted projects are another Reddit bot and a web scraping application. 
+I am currently taking a condensed Machine Learning course, and have suspended development on some of my projects. My current project is a personal-information detecting Reddit bot. 
 ### Programs
  * [Crypto-IM App \(SENG360\)](/Instant%20Messenger%20App%20(SENG%20360))
     * Establishes a connection between a server/client and allows the two parties to communicate. Options for providing confidentiality (symmetric key encryption), integrity (via Message Authentication Codes), and mutual authentication are included.
