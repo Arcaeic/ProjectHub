@@ -1,7 +1,8 @@
 ## Projects
 I am currently taking a condensed Machine Learning course, and have suspended development on some of my projects. My current project is a personal-information detecting Reddit bot. 
+
 ### Programs
- * [Crypto-IM App \(SENG360\)](/Instant%20Messenger%20App%20(SENG%20360))
+ * [Crypto-IM App \(SENG360\)](https://github.com/JoryAnderson/University/tree/master/Instant%20Messenger%20App%20(SENG%20360))
     * Establishes a connection between a server/client and allows the two parties to communicate. Options for providing confidentiality (symmetric key encryption), integrity (via Message Authentication Codes), and mutual authentication are included.
     * The included technical manual includes instructions for building/compiling, as well as running the server and client.
     * Created by Jory Anderson, Tim Salomonsson, and Purvika Dutt
@@ -9,36 +10,11 @@ I am currently taking a condensed Machine Learning course, and have suspended de
 	* Searches for Personal Information (PI) and reports distrbution to the Reddit mods/admins. Distributing personal information without the person's consent is against Reddit's Terms of Use. I made this bot primarily to practice writing an application in Python, but also because I wanted to write something that could help others.
 
 ## University-Related
-### [Assignments](/Assignments/)
-* [CSC 225: Algorithms & Data Structures I](/Assignments/CSC%20225/) (Java)
-* [CSC 226: Algorithms & Data Structures II](/Assignments/CSC%20226) (Java)
-* [CSC 230: Introduction to Computer Architecture](/Assignments/CSC%20230) (Assembly) 
-* [CSC 370: Database Systems](/Assignments/CSC%20370) (SQL/Oracle/SQLite/Excel)
-	* [Project: Musicbrainz Data Analytics](/Assignments/CSC%20370/Project/Report.pdf)
-* [CSC 350: Computer Architecture](/Assignments/CSC%20350) (Assembly/Supercomputers/Parallelism)
-	* [Project: IBM Summit - A Comparative Analysis](/Assignments/CSC%20350/P2/Report.pdf) 
-* [SENG 265: Software Development Methods](/Assignments/SENG%20265) (Python/C)
-* [STAT 123: Data Science](/Assignments/STAT%20123) (R)
-### [Notebook](/Notebook/)
-* [CSC 230: Introduction to Computer Architecture](/Notebook/CSC%20230/)
-	* [Course Outline](https://heat.csc.uvic.ca/coview/outline/2017/Spring/CSC/230)
-* [CSC 350: Computer Architecture](/Notebook/CSC%20350/)
-	* [Course Outline](https://heat.csc.uvic.ca/coview/outline/2019/Spring/CSC/350)
-* [CSC 360: Operating Systems](/Notebook/CSC%20360/)
-	* [Course Outline](https://heat.csc.uvic.ca/coview/outline/2018/Spring/CSC/360)
-* [CSC 370: Database Systems](/Notebook/CSC%20370)
-    * [Course Outline](http://heat.csc.uvic.ca/coview/outline/2017/Fall/CSC/370)
-* [PSYC 251: Introduction to Mind & Brain](/Notebook/PSYC%20251)
-	* [Course Outline](/Notebook/Psyc251/PSYC251-CourseOutline-Revised.pdf)
-* [PSYC 260: Introduction to Mental Health & Well-Being](/Notebook/PSYC%20260)
-	* [Course Outline](/Notebook/Psyc260/260A01CourseOutlineWoodin.pdf)
-* [PSYC 345A: Drugs and Behaviour: Basic Principles](/Notebook/PSYC%20345A)
-	* [Course Outline](https://www.uvic.ca/socialsciences/psychology/assets/docs/courseoutlines/spring2018/345AA01CourseOutlineGordonSpring2018.pdf)
-* [SENG 265: Software Development Methods](/Notebook/SENG%20265)
-	* [Course Outline](https://heat.csc.uvic.ca/coview/outline/2016/Fall/SENG/265) 
-* [SENG 360: Security Engineering](/Notebook/SENG%20360)
-  	* [Course Outline](https://heat.csc.uvic.ca/coview/outline/2017/Fall/SENG/360)
-	
+Please see my new [University repository](https://github.com/JoryAnderson/University).
+
+## High-school Projects
+These projects will no longer be maintained.
+
 ### [Photoshop](/Photoshop)
 * [ADSS Graphics](/Photoshop/Misc/ADSS/)
 * [Renders](/Photoshop/Misc/Renders/)
